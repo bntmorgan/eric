@@ -1,0 +1,175 @@
+# ==== Clock input ====
+NET "clkin66" LOC = U23 | IOSTANDARD = LVCMOS25;
+NET "clkin66" TNM_NET = "GRPclkin66";
+TIMESPEC "TSclkin66" = PERIOD "GRPclkin66" 10.00 ns;
+
+#   # ==== Flash ====
+#   #NET "flash_adr(0)"  LOC = H9;
+#   #NET "flash_adr(1)"  LOC = G10;
+#   #NET "flash_adr(2)"  LOC = H21;
+#   #NET "flash_adr(3)"  LOC = G20;
+#   #NET "flash_adr(4)"  LOC = H11;
+#   #NET "flash_adr(5)"  LOC = G11;
+#   #NET "flash_adr(6)"  LOC = H19;
+#   #NET "flash_adr(7)"  LOC = H18;
+#   #NET "flash_adr(8)"  LOC = G12;
+#   #NET "flash_adr(9)"  LOC = F13;
+#   #NET "flash_adr(10)" LOC = G19;
+#   #NET "flash_adr(11)" LOC = F18;
+#   #NET "flash_adr(12)" LOC = F14;
+#   #NET "flash_adr(13)" LOC = F15;
+#   #NET "flash_adr(14)" LOC = F17;
+#   #NET "flash_adr(15)" LOC = G17;
+#   #NET "flash_adr(16)" LOC = G14;
+#   #NET "flash_adr(17)" LOC = H13;
+#   #NET "flash_adr(18)" LOC = G16;
+#   #NET "flash_adr(19)" LOC = G15;
+#   #NET "flash_adr(20)" LOC = Y18;
+#   #NET "flash_adr(21)" LOC = AA18;
+#   #NET "flash_adr(22)" LOC = Y11;
+#   #NET "flash_adr(23)" LOC = AA10;
+#   #NET "flash_adr(24)" LOC = Y10;
+#   #NET "flash_adr(25)" LOC = W11;
+#   #
+#   #NET "flash_d(0)"   LOC = AA15;
+#   #NET "flash_d(1)"   LOC = Y15;
+#   #NET "flash_d(2)"   LOC = W14;
+#   #NET "flash_d(3)"   LOC = Y13;
+#   #NET "flash_d(4)"   LOC = W16;
+#   #NET "flash_d(5)"   LOC = Y16;
+#   #NET "flash_d(6)"   LOC = AA14;
+#   #NET "flash_d(7)"   LOC = AA13;
+#   #NET "flash_d(8)"   LOC = AB12;
+#   #NET "flash_d(9)"   LOC = AC11;
+#   #NET "flash_d(10)"  LOC = AB20;
+#   #NET "flash_d(11)"  LOC = AB21;
+#   #NET "flash_d(12)"  LOC = AB11;
+#   #NET "flash_d(13)"  LOC = AB10;
+#   #NET "flash_d(14)"  LOC = AA20;
+#   #NET "flash_d(15)"  LOC = Y21;
+#   #
+#   #NET "flash_adr(*)" IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
+#   #NET "flash_d(*)"   IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 | PULLDOWN;
+#   #
+#   #NET "flash_byte_n" LOC = D14  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
+#   #NET "flash_ce_n"   LOC = Y12  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
+#   #NET "flash_oe_n"   LOC = AA12 | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
+#   #NET "flash_rst_n"  LOC = E15  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
+#   #NET "flash_rdy"    LOC = D15  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 | PULLUP ;
+#   #NET "flash_we_n"   LOC = AA17 | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
+#   #NET "flash_wp_n"   LOC = D16  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
+#   
+# ==== UART ====
+NET "uart_rx"      LOC = J24  | IOSTANDARD = LVCMOS25 | PULLUP;
+NET "uart_tx"      LOC = J25  | IOSTANDARD = LVCMOS25 | SLEW = SLOW;
+
+#   # ==== GPIO ====
+#   #NET "gpios(0)"	LOC = B12;
+#   #NET "gpios(1)"	LOC = C12;
+#   #NET "gpios(2)"	LOC = C13;
+#   #NET "gpios(3)"	LOC = C14;
+#   #NET "gpios(4)"	LOC = B15;
+#   #NET "gpios(5)"	LOC = C16;
+#   #NET "gpios(6)"	LOC = B19;
+#   #NET "gpios(7)"	LOC = C18;
+#   #NET "gpios(8)"	LOC = D24;
+#   #NET "gpios(9)"	LOC = C24;
+#   #NET "gpios(10)" LOC = B26;
+#   #NET "gpios(11)" LOC = C26;
+#   #NET "gpios(12)" LOC = F9;
+#   #NET "gpios(13)" LOC = G9;
+#   #NET "gpios(14)" LOC = D26;
+#   #NET "gpios(15)" LOC = D25;
+#   #NET "gpios(16)" LOC = C19;
+#   #NET "gpios(17)" LOC = D19;
+#   #NET "gpios(18)" LOC = B21;
+#   #NET "gpios(19)" LOC = C21;
+#   #NET "gpios(20)" LOC = D21;
+#   #NET "gpios(21)" LOC = D20;
+#   #NET "gpios(22)" LOC = B24;
+#   #NET "gpios(23)" LOC = C23;
+#   #NET "gpios(24)" LOC = A18;
+#   #NET "gpios(25)" LOC = A19;
+#   #NET "gpios(26)" LOC = A20;
+#   #NET "gpios(27)" LOC = B20;
+#   #NET "gpios(28)" LOC = B22;
+#   #NET "gpios(29)" LOC = A22;
+#   #NET "gpios(30)" LOC = B25;
+#   #NET "gpios(31)" LOC = A25;
+#   #
+#   #NET "gpios(*)"  IOSTANDARD = LVCMOS25;
+#   
+# ==== LEDs ====
+NET "leds(0)" LOC = AC22;
+NET "leds(1)" LOC = AC24;
+NET "leds(2)" LOC = AE22;
+NET "leds(3)" LOC = AE23;
+   
+NET "leds(*)" IOSTANDARD = LVCMOS25 | SLEW = SLOW | DRIVE = 2;
+
+# ==== Ethernet ====
+
+# The xc6vlx240tff1156-1 part is chosen for this example design.
+# This value should be modified to match your device.
+CONFIG PART = xc6vlx240tff1156-1;
+
+# Locate the Tri-Mode Ethernet MAC instance
+INST "*v6_emac" LOC = "TEMAC_X0Y0";
+
+# CLOCK CONSTRAINTS
+# Ethernet MAC reference clock driven by transceiver
+NET "*clk125_o" TNM_NET = "clk_gt_clk";
+TIMEGRP "v6_emac_v1_6_gt_clk" = "clk_gt_clk";
+TIMESPEC "TS_v6_emac_v1_6_gt_clk" = PERIOD "v6_emac_v1_6_gt_clk" 8 ns HIGH 50 %;
+
+# Tri-speed client clock from Ethernet MAC
+NET "*client_clk_o" TNM_NET = "clk_client";
+TIMEGRP "v6_emac_v1_6_gt_clk_client" = "clk_client";
+TIMESPEC "TS_v6_emac_v1_6_gt_clk_client" = PERIOD "v6_emac_v1_6_gt_clk_client" 8 ns HIGH 50 %;
+
+# SGMII physical interface constraints
+INST "phy_mgtclk_n" LOC = H5;
+INST "phy_mgtclk_p" LOC = H6;
+INST "phy_rx_p"     LOC = B5;
+INST "phy_rx_n"     LOC = B6;
+INST "phy_tx_p"     LOC = A3;
+INST "phy_tx_n"     LOC = A4;
+
+NET "phy_rst_n"    LOC = AH13;
+
+INST "*gtx0_v6_gtxwizard_i?gtxe1_i" LOC = "GTXE1_X0Y19";
+
+# SGMII FABRIC RX ELASTIC BUFFER TIMING CONSTRAINTS
+# Constrain the recovered clock frequency to 125 MHz
+NET "*v6_gtxwizard_top_inst?RXRECCLK" TNM_NET = "clk_rec_clk";
+TIMEGRP "v6_emac_v1_6_client_rec_clk" = "clk_rec_clk";
+TIMESPEC "TS_v6_emac_v1_6_client_rec_clk" = PERIOD "v6_emac_v1_6_client_rec_clk" 8 ns HIGH 50 %;
+
+# Control gray code delay and skew
+INST "*v6_gtxwizard_top_inst?rx_elastic_buffer_inst?rd_addr_gray_?" TNM = "rx_elastic_rd_to_wr";
+TIMESPEC "TS_rx_elastic_rd_to_wr" = FROM "rx_elastic_rd_to_wr" TO "clk_rec_clk" 7.5 ns DATAPATHONLY;
+INST "*v6_gtxwizard_top_inst?rx_elastic_buffer_inst?wr_addr_gray_?" TNM = "elastic_metastable";
+TIMESPEC "TS_elastic_meta_protect" = FROM "elastic_metastable" 5 ns DATAPATHONLY;
+
+# Distributed RAM read data path should be timed to the read clock period
+INST "*v6_gtxwizard_top_inst?rx_elastic_buffer_inst?rd_data*" TNM = "fifo_read";
+TIMESPEC "ts_ram_read_false_path" = FROM "RAMS" TO "fifo_read" 8 ns DATAPATHONLY;
+
+# Reduce clock period to allow for metastability settling time
+INST "*v6_gtxwizard_top_inst?rx_elastic_buffer_inst?rd_wr_addr_gray*" TNM = "rx_graycode";
+INST "*v6_gtxwizard_top_inst?rx_elastic_buffer_inst?rd_occupancy*"    TNM = "rx_binary";
+TIMESPEC "TS_rx_buf_meta_protect" = FROM "rx_graycode" TO "rx_binary" 5 ns;
+
+# ==== Overriding v5_emac default configuration ====
+INST "*/v6_emac" EMAC_TXINBANDFCS_ENABLE = "TRUE";
+INST "*/v6_emac" EMAC_RXINBANDFCS_ENABLE = "TRUE";
+INST "*/v6_emac" EMAC_PHYINITAUTONEG_ENABLE = "TRUE";
+# Configure the CORE with 00:0A:35:01:8E:B4 as MAC address
+INST "*/v6_emac" EMAC_PAUSEADDR = 48'hB48E01350A00;
+INST "*/v6_emac" EMAC_UNICASTADDR = 48'hB48E01350A00;
+# Enable address filtering
+INST "*/v6_emac" EMAC_ADDRFILTER_ENABLE = "TRUE";
+
+# ==== Timing fixes ====
+NET "sys_clk" TNM_NET = "GRPsys";
+NET "clkin66_b" TNM_NET = "GRPinput";
