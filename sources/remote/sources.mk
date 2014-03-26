@@ -34,6 +34,8 @@ SRC_$(d) +=							\
 	$(CORES_DIR)/checker/rtl/checker.vh			\
 	$(CORES_DIR)/checker/rtl/checker_ctlif.v			\
 	$(CORES_DIR)/checker/rtl/checker_dummy.v			
+# MPU_SRC
+SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v)
 # FMLARB_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/fmlarb/rtl/*.v)
 # FMLBRG_SRC

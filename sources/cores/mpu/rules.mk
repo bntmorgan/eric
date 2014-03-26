@@ -4,13 +4,15 @@ d               := $(dir)
 
 # Synthesis
 # TARGET          := $(call SRC_2_BIN, $(d)/mpu.bit)
-SRC_$(d)				:= $(d)/rtl/mpu_top.v $(d)/rtl/mpu_counter.v
+SRC_$(d)				:= $(d)/rtl/mpu_top.v $(d)/rtl/mpu_counter.v $(d)/rtl/mpu_alu.v
 
 # Simulation
 # SIM 			      := $(call SRC_2_BIN, $(d)/mpu_top.sim)
 # SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_top.v
-SIM 			      := $(call SRC_2_BIN, $(d)/mpu_ip.sim)
-SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_counter.v
+# SIM 			      := $(call SRC_2_BIN, $(d)/mpu_ip.sim)
+# SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_counter.v
+SIM 			      := $(call SRC_2_BIN, $(d)/mpu_alu.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_alu.v
 
 # Fixed
 # TARGETS 				+= $(TARGET) 
