@@ -100,9 +100,9 @@ load: binary/remote/system.bit
 	@./impact.sh $(dir $<)impact.batch $(realpath $<) && cd $(dir $<) && impact \
 		-batch impact.batch > impact.batch.out
 
-run_simulations: $(SIMS) $(call SIM_2_RUN, $(SIMS)) 
+run_simulations: $(call SIM_2_RUN, $(SIMS)) 
 
-%.run:
+%.run: %.sim
 	@echo [RUN] $(call RUN_2_SIM, $@)
 	@echo -------------------------
 	@$(call RUN_2_SIM, $@)

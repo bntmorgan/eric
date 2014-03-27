@@ -10,12 +10,15 @@ module mpu_alu (
   input [3:0] op,
 
   // Operands
-  input [63:0] a,
-  input [63:0] b,
+  input [63:0] o0,
+  input [63:0] o1,
+  input [63:0] o2,
 
-  // Operand Mask 0 and 1
-  input [63:0] m0,
-  input [63:0] m1,
+  // Selectors
+  // If 8 bit size can be bit 0 to 7 of the 64 bit qword
+  input [2:0] s0,
+  input [2:0] s1,
+  input [2:0] s2,
 
   // Results
   // We use 64 bit res but only the lsb will be used (booleans)
@@ -36,25 +39,43 @@ assign res =
   64'b0;
 
 /**
+ * Selector processing
+ */
+
+// Compute the size of the fields in bit
+wire [5:0] bsize = ((1 << size) << 3);
+
+// Right shifts function of the size a the sel
+// rsX = (sel * 8) * bsize
+wire [5:0] rs0 = (s0 * bsize); 
+wire [5:0] rs1 = (s1 * bsize); 
+wire [5:0] rs2 = (s2 * bsize); 
+
+// Compute a mask for the high bits
+wire [63:0] hm = ~(64'hffffffffffffffff << bsize);
+
+// We do the right shift so every b, w, dw and qw are in the LSBs don't forget
+// to mask the high bits
+wire [63:0] _o0 = (o0 >> rs0) & hm;
+wire [63:0] _o1 = (o1 >> rs1) & hm;
+wire [63:0] _o2 = (o2 >> rs2) & hm;
+
+/**
  * mask[01] a ?
  * Checks the 0 allowed and 1 allowed masks on operand a
  * false if it ok
  * 
- * m0 : 1 if 0 is allowed
+ * m0 : 1 if 0 is allowed : for alu development convenience we compute not(m0)
  * m1 : 1 if 1 is allowed
  *
- * x m0  (x nor m0)   x m1 (x and not(m1))
- * 0 0   1            0 0  0  
- * 0 1   0            0 1  0
- * 1 0   0            1 0  1
- * 1 1   0            1 1  0
+ * x m0  (not (x) and m1)   x m1 (x and not(m1))
+ * 0 0   0                  0 0  0  
+ * 0 1   1                  0 1  0
+ * 1 0   0                  1 0  1
+ * 1 1   0                  1 1  0
  */
-assign op_mask = 
-  (size == 2'b00) ? (~(a[7:0] | m0[7:0]) | (a[7:0] & ~(m1[7:0]))) == 8'b0 :
-  (size == 2'b01) ? (~(a[15:0] | m0[15:0]) | (a[15:0] & ~(m1[15:0]))) == 16'b0 :
-  (size == 2'b10) ? (~(a[31:0] | m0[31:0]) | (a[31:0] & ~(m1[31:0]))) == 32'b0 :
-  (size == 2'b11) ? (~(a[63:0] | m0[63:0]) | (a[63:0] & ~(m1[63:0]))) == 64'b0 :
-  1'b0;
+
+assign op_mask = ((~(_o0) & (~(_o1) & hm)) | (_o0 & ~_o2)) == 64'b0;
 
 /** 
  * a & not(m0) == b & not(m0)
@@ -62,18 +83,8 @@ assign op_mask =
  * Checks the equality of chosen bit between in operand a and b
  * m0 has asserts all the bits to check
  */
-assign op_cmp = 
-  (size == 2'b00) ? (a[7:0] & m0[7:0]) == (b[7:0] & m0[7:0]) :
-  (size == 2'b01) ? (a[15:0] & m0[15:0]) == (b[15:0] & m0[15:0]) :
-  (size == 2'b10) ? (a[31:0] & m0[31:0]) == (b[31:0] & m0[31:0]) :
-  (size == 2'b11) ? (a[63:0] & m0[63:0]) == (b[63:0] & m0[63:0]) :
-  1'b0;
+assign op_cmp = (_o0 & _o2) == (_o1 & _o2);
 
-assign op_lt = 
-  (size == 2'b00) ? a[7:0] < b[7:0] :
-  (size == 2'b01) ? a[15:0] < b[15:0] :
-  (size == 2'b10) ? a[31:0] < b[31:0] :
-  (size == 2'b11) ? a[63:0] < b[63:0] :
-  1'b0;
+assign op_lt =  _o0 < _o1;
 
 endmodule
