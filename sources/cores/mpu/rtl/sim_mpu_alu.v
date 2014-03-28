@@ -47,8 +47,7 @@ initial begin
   s2 <= 3'b0;
 end
 
-always @(*)
-begin
+always @(*) begin
   $display("-");
   $display("op %x", op);
   $display("size %x", size);
@@ -65,8 +64,7 @@ end
 /**
  * Simulation
  */
-initial
-begin
+initial begin
   # 2 $display("--- 8-bit");
   # 2 $display("--- mask[01] a (ok)");
   op <= 8'h1;
@@ -94,7 +92,7 @@ begin
   o0[ 7: 0] <= 8'b01010101;
   o1[15: 8] <= 8'b00101010;
   o2[23:16] <= 8'b01010101;
-`ifdef lol
+
   # 2 $display("--- cmp a b m0 = 1 (ok)");
   op <= 8'h2;
   o0[ 7: 0] <= 8'b01010101;
@@ -122,8 +120,6 @@ begin
   op <= 8'h3;
   o0[7:0] <=  8'b01010101;
   o1[7:0] <=  8'b01010101;
-
-  `endif
 
   # 2 $finish;
 end
