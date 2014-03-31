@@ -14,12 +14,6 @@ module mpu_alu (
   input [63:0] o1,
   input [63:0] o2,
 
-  // Selectors
-  // If 8 bit size can be bit 0 to 7 of the 64 bit qword
-  input [2:0] s0,
-  input [2:0] s1,
-  input [2:0] s2,
-
   // Results
   // We use 64 bit res but only the lsb will be used (booleans)
   output [63:0] res,
@@ -39,26 +33,14 @@ assign res =
   64'b0;
 
 /**
- * Selector processing
+ * Mask processing
  */
 
 // Compute the size of the fields in bit
 wire [5:0] bsize = ((1 << size) << 3);
 
-// Right shifts function of the size a the sel
-// rsX = (sel * 8) * bsize
-wire [5:0] rs0 = (s0 * bsize); 
-wire [5:0] rs1 = (s1 * bsize); 
-wire [5:0] rs2 = (s2 * bsize); 
-
 // Compute a mask for the high bits
 wire [63:0] hm = ~(64'hffffffffffffffff << bsize);
-
-// We do the right shift so every b, w, dw and qw are in the LSBs don't forget
-// to mask the high bits
-wire [63:0] _o0 = (o0 >> rs0) & hm;
-wire [63:0] _o1 = (o1 >> rs1) & hm;
-wire [63:0] _o2 = (o2 >> rs2) & hm;
 
 /**
  * mask[01] a ?
@@ -75,7 +57,7 @@ wire [63:0] _o2 = (o2 >> rs2) & hm;
  * 1 1   0                  1 1  0
  */
 
-assign op_mask = ((~(_o0) & (~(_o1) & hm)) | (_o0 & ~_o2)) == 64'b0;
+assign op_mask = ((~(o0) & (~(o1) & hm)) | (o0 & ~o2)) == 64'b0;
 
 /** 
  * a & not(m0) == b & not(m0)
@@ -83,8 +65,8 @@ assign op_mask = ((~(_o0) & (~(_o1) & hm)) | (_o0 & ~_o2)) == 64'b0;
  * Checks the equality of chosen bit between in operand a and b
  * m0 has asserts all the bits to check
  */
-assign op_cmp = (_o0 & _o2) == (_o1 & _o2);
+assign op_cmp = (o0 & o2) == (o1 & o2);
 
-assign op_lt =  _o0 < _o1;
+assign op_lt =  o0 < o1;
 
 endmodule

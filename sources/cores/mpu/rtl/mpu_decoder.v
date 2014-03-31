@@ -6,7 +6,7 @@ module mpu_decoder (
    * Instruction decoding
    */
 
-  // Size of the instruction in bits
+  // Size of the instruction in bytes
   output [15:0] isize,
 
   // Operation
@@ -22,17 +22,13 @@ module mpu_decoder (
   output err,
 
   /**
-   * Alu configuration
+   * operators configuration
    */
-
-  output [1:0] alu_size,
-  output [3:0] alu_op,
-  output [63:0] alu_o0,
-  output [63:0] alu_o1,
-  output [63:0] alu_o2,
-  output [2:0] alu_s0,
-  output [2:0] alu_s1,
-  output [2:0] alu_s2,
+  output [1:0] op_size,
+  output [3:0] op_op,
+  output [63:0] op_o0,
+  output [63:0] op_o1,
+  output [63:0] op_o2,
 
   /**
    * Data registers access
@@ -54,6 +50,15 @@ wire [7:0] reg0;
 wire [7:0] reg1;
 wire [7:0] reg2;
 wire err_isize;
+wire [2:0] op_s0;
+wire [2:0] op_s1;
+wire [2:0] op_s2;
+wire [5:0] rs0;
+wire [5:0] rs1;
+wire [5:0] rs2;
+wire [5:0] bsize;
+wire [63:0] hm;
+
 
 /**
  * Errors handling
@@ -89,6 +94,9 @@ assign opsize[1:0] = i[1:0];
 // val0 < val1 & jnlt
 // 0x3_00xx reg_val0 reg_val1 @no
 
+// int reg
+// 0xc_00xx reg
+
 // mload reg
 // 0xd_0011 reg
 
@@ -120,6 +128,8 @@ assign isize[15:0] =
   (op == 4'h2) ? 16'h0006 :
   // 3
   (op == 4'h3) ? 16'h0005 :
+  // c
+  (op == 4'hc) ? 16'h0002 :
   // d
   (op == 4'hd && opsize == 2'b11) ? 16'h0002 :
   // e
@@ -134,30 +144,47 @@ assign isize[15:0] =
 assign err_isize = (isize == 16'h0000) ? 1'b1 : 1'b0;
 
 /**
- * Alu configuration
- */
-
-// Operation
-assign alu_op = op;
-
-// Size
-assign alu_size = opsize;
-
-// Operators
-assign alu_o0 = r_data0;
-assign alu_o1 = r_data1;
-assign alu_o2 = r_data2;
-
-// Selectors
-assign alu_s0 = reg0[2:0];
-assign alu_s1 = reg1[2:0];
-assign alu_s2 = reg2[2:0];
-
-/**
  * Data register acces
  */
 assign r_idx0 = reg0[7:3];
 assign r_idx1 = reg1[7:3];
 assign r_idx2 = reg2[7:3];
+
+/**
+ * Alu configuration
+ */
+
+// Operation
+assign op_op = op;
+
+// Size
+assign op_size = opsize;
+
+/**
+ * Operators and Selectors processing
+ */
+
+// Selectors
+assign op_s0 = reg0[2:0];
+assign op_s1 = reg1[2:0];
+assign op_s2 = reg2[2:0];
+
+// Compute the size of the fields in bit
+assign bsize[5:0] = ((1 << op_size) << 3);
+
+// Right shifts function of the size a the sel
+// rsX = (sel * 8) * bsize
+assign rs0[5:0] = (op_s0 * bsize); 
+assign rs1[5:0] = (op_s1 * bsize); 
+assign rs2[5:0] = (op_s2 * bsize); 
+
+// Compute a mask for the high bits
+assign hm[63:0] = ~(64'hffffffffffffffff << bsize);
+
+// We do the right shift so every b, w, dw and qw are in the LSBs don't forget
+// to mask the high bits
+assign op_o0[63:0] = (r_data0 >> rs0) & hm;
+assign op_o1[63:0] = (r_data1 >> rs1) & hm;
+assign op_o2[63:0] = (r_data2 >> rs2) & hm;
 
 endmodule
