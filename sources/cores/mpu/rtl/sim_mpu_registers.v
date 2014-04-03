@@ -20,6 +20,7 @@ reg [2:0] w_sel;
 reg [2:0] w_r_sel;
 reg we;
 
+// Outputs
 wire [63:0] r_data0;
 wire [63:0] r_data1;
 wire [63:0] r_data2;
