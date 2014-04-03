@@ -1,3 +1,5 @@
+`include "mpu.vh"
+
 module mpu_alu (
   // Operation size
   input [1:0] size,
@@ -61,9 +63,9 @@ assign _o2[63:0] = (o2 >> rs2) & hm;
 assign flags = 8'b0;
 
 assign res = 
-  (op == 8'h1) ? op_mask << lsres :
-  (op == 8'h2) ? op_cmp << lsres :
-  (op == 8'h3) ? op_lt << lsres :
+  (op == `MPU_OP_MASK) ? op_mask << lsres :
+  (op == `MPU_OP_CMP) ? op_cmp << lsres :
+  (op == `MPU_OP_LT) ? op_lt << lsres :
   64'b0;
 
 /**

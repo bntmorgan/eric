@@ -1,3 +1,5 @@
+`include "mpu.vh"
+
 module mpu_decoder (
   // Instruction to decode
   input [47:0] i,
@@ -20,7 +22,7 @@ module mpu_decoder (
   output [63:0] op_o0,
   output [63:0] op_o1,
   output [63:0] op_o2,
-  output [63:0] op_o3, // The jump address is everytime here
+  output [63:0] op_o3,
   output [2:0] op_s0,
   output [2:0] op_s1,
   output [2:0] op_s2,
@@ -92,7 +94,7 @@ assign opsize[1:0] = i[1:0];
 // int reg
 // 0xc_00xx reg
 
-// mload reg
+// mload reg_dest reg_addr
 // 0xd_0011 reg
 
 // load reg imm{8,16,32}
@@ -106,7 +108,7 @@ assign opsize[1:0] = i[1:0];
  */
 assign op_o0 = r_data0;
 assign op_o1 =
-  (op == 4'he) ? imm :
+  (op == `MPU_OP_LOAD) ? imm :
   r_data1;
 assign op_o2 = r_data2;
 assign op_o3 = r_data3;
@@ -120,21 +122,21 @@ assign reg3 = i[39:32];
 // Instruction size decoding (in bytes)
 assign isize[15:0] =
   // 1
-  (op == 4'h1) ? 16'h0006 :
+  (op == `MPU_OP_MASK) ? 16'h0005 :
   // 2
-  (op == 4'h2) ? 16'h0006 :
+  (op == `MPU_OP_CMP) ? 16'h0005 :
   // 3
-  (op == 4'h3) ? 16'h0005 :
+  (op == `MPU_OP_LT) ? 16'h0004 :
   // c
-  (op == 4'hc) ? 16'h0002 :
+  (op == `MPU_OP_INT) ? 16'h0002 :
   // d
-  (op == 4'hd && opsize == 2'b11) ? 16'h0002 :
+  (op == `MPU_OP_MLOAD && opsize == 2'b11) ? 16'h0003 :
   // e
-  (op == 4'he && opsize == 2'b00) ? 16'h0003 :
-  (op == 4'he && opsize == 2'b01) ? 16'h0004 :
-  (op == 4'he && opsize == 2'b10) ? 16'h0006 :
+  (op == `MPU_OP_LOAD && opsize == 2'b00) ? 16'h0003 :
+  (op == `MPU_OP_LOAD && opsize == 2'b01) ? 16'h0004 :
+  (op == `MPU_OP_LOAD && opsize == 2'b10) ? 16'h0006 :
   // f
-  (op == 4'hf) ? 16'h0003 :
+  (op == `MPU_OP_JMP) ? 16'h0002 :
   // else
   16'h0000;
 
@@ -165,7 +167,7 @@ assign op_size = opsize;
 // Selectors
 assign op_s0 = reg0[2:0];
 assign op_s1 = 
-  (op == 4'he) ? 3'b000 : // The immediate value is always in the LSBs
+  (op == `MPU_OP_LOAD) ? 3'b000 : // The immediate value is always in the LSBs
   reg1[2:0];
 assign op_s2 = reg2[2:0];
 assign op_s3 = reg3[2:0];

@@ -13,12 +13,14 @@ SRC_$(d)				:= $(d)/rtl/mpu_top.v $(d)/rtl/mpu_counter.v \
 # SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_top.v
 # SIM 			      := $(call SRC_2_BIN, $(d)/mpu_ip.sim)
 # SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_counter.v
-SIM 			      := $(call SRC_2_BIN, $(d)/mpu_alu.sim)
-SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_alu.v
+# SIM 			      := $(call SRC_2_BIN, $(d)/mpu_alu.sim)
+# SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_alu.v
 # SIM 			      := $(call SRC_2_BIN, $(d)/mpu_decoder.sim)
 # SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_decoder.v
 # SIM 			      := $(call SRC_2_BIN, $(d)/mpu_registers.sim)
 # SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_registers.v
+SIM 			      := $(call SRC_2_BIN, $(d)/mpu_execution.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_execution.v
 
 # Fixed
 # TARGETS 				+= $(TARGET) 
