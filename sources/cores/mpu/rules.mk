@@ -6,7 +6,7 @@ d               := $(dir)
 # TARGET          := $(call SRC_2_BIN, $(d)/mpu.bit)
 SRC_$(d)				:= $(d)/rtl/mpu_top.v $(d)/rtl/mpu_counter.v \
 	$(d)/rtl/mpu_alu.v $(d)/rtl/mpu_decoder.v $(d)/rtl/mpu_execution.v \
-  $(d)/rtl/mpu_registers.v
+  $(d)/rtl/mpu_registers.v $(d)/rtl/mpu_memory.v
 
 # Simulation
 # SIM 			      := $(call SRC_2_BIN, $(d)/mpu_top.sim)
@@ -19,8 +19,10 @@ SRC_$(d)				:= $(d)/rtl/mpu_top.v $(d)/rtl/mpu_counter.v \
 # SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_decoder.v
 # SIM 			      := $(call SRC_2_BIN, $(d)/mpu_registers.sim)
 # SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_registers.v
-SIM 			      := $(call SRC_2_BIN, $(d)/mpu_execution.sim)
-SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_execution.v
+# SIM 			      := $(call SRC_2_BIN, $(d)/mpu_execution.sim)
+# SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_execution.v
+SIM 			      := $(call SRC_2_BIN, $(d)/mpu_memory.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_mpu_memory.v
 
 # Fixed
 # TARGETS 				+= $(TARGET) 
