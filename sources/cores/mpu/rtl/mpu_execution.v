@@ -57,9 +57,9 @@ module mpu_execution (
    * Asserting mem_start will request the memory quad word to the host and
    * disable ip until the response is received
    */
-  output [63:0] mem_addr,
-  output mem_start,
-  input [63:0] mem_data
+  output [63:0] hm_addr,
+  output hm_start,
+  input [63:0] hm_data
 );
 
 wire alu_false;
@@ -70,8 +70,8 @@ wire [7:0] op_flags;
 /**
  * Host memory read
  */
-assign mem_addr = op_o1;
-assign mem_start = (op_op == `MPU_OP_MLOAD) ? 1'b1 : 1'b0;
+assign hm_addr = op_o1;
+assign hm_start = (op_op == `MPU_OP_MLOAD) ? 1'b1 : 1'b0;
 
 /**
  * User interrupt
@@ -83,7 +83,7 @@ assign user_data = op_o0;
  * Write register access
  */
 assign w_idx = op_s0;
-assign w_data = (op_op == `MPU_OP_MLOAD) ? mem_data :
+assign w_data = (op_op == `MPU_OP_MLOAD) ? hm_data :
   op_o1;
 assign w_sel = 3'b000;
 assign w_r_sel = op_s0;

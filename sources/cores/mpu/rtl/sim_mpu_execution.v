@@ -20,7 +20,7 @@ reg [4:0] op_idx0;
 reg [4:0] op_idx1;
 reg [4:0] op_idx2;
 reg [4:0] op_idx3;
-reg [63:0] mem_data;
+reg [63:0] hm_data;
 
 // Outputs
 wire [15:0] ip_incr;
@@ -34,8 +34,8 @@ wire [2:0] w_sel;
 wire [2:0] w_r_sel;
 wire [1:0] w_size;
 wire we;
-wire [63:0] mem_addr;
-wire mem_start;
+wire [63:0] hm_addr;
+wire hm_start;
 
 /**
  * Tested components
@@ -56,7 +56,6 @@ mpu_execution exe (
   .op_idx1(op_idx1),
   .op_idx2(op_idx2),
   .op_idx3(op_idx3),
-  .mem_data(mem_data),
   .ip_incr(ip_incr),
   .ip_load(ip_load),
   .ip_data(ip_data),
@@ -68,8 +67,9 @@ mpu_execution exe (
   .w_r_sel(w_r_sel),
   .w_size(w_size),
   .we(we),
-  .mem_addr(mem_addr),
-  .mem_start(mem_start)
+  .hm_addr(hm_addr),
+  .hm_start(hm_start),
+  .hm_data(hm_data)
 );
 
 initial begin
@@ -88,7 +88,7 @@ initial begin
   op_idx1 <= 5'b0;
   op_idx2 <= 5'b0;
   op_idx3 <= 5'b0;
-  mem_data <= 64'b0;
+  hm_data <= 64'b0;
 end
 
 always @(*) begin
@@ -108,7 +108,7 @@ always @(*) begin
   $display("op_idx1 %x", op_idx1);
   $display("op_idx2 %x", op_idx2);
   $display("op_idx3 %x", op_idx3);
-  $display("mem_data %x", mem_data);
+  $display("hm_data %x", hm_data);
   $display("ip_incr %x", ip_incr);
   $display("ip_load %x", ip_load);
   $display("ip_data %x", ip_data);
@@ -120,8 +120,8 @@ always @(*) begin
   $display("w_r_sel %x", w_r_sel);
   $display("w_size %x", w_size);
   $display("we %x", we);
-  $display("mem_addr %x", mem_addr);
-  $display("mem_start %x", mem_start);
+  $display("hm_addr %x", hm_addr);
+  $display("hm_start %x", hm_start);
 end
 
 /**
