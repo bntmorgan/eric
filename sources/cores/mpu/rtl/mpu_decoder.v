@@ -49,14 +49,6 @@ wire [7:0] reg1;
 wire [7:0] reg2;
 wire [7:0] reg3;
 wire err_isize;
-wire [5:0] rs0;
-wire [5:0] rs1;
-wire [5:0] rs2;
-wire [5:0] bsize;
-wire [63:0] hm;
-wire [63:0] _op_o0;
-wire [63:0] _op_o1;
-wire [63:0] _op_o2;
 wire [15:0] jaddr;
 wire [3:0] op;
 wire [31:0] _imm;
@@ -177,24 +169,6 @@ assign op_s1 =
   reg1[2:0];
 assign op_s2 = reg2[2:0];
 assign op_s3 = reg3[2:0];
-
-// // Compute the size of the fields in bit
-// assign bsize[5:0] = ((1 << op_size) << 3);
-// 
-// // Right shifts function of the size a the sel
-// // rsX = sel * bsize
-// assign rs0[5:0] = (op_s0 * bsize); 
-// assign rs1[5:0] = (op_s1 * bsize); 
-// assign rs2[5:0] = (op_s2 * bsize); 
-// 
-// // Compute a mask for the high bits
-// assign hm[63:0] = ~(64'hffffffffffffffff << bsize);
-// 
-// // We do the right shift so every b, w, dw and qw are in the LSBs don't forget
-// // to mask the high bits
-// assign _op_o0[63:0] = (r_data0 >> rs0) & hm;
-// assign _op_o1[63:0] = (r_data1 >> rs1) & hm;
-// assign _op_o2[63:0] = (r_data2 >> rs2) & hm;
 
 // Immediate value
 assign imm = {32'b0, i[47:16]};

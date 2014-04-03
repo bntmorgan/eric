@@ -10,6 +10,10 @@ reg [3:0] op;
 reg [63:0] o0;
 reg [63:0] o1;
 reg [63:0] o2;
+reg [2:0] s0;
+reg [2:0] s1;
+reg [2:0] s2;
+reg [2:0] sres;
 
 // Outputs
 wire [63:0] res;
@@ -21,11 +25,13 @@ wire [7:0] flags;
 mpu_alu alu (
   .size(size),
   .op(op),
-
   .o0(o0),
   .o1(o1),
   .o2(o2),
-
+  .s0(s0),
+  .s1(s1),
+  .s2(s2),
+  .sres(sres),
   .res(res),
   .flags(flags)
 );
@@ -36,15 +42,19 @@ initial begin
   o0 <= 64'b0;
   o1 <= 64'b0;
   o2 <= 64'b0;
+  s0 <= 3'b0;
+  s1 <= 3'b0;
+  s2 <= 3'b0;
+  sres <= 3'b1;
 end
 
 always @(*) begin
   $display("-");
   $display("op %x", op);
   $display("size %x", size);
-  $display("o0 %x", o0);
-  $display("o1 %x", o1);
-  $display("o2 %x", o2);
+  $display("o0  %x", o0);
+  $display("o1  %x", o1);
+  $display("o2  %x", o2);
   $display("res %x", res);
   $display("flags %x", flags);
 end
@@ -57,10 +67,18 @@ initial begin
   # 2 $display("--- mask[01] a (ok)");
   op <= 8'h1;
   o0[7:0] <= 8'b01010101;
-  o1[7:0] <= 8'b10101010;
-  o2[7:0] <= 8'b01010101;
+  o1[15:8] <= 8'b10101010;
+  o2[23:16] <= 8'b01010101;
+  s0 <= 3'b000;
+  s1 <= 3'b001;
+  s2 <= 3'b010;
+  sres <= 3'b011;
 
   # 2 $display("--- mask[01] a (bad m1)");
+  s0 <= 3'b000;
+  s1 <= 3'b000;
+  s2 <= 3'b000;
+  sres <= 3'b000;
   op <= 8'h1;
   o0[7:0] <= 8'b01010101;
   o1[7:0] <= 8'b10101010;
