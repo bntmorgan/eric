@@ -4,6 +4,7 @@ module mpu_registers #(
   // System
   input sys_clk,
   input sys_rst,
+  input en,
 
   // read access
   input [nb_reg / 8:0] r_idx0,
@@ -70,7 +71,7 @@ always @(posedge sys_clk) begin
   if (sys_rst == 1'b1) begin
     init(); 
   end else begin
-    if (we == 1'b1) begin
+    if (we == 1'b1 && en == 1'b1) begin
       regs[w_idx] = (regs[w_idx] & ~(hm)) | (__w_data & hm);
     end
   end

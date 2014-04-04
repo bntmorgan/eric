@@ -2,6 +2,7 @@ module mpu_top (
   // System
   input sys_clk,
   input sys_rst,
+  input en,
 
   // Instruction bus, synchronous memory for instructions
   output [15:0] i_addr,
@@ -10,18 +11,15 @@ module mpu_top (
   // Mpu user interruptions
   output user_irq,
   output [63:0] user_data,
-  input user_en,
   
   // Data bus Memory to check, clock might be async so we acknoledge the data
   // receive
   output [63:0] hm_addr,
   output hm_start,
-  input [63:0] hm_data,
-  input hm_en
+  input [63:0] hm_data
 );
 
 // Interconnection wires
-wire ip_en;
 wire [15:0] ip_incr;
 wire [15:0] ip_data;
 wire ip_load;
@@ -53,14 +51,11 @@ wire [2:0] w_r_sel;
 wire [1:0] w_size;
 wire we;
 
-// Ip
-assign ip_en = u_en & hm_en;
-
 mpu_counter ip (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
   .out(i_addr),
-  .en(ip_en),
+  .en(en),
   .incr(ip_incr),
   .data(ip_data),
   .load(ip_load)
@@ -128,6 +123,7 @@ mpu_execution execution (
 mpu_registers registers (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
+  .en(en),
   .r_idx0(op_idx0),
   .r_idx1(op_idx1),
   .r_idx2(op_idx2),

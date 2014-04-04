@@ -7,7 +7,7 @@ d               := $(dir)
 SRC_$(d)				:= $(d)/rtl/mpu_top.v $(d)/rtl/mpu_counter.v \
 	$(d)/rtl/mpu_alu.v $(d)/rtl/mpu_decoder.v $(d)/rtl/mpu_execution.v \
 	$(d)/rtl/mpu_registers.v $(d)/rtl/dummy_mpu_memory.v \
-	$(d)/rtl/mpu_host_memory.v $(d)/rtl/dummy_mpu_int.v
+	$(d)/rtl/dummy_mpu_host_memory.v $(d)/rtl/dummy_mpu_int.v
 
 # Simulation
 # SIM 			      := $(call SRC_2_BIN, $(d)/mpu_ip.sim)

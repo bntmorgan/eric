@@ -13,6 +13,8 @@ wire [47:0] i_data;
 wire user_en;
 wire [63:0] hm_data;
 wire hm_en;
+wire en;
+reg checker_en;
 
 // Outputs
 wire [15:0] i_addr;
@@ -29,10 +31,9 @@ wire hm_start;
 mpu_top mpu (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
+  .en(en),
   .i_data(i_data),
-  .user_en(user_en),
   .hm_data(hm_data),
-  .hm_en(hm_en),
   .i_addr(i_addr),
   .user_irq(user_irq),
   .user_data(user_data),
@@ -48,6 +49,8 @@ mpu_memory mem (
 );
 
 mpu_int int (
+  .sys_clk(sys_clk),
+  .sys_rst(sys_rst),
   .irq(user_irq),
   .data(user_data),
   .en(user_en)
@@ -60,7 +63,10 @@ mpu_host_memory mhm (
   .en(hm_en)
 );
 
-always @(*) begin
+assign en = user_en & hm_en & checker_en;
+assign yolo1 = 8'b00 - 1'b1;
+
+always @(posedge sys_clk) begin
   $display("-");
   $display("i_addr %x", i_addr);
   $display("i_data %x", i_data);
@@ -74,12 +80,32 @@ always @(*) begin
 end
 
 /**
+ * Dumpfile configuration
+ */
+integer idx;
+initial begin
+  `SIM_DUMPFILE
+  // Dump registers
+  for (idx = 0; idx < 32; idx = idx + 1)
+    $dumpvars(0,mpu.registers.regs[idx]);
+end
+
+/**
  * Simulation
  */
-initial
-begin
 
-  # 16 $finish;
+initial begin
+  checker_en <= 1'b0;
+
+  # 8 $display("checker_en <- 1"); 
+  checker_en <= 1'b1;
+
+  # 40 $display("rst <- 1");
+  sys_rst <= 1'b1;
+  # 2
+  sys_rst <= 1'b0;
+
+  # 40 $finish;
 end
 
 endmodule

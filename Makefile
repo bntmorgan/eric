@@ -49,7 +49,7 @@ simulations: $(SIMS)
 %.sim:
 	@mkdir -p $(dir $@)
 	@echo [VLG] $@
-	@iverilog -o $@ $^ $(SIM_CFLAGS)
+	@iverilog -o $@ $^ $(SIM_CFLAGS) -D__DUMP_FILE__=\"$(abspath $@).vcd\"
 
 %.bit: %.routed.ncd
 	@mkdir -p $(dir $@)
@@ -105,7 +105,7 @@ run_simulations: $(call SIM_2_RUN, $(SIMS))
 %.run: %.sim
 	@echo [RUN] $(call RUN_2_SIM, $@)
 	@echo -------------------------
-	@$(call RUN_2_SIM, $@)
+	@cd $(dir $@) && $(realpath $<)
 	@echo -------------------------
 
 info:

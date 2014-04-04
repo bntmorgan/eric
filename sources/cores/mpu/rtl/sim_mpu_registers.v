@@ -9,6 +9,7 @@ module main();
 // Inputs
 reg sys_clk;
 reg sys_rst;
+reg en;
 reg [4:0] r_idx0;
 reg [4:0] r_idx1;
 reg [4:0] r_idx2;
@@ -34,6 +35,7 @@ wire [63:0] r_data3;
 mpu_registers regs (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
+  .en(en),
   .r_idx0(r_idx0),
   .r_idx1(r_idx1),
   .r_idx2(r_idx2),
@@ -79,6 +81,7 @@ initial begin
   w_size = 2'b00;
   w_sel = 3'b000;
   w_r_sel = 3'b000;
+  en = 1'b1;
 end
 
 /**

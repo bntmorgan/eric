@@ -72,6 +72,11 @@ task init_tests;
     mem[i + 3][7:0] <= 8'b00010_000; // reg2
     mem[i + 4][7:0] <= 8'b00011_000; // reg3
     i = i + 5;
+    // User interrupt
+    $display("Int @%x\n", i);
+    mem[i + 0][7:0] <= {`MPU_OP_INT, 2'b00, 2'b11}; // OP
+    mem[i + 1][7:0] <= 8'b00001_000; // reg1
+    i = i + 2;
     // Jmp to the beginning
     $display("Jmp @%x\n", i);
     mem[i + 0][7:0] <= {`MPU_OP_JMP, 2'b00, 2'b00}; // OP
@@ -90,7 +95,7 @@ end
 
 always @(posedge sys_clk) begin
   if (sys_rst) begin
-    init();
+    init_tests();
   end else begin
     if (we == 1'b1) begin
       mem[w_addr + 0] <= w_data[7 : 0];
