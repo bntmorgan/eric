@@ -29,13 +29,10 @@ SRC_$(d) +=							\
 	$(CORES_DIR)/lm32/rtl/jtag_cores.v			\
 	$(CORES_DIR)/lm32/rtl/jtag_tap_spartan6.v
 # CHECKER_SRC
-SRC_$(d) +=							\
-	$(CORES_DIR)/checker/rtl/checker.v			\
-	$(CORES_DIR)/checker/rtl/checker.vh			\
-	$(CORES_DIR)/checker/rtl/checker_ctlif.v			\
-	$(CORES_DIR)/checker/rtl/checker_dummy.v			
+SRC_$(d) +=$(wildcard $(CORES_DIR)/checker/rtl/checker*.v)
 # MPU_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v)
+SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/dummy*.v) # XXX TODO remove
 # FMLARB_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/fmlarb/rtl/*.v)
 # FMLBRG_SRC

@@ -14,7 +14,7 @@ module mpu_memory (
 );
 
 // Memory
-reg [7:0] mem [65535:0];
+reg [7:0] mem [128:0];
 
 assign r_data = {mem[r_addr + 5], mem[r_addr + 4], mem[r_addr + 3], mem[r_addr
   + 2], mem[r_addr + 1], mem[r_addr + 0]};
@@ -22,13 +22,14 @@ assign r_data = {mem[r_addr + 5], mem[r_addr + 4], mem[r_addr + 3], mem[r_addr
 integer d;
 task init;
   begin
-    for (d = 0; d < 65536; d = d + 1) begin
+    for (d = 0; d < 128; d = d + 1) begin
       mem[d][7:0] = 8'b0;
     end
   end
 endtask
 
-integer i;
+reg [31:0] i;
+initial i = 0;
 task init_tests;
   begin
     i = 0;
@@ -82,8 +83,8 @@ task init_tests;
     mem[i + 0][7:0] <= {`MPU_OP_JMP, 2'b00, 2'b00}; // OP
     mem[i + 1][7:0] <= 8'b00100_000; // reg4
     i = i + 2;
-    for (i = 0; i < 65536; i = i + 1) begin
-      mem[i][7:0] = 8'b0;
+    for (i = 0; i < 128; i = i + 1) begin
+      mem[i][7:0] <= 8'b0;
     end
   end
 endtask

@@ -64,7 +64,6 @@ mpu_host_memory mhm (
 );
 
 assign en = user_en & hm_en & checker_en;
-assign yolo1 = 8'b00 - 1'b1;
 
 always @(posedge sys_clk) begin
   $display("-");

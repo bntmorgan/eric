@@ -24,12 +24,12 @@ assign en = state;
 always @(posedge sys_clk) begin
   if (sys_rst) begin
     state <= 1'b1;
-    cpt <= 0'b0;
+    cpt <= 2'b0;
   end else begin
     if (state == 1'b1) begin
       if (irq == 1'b1) begin
         state <= 1'b0;
-        cpt <= 0'b0;
+        cpt <= 2'b0;
       end
     end else begin
       if (cpt == 2'b11) begin

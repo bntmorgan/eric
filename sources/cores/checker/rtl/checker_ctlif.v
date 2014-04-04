@@ -1,3 +1,5 @@
+`include "checker.vh"
+
 module checker_ctlif #(
 	parameter csr_addr = 4'h0
 ) (

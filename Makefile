@@ -103,10 +103,8 @@ load: binary/remote/system.bit
 run_simulations: $(call SIM_2_RUN, $(SIMS)) 
 
 %.run: %.sim
-	@echo [RUN] $(call RUN_2_SIM, $@)
-	@echo -------------------------
-	@cd $(dir $@) && $(realpath $<)
-	@echo -------------------------
+	@echo [RUN] $< ">" $<.out
+	@cd $(dir $@) && $(realpath $<) > $(realpath $<).out
 
 info:
 	@echo TARGETS [$(TARGETS)]
