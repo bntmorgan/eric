@@ -32,11 +32,12 @@ task init;
     mode_irq <= 1'b0;
     mode_error <= 1'b0;
     state <= `CHECKER_SINGLE_STATE_IDLE;
+    mpu_en <= 1'b0;
+    mpu_rst <= 1'b0;
   end
 endtask
 
 wire mode_selected = mode_mode == mode;
-wire mode_started = mode_selected & mode_start;
 
 reg [1:0] state;
 
@@ -48,7 +49,6 @@ always @(posedge sys_clk) begin
 	if (sys_rst) begin
     init();
 	end else begin
-    init();
     if (mode_selected) begin
       if (state == `CHECKER_SINGLE_STATE_IDLE) begin
         if (mode_start == 1'b1) begin // IDLE -> RESET
@@ -57,17 +57,20 @@ always @(posedge sys_clk) begin
           mode_error <= 1'b0;
           mode_end <= 1'b0;
         end
-      end else if (`CHECKER_SINGLE_STATE_RESET) begin
+      end else if (state == `CHECKER_SINGLE_STATE_RESET) begin
         state <= `CHECKER_SINGLE_STATE_RUN; // RESET -> RUN
         mpu_rst <= 1'b0;
         mpu_en <= 1'b1;
-      end else if (`CHECKER_SINGLE_STATE_RUN) begin
-        if (mpu_error == 1'b1) begin // RUN -> IDLE
+      end else if (state == `CHECKER_SINGLE_STATE_RUN) begin
+        if (mode_start == 1'b0) begin // RUN -> IDE
+          state <= `CHECKER_SINGLE_STATE_IDLE;
+          mpu_en <= 1'b0;
+        end else if (mpu_error == 1'b1) begin // RUN -> IDLE
           state <= `CHECKER_SINGLE_STATE_IDLE;
           mode_error <= 1'b1;
           mpu_en <= 1'b0;
-        end else if (mpu_user_data == 64'b0) begin // RUN -> IDLE : IRQ data 0 !
-          state <= `CHECKER_SINGLE_STATE_IDLE;
+        end else if (mpu_user_irq == 1'b1 && mpu_user_data == 64'b0) begin
+          state <= `CHECKER_SINGLE_STATE_IDLE; // RUN -> IDLE : IRQ data 0 !
           mode_end <= 1'b1;
           mpu_en <= 1'b0;
         end else if (mpu_user_irq == 1'b1) begin // RUN -> WAIT
@@ -75,15 +78,13 @@ always @(posedge sys_clk) begin
           mode_data <= mpu_user_data;
           mode_irq <= 1'b1;
           mpu_en <= 1'b0;
-        end else if (mode_start == 1'b0) begin // RUN -> IDE
-          mpu_en <= 1'b0;
-          state <= `CHECKER_SINGLE_STATE_IDLE;
         end
-      end else if (`CHECKER_SINGLE_STATE_WAIT) begin
+      end else if (state == `CHECKER_SINGLE_STATE_WAIT) begin
         if (mode_ack == 1'b1) begin // WAIT -> RUN
           state <= `CHECKER_SINGLE_STATE_RUN;
           mode_irq <= 1'b0;
           mode_data <= 64'b0;
+          mpu_en <= 1'b1;
         end
       end
     end

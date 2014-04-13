@@ -13,11 +13,11 @@ reg sys_rst;
 
 reg [1:0] mode_mode;
 reg mode_start;
-reg mode_ack;
 reg [63:0] mode_addr;
 reg mpu_error;
 reg mpu_user_irq;
 reg [63:0] mpu_user_data;
+reg mode_ack;
 
 // Ouputs
 wire mode_end;
@@ -47,9 +47,9 @@ checker_single single (
 
   .mpu_en(mpu_en),
   .mpu_rst(mpu_rst),
-  .mpu_error(error),
+  .mpu_error(mpu_error),
   .mpu_user_data(mpu_user_data),
-  .mpu_user_irq(mpu_user_irq),
+  .mpu_user_irq(mpu_user_irq)
 );
 
 always @(*)
@@ -72,8 +72,12 @@ end
 initial begin
   mode_mode <= 2'b00;
   mode_start <= 1'b0;
-  mpu_user_end <= 1'b0;
-  mode_addr <= 64'h0000000000000010;
+  mode_addr <= 64'h0000000000000000;
+  mpu_error <= 1'b0;
+  mpu_user_irq <= 1'b0;
+  mpu_user_data <= 64'b0;
+  mode_ack <= 1'b0;
+
   $display("--- mode_addr <= 0x10");
 end
 
@@ -82,14 +86,59 @@ end
  */
 initial
 begin
+  `SIM_DUMPFILE
 
   // START
-  # 2 $display("--- mode_start = 1");
+  # 4 $display("--- mode_start = 1");
   mode_start <= 1'b1;
+
+  // END
+  # 4 $display("--- mode_start = 1");
+  mode_start <= 1'b0;
+
+  // START
+  # 4 $display("--- mode_start = 1");
+  mode_start <= 1'b1;
+
+  // END
+  # 4 $display("--- mode_start = 1");
+  mode_start <= 1'b0;
+
+  // START
+  # 4 $display("--- mode_start = 1");
+  mode_start <= 1'b1;
+
+  // mpu_user_irq
+  # 8 $display("--- mpu_user_irq = 1");
+  mpu_user_irq <= 1'b1;
+  mpu_user_data <= 64'hb00b;
+
+  // mpu_user_irq
+  # 8 $display("--- Ack irq");
+  mode_ack <= 1'b1;
+  # 2
+  mode_ack <= 1'b0;
+  mpu_user_irq <= 1'b0;
+  mpu_user_data <= 64'h0;
+
+  // Error
+  # 8 $display("--- Error");
+  mpu_error <= 1'b1;
+  # 2
+  mpu_error <= 1'b0;
+
+  // START
+  # 4 $display("--- mode_start = 1");
+  mode_start <= 1'b1;
+
+  // mpu_user_irq
+  # 8 $display("--- mpu_user_irq = 1");
+  mpu_user_irq <= 1'b1;
+  mpu_user_data <= 64'h0000;
 
   # 40 $finish;
 end
 
-always @(posedge mode_end) mode_start <= 1'b0; 
+always @(posedge mode_end, posedge mode_error) mode_start <= 1'b0; 
 
 endmodule
