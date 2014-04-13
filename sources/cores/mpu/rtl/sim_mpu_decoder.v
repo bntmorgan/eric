@@ -13,7 +13,7 @@ wire [63:0] r_data3;
 
 // Outputs
 wire [15:0] isize;
-wire err;
+wire error;
 wire [1:0] op_size;
 wire [3:0] op_op;
 wire [63:0] op_o0;
@@ -84,7 +84,7 @@ mpu_decoder decoder (
   .r_data2(r_data2),
   .r_data3(r_data3),
   .isize(isize),
-  .err(err),
+  .error(error),
   .op_size(op_size),
   .op_op(op_op),
   .op_o0(op_o0),
@@ -112,7 +112,7 @@ always @(*) begin
   $display("r_data1 0x%x", r_data1);
   $display("r_data2 0x%x", r_data2);
   $display("isize 0x%x", isize);
-  $display("err 0x%x", err);
+  $display("error 0x%x", error);
   $display("op_size 0x%x", op_size);
   $display("op_op 0x%x", op_op);
   $display("op_o0 0x%x", op_o0);

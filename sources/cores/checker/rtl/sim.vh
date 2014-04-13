@@ -31,3 +31,10 @@
     csr_we = 1'b0; \
     csr_a = 14'b0; \
   end
+
+/** 
+ * Dumpfile !
+ */
+`define SIM_DUMPFILE \
+  $dumpfile(`__DUMP_FILE__); \
+  $dumpvars(0,main);

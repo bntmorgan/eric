@@ -1,4 +1,6 @@
-module checker_single#(
+`include "checker.vh"
+
+module checker_single #(
   parameter mode = 2'b0
 ) (
   // System
@@ -6,29 +8,35 @@ module checker_single#(
 	input sys_rst,
 
   // Mode and control
-  input [1:0] cmode,
-  input cstart,
-  input [63:0] caddr,
-  output reg cend,
-  output reg [7:0] cctrl,
+  input [1:0] mode_mode,
+  input mode_start,
+  input [63:0] mode_addr,
+  output reg mode_end,
+  output reg [63:0] mode_data,
+  output reg mode_irq,
+  input mode_ack,
+  output reg mode_error,
 
   // MPU control
-  output mpu_en
+  input mpu_error,
+  input mpu_user_irq,
+  input [63:0] mpu_user_data,
+  output reg mpu_en,
+  output reg mpu_rst
 );
 
 task init;
   begin
-    cend <= 1'b0;
-    cctrl <= 8'b0;
-    state <= `CHECKER_STATE_IDLE;
+    mode_end <= 1'b0;
+    mode_data <= 64'b0;
+    mode_irq <= 1'b0;
+    mode_error <= 1'b0;
+    state <= `CHECKER_SINGLE_STATE_IDLE;
   end
 endtask
 
-wire mode_selected = cmode == mode;
-wire mode_started = mode_selected & cstart;
-
-// TODO XXX just for debug, not enought
-assign mpu_en = mode_started;
+wire mode_selected = mode_mode == mode;
+wire mode_started = mode_selected & mode_start;
 
 reg [1:0] state;
 
@@ -40,13 +48,43 @@ always @(posedge sys_clk) begin
 	if (sys_rst) begin
     init();
 	end else begin
-    if (state == `CHECKER_STATE_RUNNING) begin
-      state <= `CHECKER_STATE_IDLE;
-    // CHECKER_STATE_IDLE
-    end else begin
-      if (mode_started) begin
-        init();
-        state <= `CHECKER_STATE_RUNNING;
+    init();
+    if (mode_selected) begin
+      if (state == `CHECKER_SINGLE_STATE_IDLE) begin
+        if (mode_start == 1'b1) begin // IDLE -> RESET
+          state <= `CHECKER_SINGLE_STATE_RESET;
+          mpu_rst <= 1'b1;
+          mode_error <= 1'b0;
+          mode_end <= 1'b0;
+        end
+      end else if (`CHECKER_SINGLE_STATE_RESET) begin
+        state <= `CHECKER_SINGLE_STATE_RUN; // RESET -> RUN
+        mpu_rst <= 1'b0;
+        mpu_en <= 1'b1;
+      end else if (`CHECKER_SINGLE_STATE_RUN) begin
+        if (mpu_error == 1'b1) begin // RUN -> IDLE
+          state <= `CHECKER_SINGLE_STATE_IDLE;
+          mode_error <= 1'b1;
+          mpu_en <= 1'b0;
+        end else if (mpu_user_data == 64'b0) begin // RUN -> IDLE : IRQ data 0 !
+          state <= `CHECKER_SINGLE_STATE_IDLE;
+          mode_end <= 1'b1;
+          mpu_en <= 1'b0;
+        end else if (mpu_user_irq == 1'b1) begin // RUN -> WAIT
+          state <= `CHECKER_SINGLE_STATE_WAIT;
+          mode_data <= mpu_user_data;
+          mode_irq <= 1'b1;
+          mpu_en <= 1'b0;
+        end else if (mode_start == 1'b0) begin // RUN -> IDE
+          mpu_en <= 1'b0;
+          state <= `CHECKER_SINGLE_STATE_IDLE;
+        end
+      end else if (`CHECKER_SINGLE_STATE_WAIT) begin
+        if (mode_ack == 1'b1) begin // WAIT -> RUN
+          state <= `CHECKER_SINGLE_STATE_RUN;
+          mode_irq <= 1'b0;
+          mode_data <= 64'b0;
+        end
       end
     end
   end

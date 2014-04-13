@@ -29,6 +29,9 @@ all: targets simulations
 
 ################################## GLOBALS  ####################################
 
+XILINX := /home/bmorgan/Xilinx/14.7/ISE_DS/ISE
+XILINX_SIM := $(XILINX)/verilog/src/simprims
+XILINX_LIB := $(XILINX)/verilog/src/XilinxCoreLib
 CORES_DIR := ./sources/cores
 
 ################################## INCLUDES ####################################

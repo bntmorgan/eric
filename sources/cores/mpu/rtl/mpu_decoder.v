@@ -12,7 +12,7 @@ module mpu_decoder (
   output [15:0] isize,
 
   // Decoding error
-  output err,
+  output error,
 
   /**
    * operators configuration
@@ -50,7 +50,7 @@ wire [7:0] reg0;
 wire [7:0] reg1;
 wire [7:0] reg2;
 wire [7:0] reg3;
-wire err_isize;
+wire error_isize;
 wire [15:0] jaddr;
 wire [3:0] op;
 wire [31:0] _imm;
@@ -60,7 +60,7 @@ wire [63:0] imm;
 /**
  * Errors handling
  */
-assign err = err_isize;
+assign error = error_isize;
 
 /**
  * Instruction decoding
@@ -140,7 +140,7 @@ assign isize[15:0] =
   // else
   16'h0000;
 
-assign err_isize = (isize == 16'h0000) ? 1'b1 : 1'b0;
+assign error_isize = (isize == 16'h0000) ? 1'b1 : 1'b0;
 
 /**
  * Data register acces

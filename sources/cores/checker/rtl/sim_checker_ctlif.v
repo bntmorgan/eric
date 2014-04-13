@@ -15,17 +15,20 @@ reg [13:0] csr_a;
 reg csr_we;
 reg [31:0] csr_di;
 
-reg cend;
-reg [7:0] cctrl;
+reg mode_end;
+reg [63:0] mode_data;
+reg mode_irq;
+reg mode_error;
 
 
 // Ouputs
 wire [31:0] csr_do;
 wire irq;
+wire mode_ack;
 
-wire [1:0] cmode;
-wire cstart;
-wire [63:0] caddr;
+wire [1:0] mode_mode;
+wire mode_start;
+wire [63:0] mode_addr;
 
 `SIM_SYS_CLK
 
@@ -44,21 +47,25 @@ checker_ctlif ctlif(
   .csr_do(csr_do),
   .irq(irq),
 
-  .cmode(cmode),
-  .cstart(cstart),
-  .caddr(caddr),
-  .cend(cend),
-  .cctrl(cctrl)
+  .mode_mode(mode_mode),
+  .mode_start(mode_start),
+  .mode_addr(mode_addr),
+  .mode_end(mode_end),
+  .mode_data(mode_data),
+  .mode_irq(mode_irq),
+  .mode_ack(mode_ack),
+  .mode_error(mode_error)
 );
 
 always @(*)
 begin
   $display("-");
-  $display("cmode %d", cmode);
-  $display("cstart %b", cstart);
-  $display("caddr 0x%x", caddr);
-  $display("cend 0x%x", cend);
-  $display("cctrl 0x%x", cctrl);
+  $display("mode_mode %d", mode_mode);
+  $display("mode_start %b", mode_start);
+  $display("mode_addr 0x%x", mode_addr);
+  $display("mode_end 0x%x", mode_end);
+  $display("mode_data 0x%x", mode_data);
+  $display("mode_irq 0x%x", mode_irq);
 end
 
 always @(*)
@@ -68,8 +75,10 @@ begin
 end
 
 initial begin
-  cend <= 1'b0;
-  cctrl <= 8'b0;
+  mode_end <= 1'b0;
+  mode_data <= 64'b0;
+  mode_irq <= 1'b0;
+  mode_error <= 1'b0;
 end
 
 /**
@@ -77,6 +86,8 @@ end
  */
 initial
 begin
+  `SIM_DUMPFILE
+
   // CSR WRITE ADDRES LOW
   # 2 $display("---- low = 0xaaaaaaaa");
   csr_a = `CHECKER_CSR_ADDRESS_LOW; 
@@ -120,9 +131,9 @@ begin
 
   // CHECKER END
   $display("---- Checker end");
-  cend = 1'b1;
+  mode_end = 1'b1;
   # 2
-  cend = 1'b0;
+  mode_end = 1'b0;
 
   // Holds the cvalues
   # 10

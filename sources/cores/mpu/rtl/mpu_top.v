@@ -11,13 +11,20 @@ module mpu_top (
   // Mpu user interruptions
   output user_irq,
   output [63:0] user_data,
+  output user_end,
   
   // Data bus Memory to check, clock might be async so we acknoledge the data
   // receive
   output [63:0] hm_addr,
   output hm_start,
-  input [63:0] hm_data
+  input [63:0] hm_data,
+
+  // Error
+  output error
 );
+
+// TODO
+assign user_end = 1'b0;
 
 // Interconnection wires
 wire [15:0] ip_incr;
@@ -83,7 +90,7 @@ mpu_decoder decoder (
   .op_s1(op_s1),
   .op_s2(op_s2),
   .op_s3(op_s3),
-  .err(/* TODO */)
+  .error(error)
 );
 
 // Execution

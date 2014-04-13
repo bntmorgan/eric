@@ -15,19 +15,24 @@ reg [1:0] mode_mode;
 reg mode_start;
 reg mode_ack;
 reg [63:0] mode_addr;
+reg mpu_error;
+reg mpu_user_irq;
+reg [63:0] mpu_user_data;
 
 // Ouputs
 wire mode_end;
 wire [63:0] mode_data;
 wire mode_irq;
 wire mode_error;
+wire mpu_en;
+wire mpu_rst;
 
 `SIM_SYS_CLK
 
 /**
  * Tested components
  */
-checker_dummy dummy (
+checker_single single (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
 
@@ -38,7 +43,13 @@ checker_dummy dummy (
   .mode_data(mode_data),
   .mode_error(mode_error),
   .mode_ack(mode_ack),
-  .mode_irq(mode_irq)
+  .mode_irq(mode_irq),
+
+  .mpu_en(mpu_en),
+  .mpu_rst(mpu_rst),
+  .mpu_error(error),
+  .mpu_user_data(mpu_user_data),
+  .mpu_user_irq(mpu_user_irq),
 );
 
 always @(*)
@@ -51,11 +62,17 @@ begin
   $display("mode_data 0x%x", mode_data);
   $display("mode_irq 0x%x", mode_irq);
   $display("mode_error 0x%x", mode_error);
+  $display("mpu_en %x", mpu_en);
+  $display("mpu_rst %x", mpu_rst);
+  $display("mpu_error %x", mpu_error);
+  $display("mpu_user_data %x", mpu_user_data);
+  $display("mpu_user_irq %x", mpu_user_irq);
 end
 
 initial begin
   mode_mode <= 2'b00;
   mode_start <= 1'b0;
+  mpu_user_end <= 1'b0;
   mode_addr <= 64'h0000000000000010;
   $display("--- mode_addr <= 0x10");
 end
@@ -65,12 +82,6 @@ end
  */
 initial
 begin
-
-  // START
-  # 2 $display("--- mode_start = 1");
-  mode_start <= 1'b1;
-
-  # 40
 
   // START
   # 2 $display("--- mode_start = 1");

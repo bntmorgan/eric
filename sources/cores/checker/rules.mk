@@ -5,30 +5,51 @@ d               := $(dir)
 # Synthesis
 
 # MPU_SRC
+# XXX Remove dummies
 SRC_MPU_$(d) 		:= $(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v) \
-	$(wildcard $(CORES_DIR)/mpu/rtl/dummy*.v) \
+	$(wildcard $(CORES_DIR)/mpu/rtl/dummy_mpu_host_memory.v) \
+	$(wildcard $(CORES_DIR)/mpu/rtl/dummy_mpu_int.v)
 
 # TARGET          := $(call SRC_2_BIN, $(d)/checker.bin)
 SRC_$(d)				:= $(d)/rtl/checker.v $(d)/rtl/checker_ctlif.v \
-	$(d)/rtl/checker_dummy.v $(d)/rtl/checker_single.v $(SRC_MPU_$(d))
+	$(d)/rtl/checker_dummy.v $(d)/rtl/checker_single.v $(d)/rtl/checker_memory.v \
+	$(SRC_MPU_$(d))
 
 # Simulation
-# SIM 			      := $(call SRC_2_BIN, $(d)/checker.sim)
-# SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_csr.v
+SIM 			      := $(call SRC_2_BIN, $(d)/checker.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_csr.v
+$(SIM)					: $(SRC_SIM_$(d))
+$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl
+SIMS						+= $(SIM)
+
 SIM 			      := $(call SRC_2_BIN, $(d)/checker_ctlif.sim)
 SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_ctlif.v
-# SIM 			      := $(call SRC_2_BIN, $(d)/checker_dummy.sim)
-# SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_dummy.v
-# SIM 			      := $(call SRC_2_BIN, $(d)/checker.sim)
-# SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_csr.v
+$(SIM)					: $(SRC_SIM_$(d))
+$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl
+SIMS						+= $(SIM)
+
+SIM 			      := $(call SRC_2_BIN, $(d)/checker_dummy.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_dummy.v
+$(SIM)					: $(SRC_SIM_$(d))
+$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl
+SIMS						+= $(SIM)
+
+SIM 			      := $(call SRC_2_BIN, $(d)/checker_memory.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_memory.v
+$(SIM)					: $(SRC_SIM_$(d))
+$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl
+SIMS						+= $(SIM)
+
+SIM 			      := $(call SRC_2_BIN, $(d)/checker_single.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_single.v
+$(SIM)					: $(SRC_SIM_$(d))
+$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl
+SIMS						+= $(SIM)
 
 # Fixed
 # TARGETS 				+= $(TARGET) 
-SIMS						+= $(SIM)
 
 # $(TARGET)				: $(SRC_$(d))
-$(SIM)					: $(SRC_SIM_$(d))
-$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl
 
 d               := $(dirstack_$(sp))
 sp              := $(basename $(sp))
