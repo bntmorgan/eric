@@ -138,6 +138,17 @@ begin
   // Holds the cvalues
   # 10
 
+  // CSR WRITE event_end
+  # 2 $display("---- ctrl = dummymode + start");
+  csr_a = `CHECKER_CSR_STAT; 
+  csr_we = 1'b1;
+  csr_di = `CHECKER_STAT_EVENT_END;
+  # 2
+  csr_we = 1'b0;
+
+  // Holds the cvalues
+  # 10
+
   // CSR WRITE CTRL START
   # 2 $display("---- ctrl = dummymode + start");
   csr_a = `CHECKER_CSR_CTRL; 
