@@ -39,6 +39,21 @@ wire mode_irq_single;
 wire mode_irq_auto;
 wire mode_irq_read;
 
+wire single_en;
+
+wire [47:0] i_data;
+wire [63:0] hm_data;
+wire mpu_en;
+wire [15:0] i_addr;
+wire user_irq;
+wire [63:0] user_data;
+wire [63:0] hm_addr;
+wire hm_start;
+wire error;
+
+wire hm_en;
+wire mpu_rst;
+
 // Control interface
 checker_ctlif #(
   .csr_addr(csr_addr)
@@ -65,7 +80,6 @@ checker_ctlif #(
 /**
  * Checkers
  */
-wire single_en;
 
 assign mode_end = mode_end_dummy | mode_end_single | mode_end_auto
   | mode_end_read;
@@ -96,7 +110,7 @@ checker_dummy #(
   .mode_addr(mode_addr),
   .mode_end(mode_end_dummy),
   .mode_data(mode_data_dummy),
-  .mode_irq(mode_irq_single),
+  .mode_irq(mode_irq_dummy),
   .mode_ack(mode_ack)
 );
 
@@ -124,18 +138,6 @@ checker_single #(
 /**
  * MPU
  */
-wire [47:0] i_data;
-wire [63:0] hm_data;
-wire mpu_en;
-wire [15:0] i_addr;
-wire user_irq;
-wire [63:0] user_data;
-wire [63:0] hm_addr;
-wire hm_start;
-wire error;
-
-wire hm_en;
-wire mpu_rst;
 
 mpu_top mpu (
   .sys_clk(sys_clk),
