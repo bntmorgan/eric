@@ -62,22 +62,22 @@ simulations: $(SIMS)
 
 %.routed.ncd: %.ncd 
 	@mkdir -p $(dir $@)
-	@echo [RTE] $@
+	@echo [RTE] $@ \> $@.out
 	@cd $(dir $@) && par -ol high -w $(realpath $^) $(abspath $@) > $(abspath $@).out
 
 %.ncd: %.ngd
 	@mkdir -p $(dir $@)
-	@echo [NCD] $@
+	@echo [NCD] $@ \> $@.out
 	@cd $(dir $@) && map -ol high -t 20 -w $(realpath $^) > $(abspath $@).out
 
 %.ngd: %.ucf %.ngc
 	@mkdir -p $(dir $@)
-	@echo [NGD] $@
+	@echo [NGD] $@ \> $@.out
 	@cd $(dir $@) && ngdbuild -uc $(realpath $^) > $(abspath $@).out
 
 %.ngc: %.prj %.xst
 	@mkdir -p $(dir $@)
-	@echo [NGC] $@
+	@echo [NGC] $@ \> $@.out
 	@cd $(dir $@) && xst -ifn ./system.xst > $(abspath $@).out
 
 %.prj:
