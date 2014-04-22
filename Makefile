@@ -57,7 +57,8 @@ simulations: $(SIMS)
 %.isim: %.prj
 	@mkdir -p $(dir $@)
 	@echo [ISM] $@
-	@fuse -prj $^ work.main -o $@ -d __DUMP_FILE__=\"$(abspath $@).vcd\"
+	@cd $(dir $(realpath $@)) && fuse -prj $(realpath $^) work.main -o $(abspath \
+		$@) -d __DUMP_FILE__=\"$(abspath $@).vcd\"
 
 
 %.bit: %.routed.ncd
