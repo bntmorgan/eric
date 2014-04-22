@@ -54,6 +54,12 @@ simulations: $(SIMS)
 	@echo [VLG] $@
 	@iverilog -o $@ $^ $(SIM_CFLAGS) -D__DUMP_FILE__=\"$(abspath $@).vcd\"
 
+%.isim: %.prj
+	@mkdir -p $(dir $@)
+	@echo [ISM] $@
+	@fuse -prj $^ work.main -o $@ -d __DUMP_FILE__=\"$(abspath $@).vcd\"
+
+
 %.bit: %.routed.ncd
 	@mkdir -p $(dir $@)
 	@echo [BIT] $@
@@ -63,7 +69,8 @@ simulations: $(SIMS)
 %.routed.ncd: %.ncd 
 	@mkdir -p $(dir $@)
 	@echo [RTE] $@ \> $@.out
-	@cd $(dir $@) && par -ol high -w $(realpath $^) $(abspath $@) > $(abspath $@).out
+	@cd $(dir $@) && par -ol high -w $(realpath $^) $(abspath $@) > $(abspath \
+		$@).out
 
 %.ncd: %.ngd
 	@mkdir -p $(dir $@)

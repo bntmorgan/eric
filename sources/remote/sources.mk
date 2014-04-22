@@ -32,7 +32,7 @@ SRC_$(d) +=							\
 SRC_$(d) +=$(wildcard $(CORES_DIR)/checker/rtl/checker*.v)
 # MPU_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v)
-SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/dummy*.v) # XXX TODO remove
+SRC_$(d) +=$(CORES_DIR)/mpu/rtl/dummy_mpu_host_memory.v # XXX TODO remove
 # FMLARB_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/fmlarb/rtl/*.v)
 # FMLBRG_SRC
