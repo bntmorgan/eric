@@ -29,10 +29,9 @@ all: targets simulations
 
 ################################## GLOBALS  ####################################
 
-XILINX := /home/bmorgan/Xilinx/14.7/ISE_DS/ISE
-XILINX_SIM := $(XILINX)/verilog/src/simprims
-XILINX_LIB := $(XILINX)/verilog/src/XilinxCoreLib
 CORES_DIR := ./sources/cores
+XILINX := /home/bmorgan/Xilinx/14.7/ISE_DS/ISE
+XILINX_SRC := $(XILINX)/verilog/src
 
 ################################## INCLUDES ####################################
 
@@ -51,15 +50,17 @@ simulations: $(SIMS)
 
 %.sim:
 	@mkdir -p $(dir $@)
-	@echo [VLG] $@
-	@iverilog -o $@ $^ $(SIM_CFLAGS) -D__DUMP_FILE__=\"$(abspath $@).vcd\"
+	@echo [VLG] $@ \> $@.out
+	@iverilog -y$(XILINX_SRC)/unisims $(XILINX_SRC)/glbl.v -o $@ $^ \
+		$(SIM_CFLAGS) -D__DUMP_FILE__=\"$(abspath $@).vcd\" &> $(abspath $@).out
 
 %.isim: %.prj
 	@mkdir -p $(dir $@)
 	@echo [ISM] $@
-	@cd $(dir $(realpath $@)) && fuse -prj $(realpath $^) work.main -o $(abspath \
-		$@) -d __DUMP_FILE__=\"$(abspath $@).vcd\"
-
+	@cd $(dir $@) && vlogcomp -work work $(XILINX)/verilog/src/glbl.v
+	@cd $(dir $@) && fuse -prj $(realpath $^) work.main work.glbl \
+		-o $(abspath $@) -d __DUMP_FILE__=\"$(abspath $@).vcd\"  -d SIMULATION -L \
+		unisims_ver -L secureip
 
 %.bit: %.routed.ncd
 	@mkdir -p $(dir $@)
@@ -114,8 +115,8 @@ load: binary/remote/system.bit
 run_simulations: $(call SIM_2_RUN, $(SIMS)) 
 
 %.run: %.sim
-	@echo [RUN] $< ">" $<.out
-	@cd $(dir $@) && $(realpath $<) > $(realpath $<).out
+	@echo [RUN] $< ">" $<.run
+	@cd $(dir $@) && $(realpath $<) > $(realpath $<).run
 
 info:
 	@echo TARGETS [$(TARGETS)]

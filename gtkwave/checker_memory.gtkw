@@ -1,0 +1,175 @@
+[*]
+[*] GTKWave Analyzer v3.3.52 (w)1999-2013 BSI
+[*] Thu Apr 24 09:02:28 2014
+[*]
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/checker/checker_memory.sim.vcd"
+[dumpfile_mtime] "Thu Apr 24 09:02:00 2014"
+[dumpfile_size] 104704
+[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/checker_memory.gtkw"
+[timestart] 0
+[size] 1918 1179
+[pos] -1 -1
+*-4.578132 30 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.m.
+[treeopen] main.m.gen_ram[0].
+[sst_width] 224
+[signals_width] 270
+[sst_expanded] 1
+[sst_vpaned_height] 345
+@c00200
+-top
+@22
+main.m.mpu_addr[15:0]
+@28
+main.m.sys_clk
+main.m.sys_rst
+main.m.wb_ack_o
+@22
+main.m.wb_adr_i[31:0]
+@28
+main.m.wb_cyc_i
+@22
+main.m.wb_dat_i[31:0]
+main.m.wb_dat_o[31:0]
+@28
+main.m.wb_en
+@22
+main.m.wb_sel_i[3:0]
+@28
+main.m.wb_stb_i
+main.m.wb_we_i
+@1401200
+-top
+@800200
+-mem
+@22
+main.m.mpu_addr[15:0]
+main.m.mpu_do[47:0]
+@28
+main.m.sys_clk
+main.m.sys_rst
+main.m.wb_ack_o
+@22
+main.m.wb_adr_i[31:0]
+@28
+main.m.wb_cyc_i
+@22
+main.m.wb_dat[31:0]
+main.m.wb_dat_i[31:0]
+main.m.wb_dat_o[31:0]
+@28
+main.m.wb_en
+@22
+main.m.wb_sel_i[3:0]
+@28
+main.m.wb_stb_i
+main.m.wb_we_i
+@22
+main.m.\ram_dat_i[0][31:0]
+@23
+main.m.\ram_dat_i[1][31:0]
+main.m.\ram_dat_i[2][31:0]
+main.m.\ram_dat_i[3][31:0]
+main.m.\ram_dat_i[4][31:0]
+main.m.\ram_dat_i[5][31:0]
+main.m.\ram_dat_i[6][31:0]
+main.m.\ram_dat_i[7][31:0]
+@1000200
+-mem
+@c00200
+-wb_to_ram
+@28
+main.m.conv.adr_4_mod_2
+main.m.conv.adr_mod_2
+@22
+main.m.conv.ram_adr_0_o[11:0]
+main.m.conv.ram_adr_1_o[11:0]
+main.m.conv.ram_adr_2_o[11:0]
+main.m.conv.ram_adr_3_o[11:0]
+main.m.conv.ram_adr_4_o[11:0]
+main.m.conv.ram_adr_5_o[11:0]
+main.m.conv.ram_adr_6_o[11:0]
+main.m.conv.ram_adr_7_o[11:0]
+@28
+main.m.conv.adr_4_mod_2
+main.m.conv.adr_mod_2
+@22
+main.m.conv.ram_dat_0_o[7:0]
+main.m.conv.ram_dat_1_o[7:0]
+main.m.conv.ram_dat_2_o[7:0]
+main.m.conv.ram_dat_3_o[7:0]
+main.m.conv.ram_dat_4_o[7:0]
+main.m.conv.ram_dat_5_o[7:0]
+main.m.conv.ram_dat_6_o[7:0]
+main.m.conv.ram_dat_7_o[7:0]
+main.m.conv.ram_dat_1_i[7:0]
+main.m.conv.ram_dat_2_i[7:0]
+main.m.conv.ram_dat_3_i[7:0]
+main.m.conv.ram_dat_4_i[7:0]
+main.m.conv.ram_dat_5_i[7:0]
+main.m.conv.ram_dat_6_i[7:0]
+main.m.conv.ram_dat_7_i[7:0]
+@28
+main.m.conv.ram_we_0_o
+main.m.conv.ram_we_1_o
+main.m.conv.ram_we_2_o
+main.m.conv.ram_we_3_o
+main.m.conv.ram_we_4_o
+main.m.conv.ram_we_5_o
+main.m.conv.ram_we_6_o
+main.m.conv.ram_we_7_o
+@22
+main.m.conv.wb_adr_i[14:0]
+main.m.conv.wb_adr_i_4[12:0]
+main.m.conv.wb_dat_i[31:0]
+main.m.conv.wb_dat_o[31:0]
+main.m.conv.wb_sel_i[3:0]
+@1401200
+-wb_to_ram
+@c00200
+-gen_ram[0]
+@22
+main.m.gen_ram[0].ram.ADDRA[15:0]
+main.m.gen_ram[0].ram.ADDRB[15:0]
+@28
+main.m.gen_ram[0].ram.CASCADEINLATA
+main.m.gen_ram[0].ram.CASCADEINLATB
+main.m.gen_ram[0].ram.CASCADEINREGA
+main.m.gen_ram[0].ram.CASCADEINREGB
+main.m.gen_ram[0].ram.CASCADEOUTLATA
+main.m.gen_ram[0].ram.CASCADEOUTLATB
+main.m.gen_ram[0].ram.CASCADEOUTREGA
+main.m.gen_ram[0].ram.CASCADEOUTREGB
+main.m.gen_ram[0].ram.CLKA
+main.m.gen_ram[0].ram.CLKB
+@22
+main.m.gen_ram[0].ram.DIA[31:0]
+main.m.gen_ram[0].ram.DIB[31:0]
+main.m.gen_ram[0].ram.DIPA[3:0]
+main.m.gen_ram[0].ram.DIPB[3:0]
+main.m.gen_ram[0].ram.DOA[31:0]
+main.m.gen_ram[0].ram.DOB[31:0]
+main.m.gen_ram[0].ram.DOPA[3:0]
+main.m.gen_ram[0].ram.DOPB[3:0]
+@28
+main.m.gen_ram[0].ram.ENA
+main.m.gen_ram[0].ram.ENB
+main.m.gen_ram[0].ram.GSR
+main.m.gen_ram[0].ram.REGCEA
+main.m.gen_ram[0].ram.REGCEB
+main.m.gen_ram[0].ram.SSRA
+main.m.gen_ram[0].ram.SSRB
+@22
+main.m.gen_ram[0].ram.WEA[3:0]
+main.m.gen_ram[0].ram.WEB[3:0]
+@28
+main.m.gen_ram[0].ram.dangle_out
+@22
+main.m.gen_ram[0].ram.dangle_out4[3:0]
+main.m.gen_ram[0].ram.dangle_out8[7:0]
+main.m.gen_ram[0].ram.dangle_out32[31:0]
+@1401200
+-gen_ram[0]
+[pattern_trace] 1
+[pattern_trace] 0

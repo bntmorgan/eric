@@ -48,14 +48,6 @@ mpu_memory mem (
   .r_data(i_data)
 );
 
-mpu_int int (
-  .sys_clk(sys_clk),
-  .sys_rst(sys_rst),
-  .irq(user_irq),
-  .data(user_data),
-  .en(user_en)
-);
-
 mpu_host_memory mhm (
   .addr(hm_addr),
   .start(hm_start),

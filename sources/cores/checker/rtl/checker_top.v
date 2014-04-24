@@ -1,6 +1,6 @@
 `include "checker.vh"
 
-module checker #(
+module checker_top #(
 	parameter csr_addr = 4'h0
 ) (
   // System
@@ -14,7 +14,17 @@ module checker #(
 	output [31:0] csr_do,
 
   // IRQ
-	output irq
+	output irq,
+
+  // Wishbone bus
+	input [31:0] wb_adr_i,
+	output [31:0] wb_dat_o,
+	input [31:0] wb_dat_i,
+	input [3:0] wb_sel_i,
+	input wb_stb_i,
+	input wb_cyc_i,
+	output wb_ack_o,
+	input wb_we_i
 );
 
 // Wires
@@ -157,7 +167,15 @@ checker_memory mem (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
   .mpu_addr(i_addr),
-  .mpu_do(i_data)
+  .mpu_do(i_data),
+  .wb_adr_i(wb_adr_i),
+  .wb_dat_i(wb_dat_i),
+  .wb_sel_i(wb_sel_i),
+  .wb_stb_i(wb_stb_i),
+  .wb_cyc_i(wb_cyc_i),
+  .wb_we_i(wb_we_i),
+  .wb_dat_o(wb_dat_o),
+  .wb_ack_o(wb_ack_o)
 );
 
 mpu_host_memory mhm (

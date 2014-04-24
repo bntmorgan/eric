@@ -1,5 +1,3 @@
-`define CHECKER_MEMORY_SIZE 1024
-
 module checker_memory (
   // System
   input sys_clk,
@@ -11,7 +9,7 @@ module checker_memory (
 
   // Wishbone bus
 	input [31:0] wb_adr_i,
-	output [31:0] wb_dat_o,
+	output reg [31:0] wb_dat_o,
 	input [31:0] wb_dat_i,
 	input [3:0] wb_sel_i,
 	input wb_stb_i,
@@ -20,59 +18,106 @@ module checker_memory (
 	input wb_we_i
 );
 
-/**
- * Memory
- */
-reg [7:0] mem [`CHECKER_MEMORY_SIZE:0];
-// Gives the right bus width modulo CHECKER_MEMORY_SIZE
-wire [9:0] wb_addr_s = wb_adr_i[9:0];
-wire [9:0] mpu_addr_s = mpu_addr[9:0];
-
-/**
- * Async read for mpu
- */
-assign mpu_do = {mem[mpu_addr_s + 5], mem[mpu_addr_s + 4], mem[mpu_addr_s + 3],
-  mem[mpu_addr_s + 2], mem[mpu_addr_s + 1], mem[mpu_addr_s + 0]};
-
-/**
- * Wishbone
- */
 wire wb_en = wb_cyc_i & wb_stb_i;
-// Endianess convertion
-wire [31:0] wb_dat_i_le = {wb_dat_i[7:0], wb_dat_i[15:8], wb_dat_i[23:16],
-  wb_dat_i[31:24]};
-assign wb_dat_o = {wb_dat_o_le[7:0], wb_dat_o_le[15:8], wb_dat_o_le[23:16],
-  wb_dat_o_le[31:24]};
-wire [3:0] wb_sel_i_le = {wb_sel_i[0], wb_sel_i[1], wb_sel_i[2], wb_sel_i[3]};
-reg [31:0] wb_dat_o_le;
 
-// TODO test if byte adressing or double word !!!
-always @(posedge sys_clk) begin
-  if (sys_rst) begin
-    init();
-  end else begin
-    // Write operations
-    if (wb_we_i & wb_en) begin
-      if (wb_sel_i_le[0]) begin
-        mem[wb_addr_s + 0][7:0] <= wb_dat_i_le[07:00];
-      end
-      if (wb_sel_i_le[1]) begin
-        mem[wb_addr_s + 1][7:0] <= wb_dat_i_le[15:08];
-      end
-      if (wb_sel_i_le[2]) begin
-        mem[wb_addr_s + 2][7:0] <= wb_dat_i_le[23:16];
-      end
-      if (wb_sel_i_le[3]) begin
-        mem[wb_addr_s + 3][7:0] <= wb_dat_i_le[31:24];
-      end
-    end
-    // Read operations
-    wb_dat_o_le[31:0] <= {mem[wb_addr_s + 3], mem[wb_addr_s + 2], mem[wb_addr_s + 1],
-      mem[wb_addr_s + 0]};
-  end
+// Wb to ram wires
+wire [15:0] ram_adr [7:0];
+wire [31:0] ram_dat_i [7:0];
+wire [7:0] ram_dat_o [7:0];
+wire [3:0] ram_we [7:0];
+wire [31:0] wb_dat;
+
+/**
+ * Converts 4 bytes double words adressing in a quad word adressed ram
+ * wb_adr_i is 15 bits because 8 * 4096 is 2 ^ (3 + 12)
+ */
+checker_wb_to_ram conv(
+  .wb_adr_i(wb_adr_i[14:0]),
+  .wb_dat_i(wb_dat_i),
+  .wb_sel_i({4{wb_en & wb_we_i}} & wb_sel_i),
+  .wb_dat_o(wb_dat),
+  .ram_adr_0_o(ram_adr[0][14:3]),
+  .ram_adr_1_o(ram_adr[1][14:3]),
+  .ram_adr_2_o(ram_adr[2][14:3]),
+  .ram_adr_3_o(ram_adr[3][14:3]),
+  .ram_adr_4_o(ram_adr[4][14:3]),
+  .ram_adr_5_o(ram_adr[5][14:3]),
+  .ram_adr_6_o(ram_adr[6][14:3]),
+  .ram_adr_7_o(ram_adr[7][14:3]),
+  .ram_dat_0_o(ram_dat_o[0]),
+  .ram_dat_1_o(ram_dat_o[1]),
+  .ram_dat_2_o(ram_dat_o[2]),
+  .ram_dat_3_o(ram_dat_o[3]),
+  .ram_dat_4_o(ram_dat_o[4]),
+  .ram_dat_5_o(ram_dat_o[5]),
+  .ram_dat_6_o(ram_dat_o[6]),
+  .ram_dat_7_o(ram_dat_o[7]),
+  .ram_dat_0_i(ram_dat_i[0][7:0]),
+  .ram_dat_1_i(ram_dat_i[1][7:0]),
+  .ram_dat_2_i(ram_dat_i[2][7:0]),
+  .ram_dat_3_i(ram_dat_i[3][7:0]),
+  .ram_dat_4_i(ram_dat_i[4][7:0]),
+  .ram_dat_5_i(ram_dat_i[5][7:0]),
+  .ram_dat_6_i(ram_dat_i[6][7:0]),
+  .ram_dat_7_i(ram_dat_i[7][7:0]),
+  .ram_we_0_o(ram_we[0][0]),
+  .ram_we_1_o(ram_we[1][0]),
+  .ram_we_2_o(ram_we[2][0]),
+  .ram_we_3_o(ram_we[3][0]),
+  .ram_we_4_o(ram_we[4][0]),
+  .ram_we_5_o(ram_we[5][0]),
+  .ram_we_6_o(ram_we[6][0]),
+  .ram_we_7_o(ram_we[7][0])
+);
+
+// Generate the 8 RAMS
+genvar ram_index;
+generate for (ram_index=0; ram_index < 8; ram_index=ram_index+1) 
+begin: gen_ram
+	RAMB36 #(
+		.WRITE_WIDTH_A(9),
+		.READ_WIDTH_A(9),
+		.WRITE_WIDTH_B(9),
+		.READ_WIDTH_B(9),
+		.DOA_REG(0),
+		.DOB_REG(0),
+		.SIM_MODE("SAFE"),
+		.INIT_A(9'h000),
+		.INIT_B(9'h000),
+		.WRITE_MODE_A("WRITE_FIRST"),
+		.WRITE_MODE_B("WRITE_FIRST")
+	) ram (
+		.DIA({24'b0, ram_dat_o[ram_index]}),
+		.DIPA(4'h0),
+		.DOA(ram_dat_i[ram_index]),
+		.ADDRA({1'b0, ram_adr[ram_index][14:3], 3'b0}), 
+		.WEA({3'b0, ram_we[ram_index][0]}),
+		.ENA(1'b1),
+		/* No RSTA port */
+		.CLKA(sys_clk),
+		
+		.DIB(9'b0),
+		.DIPB(1'h0),
+		.DOB(),
+		.ADDRB(15'b0),
+		.WEB(1'b0),
+		.ENB(1'b0),
+		/* No RSTB port */
+		.CLKB(sys_clk),
+
+		.REGCEA(1'b0),
+		.REGCEB(1'b0),
+		
+		.SSRA(1'b0),
+		.SSRB(1'b0)
+	);
+end
+endgenerate
+
+always @(*) begin
+  wb_dat_o = wb_dat;
 end
 
-// Ack signal one clock after every wb cycle begin
 always @(posedge sys_clk) begin
 	if(sys_rst)
 		wb_ack_o <= 1'b0;
@@ -82,20 +127,5 @@ always @(posedge sys_clk) begin
 			wb_ack_o <= 1'b1;
 	end
 end
-
-// Memory initialization
-initial begin
-  init();
-  wb_dat_o_le[31:0] <= 32'b0;
-end
-
-integer d;
-task init;
-  begin
-    for (d = 0; d < `CHECKER_MEMORY_SIZE; d = d + 1) begin
-      mem[d][7:0] <= 8'b0;
-    end
-  end
-endtask
 
 endmodule

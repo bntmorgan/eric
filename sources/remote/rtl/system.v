@@ -305,6 +305,7 @@ wire		cpuibus_ack,
 wire [31:0]	norflash_adr,
 		monitor_adr,
 		usb_adr,
+		checker_adr,
 		eth_adr,
 		brg_adr,
 		csrbrg_adr;
@@ -317,6 +318,8 @@ wire [31:0]	norflash_dat_r,
 		monitor_dat_w,
 		usb_dat_r,
 		usb_dat_w,
+		checker_dat_r,
+		checker_dat_w,
 		eth_dat_r,
 		eth_dat_w,
 		brg_dat_r,
@@ -327,12 +330,14 @@ wire [31:0]	norflash_dat_r,
 wire [3:0]	norflash_sel,
 		monitor_sel,
 		usb_sel,
+		checker_sel,
 		eth_sel,
 		brg_sel;
 
 wire		norflash_we,
 		monitor_we,
 		usb_we,
+		checker_we,
 		eth_we,
 		brg_we,
 		csrbrg_we;
@@ -340,6 +345,7 @@ wire		norflash_we,
 wire		norflash_cyc,
 		monitor_cyc,
 		usb_cyc,
+		checker_cyc,
 		eth_cyc,
 		brg_cyc,
 		csrbrg_cyc;
@@ -347,6 +353,7 @@ wire		norflash_cyc,
 wire		norflash_stb,
 		monitor_stb,
 		usb_stb,
+		checker_stb,
 		eth_stb,
 		brg_stb,
 		csrbrg_stb;
@@ -354,6 +361,7 @@ wire		norflash_stb,
 wire		norflash_ack,
 		monitor_ack,
 		usb_ack,
+		checker_ack,
 		eth_ack,
 		brg_ack,
 		csrbrg_ack;
@@ -461,15 +469,24 @@ conbus5x6 #(
 	.s1_stb_o(monitor_stb),
 	.s1_ack_i(monitor_ack),
 	// Slave 2
-	.s2_dat_i(32'bx),
-	.s2_dat_o(),
-	.s2_adr_o(),
+//	.s2_dat_i(32'bx),
+//	.s2_dat_o(),
+//	.s2_adr_o(),
+//	.s2_cti_o(),
+//	.s2_sel_o(),
+//	.s2_we_o(),
+//	.s2_cyc_o(),
+//	.s2_stb_o(),
+//	.s2_ack_i(1'bx),
+	.s2_dat_i(checker_dat_r),
+	.s2_dat_o(checker_dat_w),
+	.s2_adr_o(checker_adr),
 	.s2_cti_o(),
-	.s2_sel_o(),
-	.s2_we_o(),
-	.s2_cyc_o(),
-	.s2_stb_o(),
-	.s2_ack_i(1'bx),
+	.s2_sel_o(checker_sel),
+	.s2_we_o(checker_we),
+	.s2_cyc_o(checker_cyc),
+	.s2_stb_o(checker_stb),
+	.s2_ack_i(checker_ack),
 // 	.s2_dat_i(usb_dat_r),
 // 	.s2_dat_o(usb_dat_w),
 // 	.s2_adr_o(usb_adr),
@@ -1624,7 +1641,7 @@ assign usbb_vm = 1'bz;
 //------------------------------------------------------------------
 // Checker
 //------------------------------------------------------------------
-checker #(
+checker_top #(
 	.csr_addr(4'hf)
 ) ck (
   .sys_clk(sys_clk),
@@ -1634,7 +1651,16 @@ checker #(
   .csr_we(csr_we),
   .csr_di(csr_dw),
   .csr_do(csr_dr_checker),
-  .irq(checker_irq)
+  .irq(checker_irq),
+
+	.wb_dat_o(checker_dat_r),
+	.wb_dat_i(checker_dat_w),
+	.wb_adr_i(checker_adr),
+	.wb_sel_i(checker_sel),
+	.wb_we_i(checker_we),
+	.wb_cyc_i(checker_cyc),
+	.wb_stb_i(checker_stb),
+	.wb_ack_o(checker_ack)
 );
 
 endmodule

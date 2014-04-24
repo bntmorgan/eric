@@ -26,7 +26,7 @@ wire irq;
 /**
  * Tested components
  */
-checker ck(
+checker_top ck(
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
 
