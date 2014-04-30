@@ -7,7 +7,7 @@ module main();
  */
 
 // Inputs
-
+reg [14:0] i_addr_i;
 reg [7:0] ram_dat_0_i;
 reg [7:0] ram_dat_1_i;
 reg [7:0] ram_dat_2_i;
@@ -19,6 +19,7 @@ reg [7:0] ram_dat_7_i;
 
 // Outputs
 
+wire [47:0] i_data_o;
 wire [11:0] ram_adr_0_o;
 wire [11:0] ram_adr_1_o;
 wire [11:0] ram_adr_2_o;
@@ -27,34 +28,15 @@ wire [11:0] ram_adr_4_o;
 wire [11:0] ram_adr_5_o;
 wire [11:0] ram_adr_6_o;
 wire [11:0] ram_adr_7_o;
-wire [7:0] ram_dat_0_o;
-wire [7:0] ram_dat_1_o;
-wire [7:0] ram_dat_2_o;
-wire [7:0] ram_dat_3_o;
-wire [7:0] ram_dat_4_o;
-wire [7:0] ram_dat_5_o;
-wire [7:0] ram_dat_6_o;
-wire [7:0] ram_dat_7_o;
-wire ram_we_0_o;
-wire ram_we_1_o;
-wire ram_we_2_o;
-wire ram_we_3_o;
-wire ram_we_4_o;
-wire ram_we_5_o;
-wire ram_we_6_o;
-wire ram_we_7_o;
 
 `include "sim.v"
-`include "sim_wb.v"
 
 /**
  * Tested components
  */
-checker_wb_to_ram conv(
-  .wb_adr_i(wb_adr_i[14:0]),
-  .wb_dat_i(wb_dat_i),
-  .wb_sel_i(wb_sel_i),
-  .wb_dat_o(wb_dat_o),
+checker_mpu_to_ram conv(
+  .i_data_o(i_data_o),
+  .i_addr_i(i_addr_i),
   .ram_adr_0_o(ram_adr_0_o),
   .ram_adr_1_o(ram_adr_1_o),
   .ram_adr_2_o(ram_adr_2_o),
@@ -63,14 +45,6 @@ checker_wb_to_ram conv(
   .ram_adr_5_o(ram_adr_5_o),
   .ram_adr_6_o(ram_adr_6_o),
   .ram_adr_7_o(ram_adr_7_o),
-  .ram_dat_0_o(ram_dat_0_o),
-  .ram_dat_1_o(ram_dat_1_o),
-  .ram_dat_2_o(ram_dat_2_o),
-  .ram_dat_3_o(ram_dat_3_o),
-  .ram_dat_4_o(ram_dat_4_o),
-  .ram_dat_5_o(ram_dat_5_o),
-  .ram_dat_6_o(ram_dat_6_o),
-  .ram_dat_7_o(ram_dat_7_o),
   .ram_dat_0_i(ram_dat_0_i),
   .ram_dat_1_i(ram_dat_1_i),
   .ram_dat_2_i(ram_dat_2_i),
@@ -78,15 +52,7 @@ checker_wb_to_ram conv(
   .ram_dat_4_i(ram_dat_4_i),
   .ram_dat_5_i(ram_dat_5_i),
   .ram_dat_6_i(ram_dat_6_i),
-  .ram_dat_7_i(ram_dat_7_i),
-  .ram_we_0_o(ram_we_0_o),
-  .ram_we_1_o(ram_we_1_o),
-  .ram_we_2_o(ram_we_2_o),
-  .ram_we_3_o(ram_we_3_o),
-  .ram_we_4_o(ram_we_4_o),
-  .ram_we_5_o(ram_we_5_o),
-  .ram_we_6_o(ram_we_6_o),
-  .ram_we_7_o(ram_we_7_o)
+  .ram_dat_7_i(ram_dat_7_i)
 );
 
 
@@ -96,6 +62,7 @@ begin
 end
 
 initial begin
+  i_addr_i <= 15'b0;
   ram_dat_0_i <= 8'h00;
   ram_dat_1_i <= 8'h11;
   ram_dat_2_i <= 8'h22;
@@ -111,17 +78,22 @@ end
  */
 initial
 begin
+  i_addr_i <= 15'h00;
   waitnclock(4);
-  wb_dat_i <= 32'h11223344;
-  wb_sel_i <= 4'b1111;
+  i_addr_i <= 15'h01;
   waitnclock(4);
-  wb_adr_i <= 32'h00000004;
+  i_addr_i <= 15'h02;
   waitnclock(4);
-  wb_adr_i <= 32'h00000008;
+  i_addr_i <= 15'h03;
   waitnclock(4);
-  wb_adr_i <= 32'h0000000c;
+  i_addr_i <= 15'h04;
   waitnclock(4);
-  wb_adr_i <= 32'h00000010;
+  i_addr_i <= 15'h05;
+  waitnclock(4);
+  i_addr_i <= 15'h06;
+  waitnclock(4);
+  i_addr_i <= 15'h07;
+  waitnclock(4);
   $finish;
 end
 

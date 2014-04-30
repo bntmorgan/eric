@@ -8,8 +8,9 @@
 `define CHECKER_STATE_ACK     2'b11
 
 // Dummy Checker states
-`define CHECKER_DUMMY_STATE_IDLE    1'b0
-`define CHECKER_DUMMY_STATE_RUN     1'b1
+`define CHECKER_DUMMY_STATE_IDLE    2'b00
+`define CHECKER_DUMMY_STATE_RUN     2'b01
+`define CHECKER_DUMMY_STATE_WAIT    2'b10
 
 // Single Checker states
 `define CHECKER_SINGLE_STATE_IDLE    2'b00
@@ -28,6 +29,8 @@
 `define CHECKER_CSR_ADDRESS_HIGH      3'b001
 `define CHECKER_CSR_CTRL              3'b010
 `define CHECKER_CSR_STAT              3'b011
+`define CHECKER_CSR_MODE_DATA_LOW     3'b100
+`define CHECKER_CSR_MODE_DATA_HIGH    3'b101
 
 // Register Status
 `define CHECKER_STAT_EVENT_END        32'h00000001
@@ -42,4 +45,4 @@
 `define CHECKER_CTRL_MODE_DUMMY       (`CHECKER_MODE_DUMMY << 32'd1)
 `define CHECKER_CTRL_START            32'h00000008
 
-`endif
+`endif//__CHECKER_VH__

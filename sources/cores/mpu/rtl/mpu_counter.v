@@ -34,7 +34,7 @@ always @(posedge sys_clk) begin
       if (load) begin
         out[15:0] <= data[15:0];
       end else begin
-        out[15:0] <= out [15:0] + incr[15:0];
+        out[15:0] <= out[15:0] + incr[15:0];
       end
     end
   end

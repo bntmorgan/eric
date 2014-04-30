@@ -8,27 +8,32 @@ module main();
  */
 
 // Inputs
-reg sys_clk;
-reg sys_rst;
-
-reg [13:0] csr_a;
-reg csr_we;
-reg [31:0] csr_di;
 
 // Ouputs
-wire [31:0] csr_do;
 wire irq;
 
-`SIM_SYS_CLK
+`include "sim_wb.v"
+`include "sim_csr.v"
+`include "sim.v"
 
 `SIM_REPORT_CSR
 
 /**
  * Tested components
  */
-checker_top ck(
+checker_top ck (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
+  .mpu_clk(sys_clk),
+
+  .wb_adr_i(wb_adr_i),
+  .wb_dat_i(wb_dat_i),
+  .wb_sel_i(wb_sel_i),
+  .wb_stb_i(wb_stb_i),
+  .wb_cyc_i(wb_cyc_i),
+  .wb_we_i(wb_we_i),
+  .wb_dat_o(wb_dat_o),
+  .wb_ack_o(wb_ack_o),
 
   .csr_a(csr_a),
   .csr_we(csr_we),
@@ -45,46 +50,46 @@ end
 /**
  * Simulation
  */
+integer i;
 initial
 begin
+  for (i = 0; i < 8; i = i + 1)
+  begin
+    $dumpvars(0,ck.mem.gen_ram[0].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[1].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[2].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[3].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[4].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[5].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[6].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[7].ram.mem[i]);
+  end
   // CSR WRITE IRQ
   # 2 $display("---- CTRL = IRQ_EN");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 1'b1;
-  csr_di = `CHECKER_CTRL_IRQ_EN;
+  csrwrite(`CHECKER_CSR_CTRL, `CHECKER_CTRL_IRQ_EN);
 
   // CSR READ IRQ
   # 2 $display("---- read CTRL");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 0;
-  csr_di = 1'b0;
+  csrread(`CHECKER_CSR_CTRL);
 
   // CSR WRITE ADDRES LOW
   # 2 $display("---- low = 0x10");
-  csr_a = `CHECKER_CSR_ADDRESS_LOW; 
-  csr_we = 1'b1;
-  csr_di = 32'h00000010;
+  csrwrite(`CHECKER_CSR_ADDRESS_LOW, 32'h00000010);
 
   // CSR WRITE ADDRES LOW
   # 2 $display("---- read low");
-  csr_a = `CHECKER_CSR_ADDRESS_LOW; 
-  csr_we = 1'b0;
-  csr_di = 32'h0;
+  csrread(`CHECKER_CSR_ADDRESS_LOW);
 
   // Holds the cvalues
   # 10
 
   // CSR WRITE CTRL START
   # 2 $display("---- ctrl = dummymode + start");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 1'b1;
-  csr_di = {28'h0, 1'b1, `CHECKER_MODE_DUMMY, 1'b1};
+  csrwrite(`CHECKER_CSR_CTRL, {28'h0, 1'b1, `CHECKER_MODE_DUMMY, 1'b1});
 
   // CSR READ CTRL
   # 2 $display("---- read ctrl");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 1'b0;
-  csr_di = 32'b0;
+  csrread(`CHECKER_CSR_CTRL);
 
   // Holds the cvalues
   # 40
@@ -99,46 +104,61 @@ begin
 
   // CSR WRITE IRQ
   # 2 $display("---- CTRL = IRQ_EN");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 1'b1;
-  csr_di = `CHECKER_CTRL_IRQ_EN;
+  csrwrite(`CHECKER_CSR_CTRL, `CHECKER_CTRL_IRQ_EN);
 
   // CSR READ IRQ
   # 2 $display("---- read CTRL");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 0;
-  csr_di = 1'b0;
+  csrread(`CHECKER_CSR_CTRL);
 
   // CSR WRITE ADDRES LOW
   # 2 $display("---- low = 0x10");
-  csr_a = `CHECKER_CSR_ADDRESS_LOW; 
-  csr_we = 1'b1;
-  csr_di = 32'h00000010;
+  csrwrite(`CHECKER_CSR_ADDRESS_LOW, 32'h00000010);
 
   // CSR WRITE ADDRES LOW
   # 2 $display("---- read low");
-  csr_a = `CHECKER_CSR_ADDRESS_LOW; 
-  csr_we = 1'b0;
-  csr_di = 32'h0;
+  csrread(`CHECKER_CSR_ADDRESS_LOW);
 
   // Holds the cvalues
   # 10
 
   // CSR WRITE CTRL START
   # 2 $display("---- ctrl = dummymode + start");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 1'b1;
-  csr_di = {28'h0, 1'b1, `CHECKER_MODE_DUMMY, 1'b1};
+  csrwrite(`CHECKER_CSR_CTRL, {28'h0, 1'b1, `CHECKER_MODE_DUMMY, 1'b1});
 
   // CSR READ CTRL
   # 2 $display("---- read ctrl");
-  csr_a = `CHECKER_CSR_CTRL; 
-  csr_we = 1'b0;
-  csr_di = 32'b0;
+  csrread(`CHECKER_CSR_CTRL);
 
   // Holds the cvalues
   # 40
 
+  // Prepare the mpu
+
+  // Write the program
+  wbwrite(32'h00000000, 32'he00000e0);
+  //wbwrite(32'h00000004, 32'h00f10108);
+  wbwrite(32'h00000004, 32'h00aaaaaa);
+  wbwrite(32'h00000008, 32'h00c308c3);
+
+  wbread(32'h00000000);
+  wbread(32'h00000004);
+  wbread(32'h00000008);
+
+  // CSR WRITE CTRL START
+  # 2 $display("---- ctrl = signlemode + start");
+  csrwrite(`CHECKER_CSR_CTRL, {28'h0, 1'b1, `CHECKER_MODE_SINGLE, 1'b1});
+
+  // CSR READ CTRL
+  # 2 $display("---- read ctrl");
+  csrread(`CHECKER_CSR_CTRL);
+
+  // Holds the cvalues
+  # 40
+
+  csrwrite(`CHECKER_CSR_STAT, {29'h0, 3'b111});
+
+  // Holds the cvalues
+  # 1000
 
   # 4 $finish;
 end

@@ -51,8 +51,10 @@ simulations: $(SIMS)
 %.sim:
 	@mkdir -p $(dir $@)
 	@echo [VLG] $@ \> $@.out
-	@iverilog -y$(XILINX_SRC)/unisims $(XILINX_SRC)/glbl.v -o $@ $^ \
-		$(SIM_CFLAGS) -D__DUMP_FILE__=\"$(abspath $@).vcd\" &> $(abspath $@).out
+	@iverilog -o $@ $^ \
+		$(SIM_CFLAGS) -D__DUMP_FILE__=\"$(abspath $@).vcd\" &> $(abspath $@).out \
+		-DSIMULATION=1 \
+	#	-y$(XILINX_SRC)/unisims $(XILINX_SRC)/glbl.v
 
 %.isim: %.prj
 	@mkdir -p $(dir $@)
@@ -66,28 +68,28 @@ simulations: $(SIMS)
 	@mkdir -p $(dir $@)
 	@echo [BIT] $@
 	@cd $(dir $@) && bitgen -g LCK_cycle:6 -g Binary:Yes -g DriveDone:Yes \
-		-w $(realpath $^) $(abspath $@) > /dev/null
+		-w $(realpath $^) $(abspath $@) &> /dev/null
 
 %.routed.ncd: %.ncd 
 	@mkdir -p $(dir $@)
 	@echo [RTE] $@ \> $@.out
-	@cd $(dir $@) && par -ol high -w $(realpath $^) $(abspath $@) > $(abspath \
+	@cd $(dir $@) && par -ol high -w $(realpath $^) $(abspath $@) &> $(abspath \
 		$@).out
 
 %.ncd: %.ngd
 	@mkdir -p $(dir $@)
 	@echo [NCD] $@ \> $@.out
-	@cd $(dir $@) && map -ol high -t 20 -w $(realpath $^) > $(abspath $@).out
+	@cd $(dir $@) && map -ol high -t 20 -w $(realpath $^) &> $(abspath $@).out
 
 %.ngd: %.ucf %.ngc
 	@mkdir -p $(dir $@)
 	@echo [NGD] $@ \> $@.out
-	@cd $(dir $@) && ngdbuild -uc $(realpath $^) > $(abspath $@).out
+	@cd $(dir $@) && ngdbuild -uc $(realpath $^) &> $(abspath $@).out
 
 %.ngc: %.prj %.xst
 	@mkdir -p $(dir $@)
 	@echo [NGC] $@ \> $@.out
-	@cd $(dir $@) && xst -ifn ./system.xst > $(abspath $@).out
+	@cd $(dir $@) && xst -ifn ./system.xst &> $(abspath $@).out
 
 %.prj:
 	@mkdir -p $(dir $@)

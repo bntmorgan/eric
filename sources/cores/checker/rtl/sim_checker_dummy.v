@@ -55,9 +55,10 @@ end
 
 initial begin
   mode_mode <= 2'b00;
+  mode_ack <= 1'b0;
   mode_start <= 1'b0;
-  mode_addr <= 64'h0000000000000010;
-  $display("--- mode_addr <= 0x10");
+  mode_addr <= 64'h0000000000000800;
+  $display("--- mode_addr <= 0x800");
 end
 
 /**
@@ -65,12 +66,21 @@ end
  */
 initial
 begin
+  `SIM_DUMPFILE
 
   // START
   # 2 $display("--- mode_start = 1");
   mode_start <= 1'b1;
 
-  # 40
+  # 20
+
+  mode_ack <= 1'b1;
+
+  # 4
+
+  mode_ack <= 1'b0;
+
+  # 60
 
   // START
   # 2 $display("--- mode_start = 1");

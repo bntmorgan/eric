@@ -15,6 +15,7 @@ wire [47:0] mpu_do;
 `SIM_SYS_CLK
 
 `include "sim_wb.v"
+`include "sim.v"
 
 /**
  * Tested components
@@ -54,7 +55,7 @@ begin
   `SIM_DUMPFILE
   for (i = 0; i < 8; i = i + 1)
   begin
-    $dumpvars(0,m.ram_dat_i[i]);
+    $dumpvars(0,m.wb_ram_dat_i[i]);
   end
 
 	$display("Reset / Initialize our logic");

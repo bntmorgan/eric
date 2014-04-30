@@ -46,13 +46,22 @@ always @(posedge sys_clk) begin
     if (state == `CHECKER_DUMMY_STATE_RUN) begin
       if (mode_started) begin
         counter <= counter + 1'b1;
+        mode_data[7:0] <= counter[7:0];
         if (counter >= mode_addr) begin
           mode_end <= 1'b1;
-          mode_data[7:0] <= counter[7:0];
           state <= `CHECKER_DUMMY_STATE_IDLE;
+        end else if (counter[27:0] == 28'hfffffff) begin
+          state <= `CHECKER_DUMMY_STATE_WAIT;
+          mode_irq <= 1'b1;
         end
       end else begin 
         state <= `CHECKER_DUMMY_STATE_IDLE;
+      end
+    end else if (state == `CHECKER_DUMMY_STATE_WAIT) begin
+      if (mode_ack) begin
+        mode_irq <= 1'b0;
+        counter <= counter + 1'b1;
+        state <= `CHECKER_DUMMY_STATE_RUN;
       end
     // CHECKER_DUMMY_STATE_IDLE
     end else begin

@@ -147,6 +147,8 @@ always @(posedge sys_clk) begin
           event_end};
         `CHECKER_CSR_CTRL: csr_do <= {27'b0, mode_start, mode_mode[1],
           mode_mode[0], irq_en};
+        `CHECKER_CSR_MODE_DATA_LOW: csr_do <= mode_data[31:0];
+        `CHECKER_CSR_MODE_DATA_HIGH: csr_do <= mode_data[63:32];
 			endcase
 			if (csr_we) begin
 				case (csr_a[2:0])
@@ -161,7 +163,7 @@ always @(posedge sys_clk) begin
             end
           end
           `CHECKER_CSR_STAT: begin 
-            if (state == `CHECKER_STATE_IDLE) begin
+            if (state == `CHECKER_STATE_IDLE || state == `CHECKER_STATE_WAIT) begin
               /* write one to clear */
               if(csr_di[0])
                 event_end <= 1'b0;

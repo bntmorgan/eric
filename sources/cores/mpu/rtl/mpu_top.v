@@ -63,8 +63,8 @@ mpu_counter ip (
   .sys_rst(sys_rst),
   .out(i_addr),
   .en(en),
-  .incr(ip_incr),
-  .data(ip_data),
+  .incr(ip_incr[15:0]),
+  .data(ip_data[15:0]),
   .load(ip_load)
 );
 
@@ -131,10 +131,10 @@ mpu_registers registers (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
   .en(en),
-  .r_idx0(op_idx0),
-  .r_idx1(op_idx1),
-  .r_idx2(op_idx2),
-  .r_idx3(op_idx3),
+  .r_idx0(op_idx0[4:0]),
+  .r_idx1(op_idx1[4:0]),
+  .r_idx2(op_idx2[4:0]),
+  .r_idx3(op_idx3[4:0]),
   .r_data0(r_data0),
   .r_data1(r_data1),
   .r_data2(r_data2),

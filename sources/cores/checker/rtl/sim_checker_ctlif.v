@@ -179,13 +179,44 @@ begin
   csr_we = 1'b0;
   csr_di = 32'b0;
 
-  // CSR WRITE ADDRES LOW
+  // Sys reset
   # 2 $display("---- rst");
   sys_rst = 1'b1;
 
-  // CSR WRITE ADDRES LOW
-  # 2 $display("---- read low");
+  # 2
   sys_rst = 1'b0;
+
+  // Holds the cvalues
+  # 10
+
+  // CSR WRITE CTRL START
+  # 2 $display("---- ctrl = dummymode + start");
+  csr_a = `CHECKER_CSR_CTRL; 
+  csr_we = 1'b1;
+  csr_di = {28'h0, 1'b1, `CHECKER_MODE_DUMMY, 1'b1};
+  # 2
+  csr_we = 1'b0;
+
+  // Holds the cvalues
+  # 10
+
+  // mode_irq
+  mode_irq <= 1'b1;
+
+  // Holds the cvalues
+  # 10
+
+  // CSR WRITE STAT IRQ
+  # 2 $display("---- stat = event_mode_irq");
+  csr_a = `CHECKER_CSR_STAT; 
+  csr_we = 1'b1;
+  csr_di = `CHECKER_STAT_EVENT_USER_IRQ;
+  # 2
+  csr_we = 1'b0;
+  mode_irq <= 1'b0;
+
+  // Holds the cvalues
+  # 10
 
   # 4 $finish;
 end

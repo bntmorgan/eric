@@ -1,5 +1,3 @@
-reg sys_clk;
-reg sys_rst;
 reg [31:0] wb_adr_i;
 reg [31:0] wb_dat_i;
 reg [3:0] wb_sel_i;
@@ -19,23 +17,6 @@ initial begin
   wb_cyc_i <= 1'b0;
   wb_we_i <= 1'b0;
 end
-
-/* Wishbone Helpers */
-task waitclock;
-begin
-	@(posedge sys_clk);
-	#1;
-end
-endtask
-
-task waitnclock;
-input [15:0] n;
-integer i;
-begin
-	for(i=0;i<n;i=i+1)
-		waitclock;
-	end
-endtask
 
 task wbwrite;
 input [31:0] address;

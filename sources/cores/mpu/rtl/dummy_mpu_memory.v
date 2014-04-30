@@ -32,6 +32,9 @@ reg [31:0] i;
 initial i = 0;
 task init_tests;
   begin
+    for (i = 0; i < 128; i = i + 1) begin
+      mem[i][7:0] <= 8'b0;
+    end
     i = 0;
     // load
     $display("load @%x\n", i);
@@ -83,9 +86,6 @@ task init_tests;
     mem[i + 0][7:0] <= {`MPU_OP_JMP, 2'b00, 2'b00}; // OP
     mem[i + 1][7:0] <= 8'b00100_000; // reg4
     i = i + 2;
-    for (i = 0; i < 128; i = i + 1) begin
-      mem[i][7:0] <= 8'b0;
-    end
   end
 endtask
 

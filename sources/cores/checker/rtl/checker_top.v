@@ -6,6 +6,8 @@ module checker_top #(
   // System
 	input sys_clk,
 	input sys_rst,
+
+  input mpu_clk,
 	
   // CSR
 	input [13:0] csr_a,
@@ -48,6 +50,11 @@ wire mode_irq_dummy;
 wire mode_irq_single;
 wire mode_irq_auto;
 wire mode_irq_read;
+wire mode_error;
+wire mode_error_dummy;
+wire mode_error_single;
+wire mode_error_auto;
+wire mode_error_read;
 
 wire single_en;
 
@@ -83,6 +90,7 @@ checker_ctlif #(
   .mode_data(mode_data),
   .mode_irq(mode_irq),
   .mode_ack(mode_ack),
+  .mode_error(mode_error),
 
   .irq(irq)
 );
@@ -91,23 +99,45 @@ checker_ctlif #(
  * Checkers
  */
 
-assign mode_end = mode_end_dummy | mode_end_single | mode_end_auto
-  | mode_end_read;
+assign mode_end = 
+  (mode_mode == `CHECKER_MODE_SINGLE) ? mode_end_single :
+  (mode_mode == `CHECKER_MODE_AUTO) ? mode_end_auto :
+  (mode_mode == `CHECKER_MODE_READ) ? mode_end_read :
+  mode_end_dummy; 
 // TODO remove
 assign mode_end_auto = 1'b0;
 assign mode_end_read = 1'b0;
+// assign mode_end_single = 1'b0;
 
-assign mode_data = mode_data_dummy | mode_data_single | mode_data_auto
-  | mode_data_read;
+assign mode_data = 
+  (mode_mode == `CHECKER_MODE_SINGLE) ? mode_data_single :
+  (mode_mode == `CHECKER_MODE_AUTO) ? mode_data_auto :
+  (mode_mode == `CHECKER_MODE_READ) ? mode_data_read :
+  mode_data_dummy; 
 // TODO remove
 assign mode_data_auto = 64'b0;
 assign mode_data_read = 64'b0;
+// assign mode_data_single = 64'b0;
 
-assign mode_irq = mode_irq_dummy | mode_irq_single | mode_irq_auto
-  | mode_irq_read;
+assign mode_irq = 
+  (mode_mode == `CHECKER_MODE_SINGLE) ? mode_irq_single :
+  (mode_mode == `CHECKER_MODE_AUTO) ? mode_irq_auto :
+  (mode_mode == `CHECKER_MODE_READ) ? mode_irq_read :
+  mode_irq_dummy; 
 // TODO remove
 assign mode_irq_auto = 1'b0;
 assign mode_irq_read = 1'b0;
+// assign mode_irq_single = 1'b0;
+
+assign mode_error = 
+  (mode_mode == `CHECKER_MODE_SINGLE) ? mode_error_single :
+  (mode_mode == `CHECKER_MODE_AUTO) ? mode_error_auto :
+  (mode_mode == `CHECKER_MODE_READ) ? mode_error_read :
+  mode_error_dummy; 
+// TODO remove
+assign mode_error_auto = 1'b0;
+assign mode_error_read = 1'b0;
+// assign mode_error_single = 1'b0;
 
 checker_dummy #(
   .mode(`CHECKER_MODE_DUMMY)
@@ -121,13 +151,19 @@ checker_dummy #(
   .mode_end(mode_end_dummy),
   .mode_data(mode_data_dummy),
   .mode_irq(mode_irq_dummy),
-  .mode_ack(mode_ack)
+  .mode_ack(mode_ack),
+  .mode_error(mode_error_dummy)
 );
+
+reg mpu_clk_2;
+reg mpu_rst_2;
+initial mpu_clk_2  <= 1'b1;
+initial mpu_rst_2  <= 1'b0;
 
 checker_single #(
   .mode(`CHECKER_MODE_SINGLE)
 ) single (
-  .sys_clk(sys_clk),
+  .sys_clk(mpu_clk_2),
   .sys_rst(sys_rst),
 
   .mode_mode(mode_mode),
@@ -137,6 +173,7 @@ checker_single #(
   .mode_data(mode_data_single),
   .mode_irq(mode_irq_single),
   .mode_ack(mode_ack),
+  .mode_error(mode_error_single),
 
   .mpu_en(single_en),
   .mpu_rst(single_rst),
@@ -147,11 +184,21 @@ checker_single #(
 
 /**
  * MPU
+ *
+ * MPU is sys_ck / 2 because of the synced RAMB36E1
  */
 
+always @(posedge mpu_clk) begin
+  mpu_clk_2 <= ~mpu_clk_2;
+end
+
+always @(posedge mpu_clk_2) begin
+  mpu_rst_2 <= mpu_rst;
+end
+
 mpu_top mpu (
-  .sys_clk(sys_clk),
-  .sys_rst(mpu_rst),
+  .sys_clk(mpu_clk_2),
+  .sys_rst(mpu_rst_2),
   .en(mpu_en),
   .i_data(i_data),
   .hm_data(hm_data),
@@ -166,6 +213,7 @@ mpu_top mpu (
 checker_memory mem (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
+  .mpu_clk(mpu_clk),
   .mpu_addr(i_addr),
   .mpu_do(i_data),
   .wb_adr_i(wb_adr_i),

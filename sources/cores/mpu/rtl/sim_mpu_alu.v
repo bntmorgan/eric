@@ -1,3 +1,5 @@
+`include "sim.vh"
+
 module main();
 
 /**
@@ -63,11 +65,13 @@ end
  * Simulation
  */
 initial begin
+  `SIM_DUMPFILE
+
   # 2 $display("--- 8-bit");
   # 2 $display("--- mask[01] a (ok)");
   op <= 8'h1;
-  o0[7:0] <= 8'b01010101;
-  o1[15:8] <= 8'b10101010;
+  o0[07:00] <= 8'b01010101;
+  o1[15:08] <= 8'b10101010;
   o2[23:16] <= 8'b01010101;
   s0 <= 3'b000;
   s1 <= 3'b001;
