@@ -134,9 +134,15 @@ begin
   // Prepare the mpu
 
   // Write the program
-  wbwrite(32'h00000000, 32'hc3f8c300);
+  wbwrite(32'h00000000, 32'he00801e0);
+  wbwrite(32'h00000004, 32'h10014008);
+  wbwrite(32'h00000008, 32'h0810C308);
+  wbwrite(32'h0000000c, 32'hc3000000);
 
   wbread(32'h00000000);
+  wbread(32'h00000004);
+  wbread(32'h00000008);
+  wbread(32'h0000000c);
 
   // CSR WRITE CTRL START
   # 2 $display("---- ctrl = signlemode + start");

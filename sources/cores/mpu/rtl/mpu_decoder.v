@@ -121,21 +121,15 @@ assign reg3 = i[39:32];
 
 // Instruction size decoding (in bytes)
 assign isize[15:0] =
-  // 1
   (op == `MPU_OP_MASK) ? 16'h0005 :
-  // 2
   (op == `MPU_OP_CMP) ? 16'h0005 :
-  // 3
   (op == `MPU_OP_LT) ? 16'h0004 :
-  // c
+  (op == `MPU_OP_ADD) ? 16'h0004 :
   (op == `MPU_OP_INT) ? 16'h0002 :
-  // d
   (op == `MPU_OP_MLOAD && opsize == 2'b11) ? 16'h0003 :
-  // e
   (op == `MPU_OP_LOAD && opsize == 2'b00) ? 16'h0003 :
   (op == `MPU_OP_LOAD && opsize == 2'b01) ? 16'h0004 :
   (op == `MPU_OP_LOAD && opsize == 2'b10) ? 16'h0006 :
-  // f
   (op == `MPU_OP_JMP) ? 16'h0002 :
   // else
   16'h0000;

@@ -31,6 +31,7 @@ module mpu_alu (
 wire op_mask;
 wire op_cmp;
 wire op_lt;
+wire [63:0] op_add;
 wire [5:0] rs0;
 wire [5:0] rs1;
 wire [5:0] rs2;
@@ -66,6 +67,7 @@ assign res =
   (op == `MPU_OP_MASK) ? op_mask << lsres :
   (op == `MPU_OP_CMP) ? op_cmp << lsres :
   (op == `MPU_OP_LT) ? op_lt << lsres :
+  (op == `MPU_OP_ADD) ? op_add << lsres :
   64'b0;
 
 /**
@@ -98,5 +100,7 @@ assign op_mask = ((~(_o0) & (~(_o1) & hm)) | (_o0 & ~_o2)) == 64'b0;
 assign op_cmp = (_o0 & _o2) == (_o1 & _o2);
 
 assign op_lt =  _o0 < _o1;
+
+assign op_add = _o1 + _o2;
 
 endmodule
