@@ -24,7 +24,6 @@ wire irq;
 checker_top ck (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
-  .mpu_clk(sys_clk),
 
   .wb_adr_i(wb_adr_i),
   .wb_dat_i(wb_dat_i),
@@ -135,14 +134,9 @@ begin
   // Prepare the mpu
 
   // Write the program
-  wbwrite(32'h00000000, 32'he00000e0);
-  //wbwrite(32'h00000004, 32'h00f10108);
-  wbwrite(32'h00000004, 32'h00aaaaaa);
-  wbwrite(32'h00000008, 32'h00c308c3);
+  wbwrite(32'h00000000, 32'hc3f8c300);
 
   wbread(32'h00000000);
-  wbread(32'h00000004);
-  wbread(32'h00000008);
 
   // CSR WRITE CTRL START
   # 2 $display("---- ctrl = signlemode + start");

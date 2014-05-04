@@ -41,7 +41,7 @@ module checker_wb_to_ram (
   output ram_we_7_o
 );
 
-wire [12:0] wb_adr_i_4 = wb_adr_i[14:2];
+wire [11:0] wb_adr_i_4 = wb_adr_i[14:2];
 wire adr_mod_2 = ((wb_adr_i_4) % 2);
 wire adr_4_mod_2 = ((wb_adr_i_4 + 1) % 2);
 

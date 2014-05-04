@@ -80,6 +80,10 @@ always @(posedge sys_clk) begin
           mpu_en <= 1'b0;
         end
       end else if (state == `CHECKER_SINGLE_STATE_WAIT) begin
+        // We send irq just one clock time
+        if (mode_irq == 1'b1) begin
+          mode_irq <= 1'b0;
+        end
         if (mode_ack == 1'b1) begin // WAIT -> RUN
           state <= `CHECKER_SINGLE_STATE_RUN;
           mode_irq <= 1'b0;

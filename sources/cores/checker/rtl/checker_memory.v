@@ -20,22 +20,30 @@ module checker_memory (
 );
 
 wire wb_en = wb_cyc_i & wb_stb_i;
-// wire [31:0] wb_dat_i_le = {wb_dat_i[7:0], wb_dat_i[15:8], wb_dat_i[23:16],
-//   wb_dat_i[31:24]};
-// wire [3:0] wb_sel_i_le = {wb_sel_i[0], wb_sel_i[1], wb_sel_i[2], wb_sel_i[3]};
 wire [31:0] wb_dat_i_le = {
-  wb_dat_i[31:24],
+  wb_dat_i[7:0],
+  wb_dat_i[15:8], 
   wb_dat_i[23:16],
-  wb_dat_i[15:8],
-  wb_dat_i[7:0]
+  wb_dat_i[31:24]
 };
-
 wire [3:0] wb_sel_i_le = {
-  wb_sel_i[3],
-  wb_sel_i[2],
+  wb_sel_i[0],
   wb_sel_i[1],
-  wb_sel_i[0]
+  wb_sel_i[2],
+  wb_sel_i[3]
 };
+//wire [31:0] wb_dat_i_le = {
+//  wb_dat_i[31:24],
+//  wb_dat_i[23:16],
+//  wb_dat_i[15:8],
+//  wb_dat_i[7:0]
+//};
+//wire [3:0] wb_sel_i_le = {
+//  wb_sel_i[3],
+//  wb_sel_i[2],
+//  wb_sel_i[1],
+//  wb_sel_i[0]
+//};
 
 // Wb to ram wires
 wire [11:0] wb_ram_adr [7:0];
@@ -53,7 +61,7 @@ wire [31:0] wb_dat;
 checker_wb_to_ram conv_wb (
   .wb_adr_i(wb_adr_i[14:0]),
   .wb_dat_i(wb_dat_i_le),
-  .wb_sel_i({4{wb_en & wb_we_i}} & wb_sel_i),
+  .wb_sel_i({4{wb_en & wb_we_i}} & wb_sel_i_le),
   .wb_dat_o(wb_dat),
   .ram_adr_0_o(wb_ram_adr[0]),
   .ram_adr_1_o(wb_ram_adr[1]),
@@ -177,14 +185,18 @@ endgenerate
 
 always @(*) begin
   // Endianess convertion
-//   wb_dat_o = {wb_dat[7:0], wb_dat[15:8], wb_dat[23:16],
-//     wb_dat[31:24]};
   wb_dat_o = {
-    wb_dat[31:24],
-    wb_dat[23:16],
+    wb_dat[7:0],
     wb_dat[15:8],
-    wb_dat[7:0]
+    wb_dat[23:16],
+    wb_dat[31:24]
   };
+//  wb_dat_o = {
+//    wb_dat[31:24],
+//    wb_dat[23:16],
+//    wb_dat[15:8],
+//    wb_dat[7:0]
+//  };
 end
 
 always @(posedge sys_clk) begin

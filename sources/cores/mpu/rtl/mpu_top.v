@@ -11,7 +11,6 @@ module mpu_top (
   // Mpu user interruptions
   output user_irq,
   output [63:0] user_data,
-  output user_end,
   
   // Data bus Memory to check, clock might be async so we acknoledge the data
   // receive
@@ -22,9 +21,6 @@ module mpu_top (
   // Error
   output error
 );
-
-// TODO
-assign user_end = 1'b0;
 
 // Interconnection wires
 wire [15:0] ip_incr;

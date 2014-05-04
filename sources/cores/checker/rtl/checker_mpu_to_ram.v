@@ -1,7 +1,4 @@
 module checker_mpu_to_ram (
-  input sys_clk,
-  input sys_rst,
-
   output [47:0] i_data_o,
   input [14:0] i_addr_i,
 

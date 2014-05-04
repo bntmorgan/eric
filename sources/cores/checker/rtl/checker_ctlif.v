@@ -163,7 +163,8 @@ always @(posedge sys_clk) begin
             end
           end
           `CHECKER_CSR_STAT: begin 
-            if (state == `CHECKER_STATE_IDLE || state == `CHECKER_STATE_WAIT) begin
+            if (state == `CHECKER_STATE_IDLE || state == `CHECKER_STATE_WAIT)
+            begin
               /* write one to clear */
               if(csr_di[0])
                 event_end <= 1'b0;

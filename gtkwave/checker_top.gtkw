@@ -1,25 +1,20 @@
 [*]
 [*] GTKWave Analyzer v3.3.52 (w)1999-2013 BSI
-[*] Wed Apr 30 07:58:45 2014
+[*] Wed Apr 30 14:11:38 2014
 [*]
 [dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/checker/checker.sim.vcd"
-[dumpfile_mtime] "Wed Apr 30 07:55:59 2014"
-[dumpfile_size] 51707
+[dumpfile_mtime] "Wed Apr 30 10:54:22 2014"
+[dumpfile_size] 67719
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/checker_top.gtkw"
-[timestart] 39
+[timestart] 0
 [size] 1918 1179
 [pos] -1 -1
-*-5.026406 188 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.505374 39 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.ck.
-[treeopen] main.ck.mem.
 [treeopen] main.ck.mem.gen_ram[0].
-[treeopen] main.ck.mem.gen_ram[1].
-[treeopen] main.ck.mem.gen_ram[2].
-[treeopen] main.ck.mem.gen_ram[3].
-[treeopen] main.ck.mem.gen_ram[4].
-[treeopen] main.ck.mem.gen_ram[5].
-[treeopen] main.ck.mem.gen_ram[6].
+[treeopen] main.ck.mem.gen_ram[7].
+[treeopen] main.ck.mpu.
 [sst_width] 224
 [signals_width] 467
 [sst_expanded] 1
@@ -90,7 +85,7 @@ main.ck.wb_stb_i
 main.ck.wb_we_i
 @1401200
 -checker_top
-@c00200
+@800200
 -checker_ctlif
 @22
 main.ck.ctlif.csr_a[13:0]
@@ -105,8 +100,76 @@ main.ck.ctlif.event_mode_irq
 main.ck.ctlif.irq
 main.ck.ctlif.irq_en
 main.ck.ctlif.mode_ack
-@22
+@c00023
 main.ck.ctlif.mode_addr[63:0]
+@29
+(0)main.ck.ctlif.mode_addr[63:0]
+(1)main.ck.ctlif.mode_addr[63:0]
+(2)main.ck.ctlif.mode_addr[63:0]
+(3)main.ck.ctlif.mode_addr[63:0]
+(4)main.ck.ctlif.mode_addr[63:0]
+(5)main.ck.ctlif.mode_addr[63:0]
+(6)main.ck.ctlif.mode_addr[63:0]
+(7)main.ck.ctlif.mode_addr[63:0]
+(8)main.ck.ctlif.mode_addr[63:0]
+(9)main.ck.ctlif.mode_addr[63:0]
+(10)main.ck.ctlif.mode_addr[63:0]
+(11)main.ck.ctlif.mode_addr[63:0]
+(12)main.ck.ctlif.mode_addr[63:0]
+(13)main.ck.ctlif.mode_addr[63:0]
+(14)main.ck.ctlif.mode_addr[63:0]
+(15)main.ck.ctlif.mode_addr[63:0]
+(16)main.ck.ctlif.mode_addr[63:0]
+(17)main.ck.ctlif.mode_addr[63:0]
+(18)main.ck.ctlif.mode_addr[63:0]
+(19)main.ck.ctlif.mode_addr[63:0]
+(20)main.ck.ctlif.mode_addr[63:0]
+(21)main.ck.ctlif.mode_addr[63:0]
+(22)main.ck.ctlif.mode_addr[63:0]
+(23)main.ck.ctlif.mode_addr[63:0]
+(24)main.ck.ctlif.mode_addr[63:0]
+(25)main.ck.ctlif.mode_addr[63:0]
+(26)main.ck.ctlif.mode_addr[63:0]
+(27)main.ck.ctlif.mode_addr[63:0]
+(28)main.ck.ctlif.mode_addr[63:0]
+(29)main.ck.ctlif.mode_addr[63:0]
+(30)main.ck.ctlif.mode_addr[63:0]
+(31)main.ck.ctlif.mode_addr[63:0]
+(32)main.ck.ctlif.mode_addr[63:0]
+(33)main.ck.ctlif.mode_addr[63:0]
+(34)main.ck.ctlif.mode_addr[63:0]
+(35)main.ck.ctlif.mode_addr[63:0]
+(36)main.ck.ctlif.mode_addr[63:0]
+(37)main.ck.ctlif.mode_addr[63:0]
+(38)main.ck.ctlif.mode_addr[63:0]
+(39)main.ck.ctlif.mode_addr[63:0]
+(40)main.ck.ctlif.mode_addr[63:0]
+(41)main.ck.ctlif.mode_addr[63:0]
+(42)main.ck.ctlif.mode_addr[63:0]
+(43)main.ck.ctlif.mode_addr[63:0]
+(44)main.ck.ctlif.mode_addr[63:0]
+(45)main.ck.ctlif.mode_addr[63:0]
+(46)main.ck.ctlif.mode_addr[63:0]
+(47)main.ck.ctlif.mode_addr[63:0]
+(48)main.ck.ctlif.mode_addr[63:0]
+(49)main.ck.ctlif.mode_addr[63:0]
+(50)main.ck.ctlif.mode_addr[63:0]
+(51)main.ck.ctlif.mode_addr[63:0]
+(52)main.ck.ctlif.mode_addr[63:0]
+(53)main.ck.ctlif.mode_addr[63:0]
+(54)main.ck.ctlif.mode_addr[63:0]
+(55)main.ck.ctlif.mode_addr[63:0]
+(56)main.ck.ctlif.mode_addr[63:0]
+(57)main.ck.ctlif.mode_addr[63:0]
+(58)main.ck.ctlif.mode_addr[63:0]
+(59)main.ck.ctlif.mode_addr[63:0]
+(60)main.ck.ctlif.mode_addr[63:0]
+(61)main.ck.ctlif.mode_addr[63:0]
+(62)main.ck.ctlif.mode_addr[63:0]
+(63)main.ck.ctlif.mode_addr[63:0]
+@1401201
+-group_end
+@22
 main.ck.ctlif.mode_data[63:0]
 @28
 main.ck.ctlif.mode_end
@@ -117,9 +180,9 @@ main.ck.ctlif.mode_start
 main.ck.ctlif.state[1:0]
 main.ck.ctlif.sys_clk
 main.ck.ctlif.sys_rst
-@1401200
+@1000200
 -checker_ctlif
-@c00200
+@800200
 -checker_single
 @28
 main.ck.single.mode_ack
@@ -143,7 +206,7 @@ main.ck.single.mpu_user_irq
 main.ck.single.state[1:0]
 main.ck.single.sys_clk
 main.ck.single.sys_rst
-@1401200
+@1000200
 -checker_single
 @c00200
 -checker_memory
@@ -176,7 +239,7 @@ main.ck.mem.wb_stb_i
 main.ck.mem.wb_we_i
 @1401200
 -checker_memory
-@c00200
+@800200
 -mpu_top
 @28
 main.ck.mpu.en
@@ -231,8 +294,10 @@ main.ck.mpu.w_r_sel[2:0]
 main.ck.mpu.w_sel[2:0]
 main.ck.mpu.w_size[1:0]
 main.ck.mpu.we
-@1401200
+@1000200
 -mpu_top
+@c00200
+-checker_memory_mem
 @22
 main.ck.mem.gen_ram[0].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[0][7:0]
@@ -241,6 +306,7 @@ main.ck.mem.gen_ram[3].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[0][7:0]
+main.ck.mem.gen_ram[7].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[0].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[1][7:0]
@@ -248,6 +314,7 @@ main.ck.mem.gen_ram[3].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[1][7:0]
+main.ck.mem.gen_ram[7].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[0].ram.\mem[2][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[2][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[2][7:0]
@@ -255,6 +322,7 @@ main.ck.mem.gen_ram[3].ram.\mem[2][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[2][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[2][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[2][7:0]
+main.ck.mem.gen_ram[7].ram.\mem[2][7:0]
 main.ck.mem.gen_ram[0].ram.\mem[3][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[3][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[3][7:0]
@@ -262,6 +330,7 @@ main.ck.mem.gen_ram[3].ram.\mem[3][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[3][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[3][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[3][7:0]
+main.ck.mem.gen_ram[7].ram.\mem[3][7:0]
 main.ck.mem.gen_ram[0].ram.\mem[4][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[4][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[4][7:0]
@@ -269,6 +338,7 @@ main.ck.mem.gen_ram[3].ram.\mem[4][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[4][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[4][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[4][7:0]
+main.ck.mem.gen_ram[7].ram.\mem[4][7:0]
 main.ck.mem.gen_ram[0].ram.\mem[5][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[5][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[5][7:0]
@@ -276,15 +346,15 @@ main.ck.mem.gen_ram[3].ram.\mem[5][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[5][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[5][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[5][7:0]
+main.ck.mem.gen_ram[7].ram.\mem[5][7:0]
 main.ck.mem.gen_ram[0].ram.\mem[6][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[6][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[6][7:0]
 main.ck.mem.gen_ram[3].ram.\mem[6][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[6][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[6][7:0]
-@23
 main.ck.mem.gen_ram[6].ram.\mem[6][7:0]
-@22
+main.ck.mem.gen_ram[7].ram.\mem[6][7:0]
 main.ck.mem.gen_ram[0].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[1].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[7][7:0]
@@ -292,5 +362,25 @@ main.ck.mem.gen_ram[3].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[4].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[7][7:0]
+main.ck.mem.gen_ram[7].ram.\mem[7][7:0]
+@1401200
+-checker_memory_mem
+@c00200
+-mpu_ip
+@22
+main.ck.mpu.ip.data[15:0]
+@28
+main.ck.mpu.ip.en
+@22
+main.ck.mpu.ip.incr[15:0]
+@28
+main.ck.mpu.ip.load
+@22
+main.ck.mpu.ip.out[15:0]
+@28
+main.ck.mpu.ip.sys_clk
+main.ck.mpu.ip.sys_rst
+@1401200
+-mpu_ip
 [pattern_trace] 1
 [pattern_trace] 0

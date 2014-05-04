@@ -1646,7 +1646,6 @@ checker_top #(
 ) ck (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
-  .mpu_clk(sys_clk),
 
   .csr_a(csr_a),
   .csr_we(csr_we),

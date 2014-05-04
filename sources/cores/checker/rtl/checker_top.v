@@ -6,8 +6,6 @@ module checker_top #(
   // System
 	input sys_clk,
 	input sys_rst,
-
-  input mpu_clk,
 	
   // CSR
 	input [13:0] csr_a,
@@ -28,6 +26,13 @@ module checker_top #(
 	output wb_ack_o,
 	input wb_we_i
 );
+
+reg sys_clk_2;
+initial sys_clk_2 <= 1'b0;
+
+always @(posedge sys_clk) begin
+  sys_clk_2 <= ~sys_clk_2;
+end
 
 // Wires
 wire [1:0] mode_mode;
@@ -139,6 +144,22 @@ assign mode_error_auto = 1'b0;
 assign mode_error_read = 1'b0;
 // assign mode_error_single = 1'b0;
 
+wire mode_ack_2;
+checker_psync ps_mode_ack_2 (
+  .clk1(sys_clk),
+  .i(mode_ack),
+  .clk2(sys_clk_2),
+  .o(mode_ack_2)
+);
+
+wire sys_rst_2;
+checker_psync ps_sys_rst_2 (
+  .clk1(sys_clk),
+  .i(sys_rst),
+  .clk2(sys_clk_2),
+  .o(sys_rst_2)
+);
+
 checker_dummy #(
   .mode(`CHECKER_MODE_DUMMY)
 ) dummy (
@@ -155,16 +176,11 @@ checker_dummy #(
   .mode_error(mode_error_dummy)
 );
 
-reg mpu_clk_2;
-reg mpu_rst_2;
-initial mpu_clk_2  <= 1'b1;
-initial mpu_rst_2  <= 1'b0;
-
 checker_single #(
   .mode(`CHECKER_MODE_SINGLE)
 ) single (
-  .sys_clk(mpu_clk_2),
-  .sys_rst(sys_rst),
+  .sys_clk(sys_clk_2),
+  .sys_rst(sys_rst_2),
 
   .mode_mode(mode_mode),
   .mode_start(mode_start),
@@ -172,7 +188,7 @@ checker_single #(
   .mode_end(mode_end_single),
   .mode_data(mode_data_single),
   .mode_irq(mode_irq_single),
-  .mode_ack(mode_ack),
+  .mode_ack(mode_ack_2),
   .mode_error(mode_error_single),
 
   .mpu_en(single_en),
@@ -188,17 +204,9 @@ checker_single #(
  * MPU is sys_ck / 2 because of the synced RAMB36E1
  */
 
-always @(posedge mpu_clk) begin
-  mpu_clk_2 <= ~mpu_clk_2;
-end
-
-always @(posedge mpu_clk_2) begin
-  mpu_rst_2 <= mpu_rst;
-end
-
 mpu_top mpu (
-  .sys_clk(mpu_clk_2),
-  .sys_rst(mpu_rst_2),
+  .sys_clk(sys_clk_2),
+  .sys_rst(mpu_rst),
   .en(mpu_en),
   .i_data(i_data),
   .hm_data(hm_data),
@@ -210,10 +218,13 @@ mpu_top mpu (
   .error(error)
 );
 
+assign mpu_en = hm_en & single_en;
+assign mpu_rst = sys_rst_2 | single_rst;
+
 checker_memory mem (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
-  .mpu_clk(mpu_clk),
+  .mpu_clk(sys_clk),
   .mpu_addr(i_addr),
   .mpu_do(i_data),
   .wb_adr_i(wb_adr_i),
@@ -232,8 +243,5 @@ mpu_host_memory mhm (
   .data(hm_data),
   .en(hm_en)
 );
-
-assign mpu_en = hm_en & single_en;
-assign mpu_rst = sys_rst | single_rst;
 
 endmodule

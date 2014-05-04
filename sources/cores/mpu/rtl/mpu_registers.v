@@ -45,6 +45,7 @@ task init;
     for (d = 0; d < nb_reg; d = d + 1) begin
       regs[d][63:0] = 64'b0;
     end
+    regs[nb_reg - 1] = 64'h0000000000000001;
   end
 endtask
 
