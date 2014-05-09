@@ -6,7 +6,7 @@ module checker_memory_8 (
 		input CLKA,
 
 		input [31:0] DIB,
-		output reg [32:0] DOB,
+		output reg [31:0] DOB,
 		input [15:0] ADDRB,
 		input [3:0] WEB,
 		input CLKB
