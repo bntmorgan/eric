@@ -15,6 +15,10 @@ define SRC_2_BIN
   $(foreach src,$(1),$(patsubst sources/%,binary/%,$(src)))
 endef
 
+define GEN_TARGETS
+	$(1).bit $(1).routed.ncd $(1).ncd $(1).ngd $(1).ngc $(1).ucf $(1).prj $(1).xst
+endef
+
 define SIM_2_RUN
   $(foreach src,$(1),$(patsubst %.sim,%.run,$(src)))
 endef
@@ -64,11 +68,11 @@ simulations: $(SIMS)
 		-o $(abspath $@) -d __DUMP_FILE__=\"$(abspath $@).vcd\"  -d SIMULATION -L \
 		unisims_ver -L secureip
 
-%.bit: %.routed.ncd
+%.bit: %.routed.ncd %.ncd %.ngd %.ngc %.ucf %.prj %.xst
 	@mkdir -p $(dir $@)
-	@echo [BIT] $@
+	@echo [BIT] $@ \> $@.out
 	@cd $(dir $@) && bitgen -g LCK_cycle:6 -g Binary:Yes -g DriveDone:Yes \
-		-w $(realpath $^) $(abspath $@) &> /dev/null
+		-w $(realpath $<) $(abspath $@) &> $(abspath $@).out
 
 %.routed.ncd: %.ncd 
 	@mkdir -p $(dir $@)

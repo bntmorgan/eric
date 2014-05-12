@@ -10,10 +10,10 @@ SRC_$(d)				:=
 
 include $(d)/sources.mk
 
-CONSTRAINTS_$(d)  := $(d)/synthesis/common.ucf # $(d)/synthesis/v6_pcie_v1_7.ucf
+CONSTRAINTS_$(d)  := $(d)/synthesis/common.ucf $(d)/synthesis/v6_pcie_v1_7.ucf
 
 # Fixed
-TARGETS 				+= $(TARGET).bit 
+TARGETS 				+= $(call GEN_TARGETS, $(TARGET))
 
 $(TARGET).prj			: $(SRC_$(d))
 $(TARGET).ucf			: $(CONSTRAINTS_$(d))

@@ -5,15 +5,12 @@ d               := $(dir)
 # Synthesis
 
 # MPU_SRC
-# XXX Remove dummies
-SRC_MPU_$(d) 		:= $(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v) \
-	$(wildcard $(CORES_DIR)/mpu/rtl/dummy_mpu_host_memory.v)
+SRC_MPU_$(d) 		:= $(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v)
 
 # TARGET          := $(call SRC_2_BIN, $(d)/checker.bin)
-SRC_$(d)				:= $(d)/rtl/checker_top.v $(d)/rtl/checker_ctlif.v \
-	$(d)/rtl/checker_dummy.v $(d)/rtl/checker_single.v $(d)/rtl/checker_memory.v \
-	$(d)/rtl/checker_wb_to_ram.v $(d)/rtl/checker_mpu_to_ram.v \
-	$(SRC_MPU_$(d)) $(d)/rtl/dummy_checker_memory.v $(d)/rtl/checker_psync.v
+SRC_$(d)				:= $(wildcard $(d)/rtl/checker_*.v) $(SRC_MPU_$(d)) \
+	$(d)/rtl/dummy_checker_memory.v \
+	$(d)/rtl/dummy_checker_host_memory.v
 
 # Isim simulations
 # SIM							:= $(call SRC_2_BIN, $(d)/checker_memory)

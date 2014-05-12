@@ -28,11 +28,12 @@ SRC_$(d) +=							\
 	$(CORES_DIR)/lm32/rtl/lm32_jtag.v			\
 	$(CORES_DIR)/lm32/rtl/jtag_cores.v			\
 	$(CORES_DIR)/lm32/rtl/jtag_tap_spartan6.v
+# HM_SRC
+SRC_$(d) +=$(wildcard $(CORES_DIR)/hm/rtl/hm*.v)
 # CHECKER_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/checker/rtl/checker*.v)
 # MPU_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v)
-SRC_$(d) +=$(CORES_DIR)/mpu/rtl/dummy_mpu_host_memory.v # XXX TODO remove
 # FMLARB_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/fmlarb/rtl/*.v)
 # FMLBRG_SRC
@@ -73,10 +74,9 @@ SRC_$(d) +=$(wildcard $(CORES_DIR)/softusb/rtl/*.v)
 SRC_$(d) +=$(wildcard $(CORES_DIR)/memtest/rtl/*.v)
 # MONITOR_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/monitor/rtl/*.v)
-
 # HARD_PCIE_SRC
-# SRC_$(d) +=$(wildcard $(BOARD_DIR)/pcie_ep_ml605_XXX/rtl/*.v) $(wildcard $(BOARD_DIR)/v6_pcie_v1_7/*.v)
+SRC_$(d) += $(wildcard $(d)/rtl/v6_pcie_v1_7/*.v)
 # HARD_ETHERNET_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/wb_emac/rtl/*.v) $(wildcard $(d)/rtl/v6_emac_v1_6/*.v)
+SRC_$(d) += $(wildcard $(CORES_DIR)/wb_emac/rtl/*.v) $(wildcard $(d)/rtl/v6_emac_v1_6/*.v)
 # BRAM_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/bram/rtl/*.v)

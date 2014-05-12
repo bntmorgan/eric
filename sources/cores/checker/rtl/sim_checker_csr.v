@@ -134,10 +134,19 @@ begin
   // Prepare the mpu
 
   // Write the program
-  wbwrite(32'h00000000, 32'he00801e0);
-  wbwrite(32'h00000004, 32'h10014008);
-  wbwrite(32'h00000008, 32'h0810C308);
-  wbwrite(32'h0000000c, 32'hc3000000);
+//   wbwrite(32'h00000000, 32'he00801e0);
+//   wbwrite(32'h00000004, 32'h10014008);
+//   wbwrite(32'h00000008, 32'h0810C308);
+//   wbwrite(32'h0000000c, 32'hc3000000);
+
+  wbwrite(32'h00000000, 32'he2097856);
+  wbwrite(32'h00000004, 32'h3412e208);
+  wbwrite(32'h00000008, 32'h21436587);
+  wbwrite(32'h0000000c, 32'he2100100);
+  wbwrite(32'h00000010, 32'h0000e211);
+  wbwrite(32'h00000014, 32'h00000000);
+  wbwrite(32'h00000018, 32'hd30810c3);
+  wbwrite(32'h0000001c, 32'h00000000);
 
   wbread(32'h00000000);
   wbread(32'h00000004);

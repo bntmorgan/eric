@@ -48,12 +48,8 @@ mpu_memory mem (
   .r_data(i_data)
 );
 
-mpu_host_memory mhm (
-  .addr(hm_addr),
-  .start(hm_start),
-  .data(hm_data),
-  .en(hm_en)
-);
+assign hm_data = 64'h1234567812345678;
+assign hm_en = 1'b1;
 
 assign en = user_en & hm_en & checker_en;
 

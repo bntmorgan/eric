@@ -3,102 +3,10 @@ NET "clkin66" LOC = U23 | IOSTANDARD = LVCMOS25;
 NET "clkin66" TNM_NET = "GRPclkin66";
 TIMESPEC "TSclkin66" = PERIOD "GRPclkin66" 10.00 ns;
 
-#   # ==== Flash ====
-#   #NET "flash_adr(0)"  LOC = H9;
-#   #NET "flash_adr(1)"  LOC = G10;
-#   #NET "flash_adr(2)"  LOC = H21;
-#   #NET "flash_adr(3)"  LOC = G20;
-#   #NET "flash_adr(4)"  LOC = H11;
-#   #NET "flash_adr(5)"  LOC = G11;
-#   #NET "flash_adr(6)"  LOC = H19;
-#   #NET "flash_adr(7)"  LOC = H18;
-#   #NET "flash_adr(8)"  LOC = G12;
-#   #NET "flash_adr(9)"  LOC = F13;
-#   #NET "flash_adr(10)" LOC = G19;
-#   #NET "flash_adr(11)" LOC = F18;
-#   #NET "flash_adr(12)" LOC = F14;
-#   #NET "flash_adr(13)" LOC = F15;
-#   #NET "flash_adr(14)" LOC = F17;
-#   #NET "flash_adr(15)" LOC = G17;
-#   #NET "flash_adr(16)" LOC = G14;
-#   #NET "flash_adr(17)" LOC = H13;
-#   #NET "flash_adr(18)" LOC = G16;
-#   #NET "flash_adr(19)" LOC = G15;
-#   #NET "flash_adr(20)" LOC = Y18;
-#   #NET "flash_adr(21)" LOC = AA18;
-#   #NET "flash_adr(22)" LOC = Y11;
-#   #NET "flash_adr(23)" LOC = AA10;
-#   #NET "flash_adr(24)" LOC = Y10;
-#   #NET "flash_adr(25)" LOC = W11;
-#   #
-#   #NET "flash_d(0)"   LOC = AA15;
-#   #NET "flash_d(1)"   LOC = Y15;
-#   #NET "flash_d(2)"   LOC = W14;
-#   #NET "flash_d(3)"   LOC = Y13;
-#   #NET "flash_d(4)"   LOC = W16;
-#   #NET "flash_d(5)"   LOC = Y16;
-#   #NET "flash_d(6)"   LOC = AA14;
-#   #NET "flash_d(7)"   LOC = AA13;
-#   #NET "flash_d(8)"   LOC = AB12;
-#   #NET "flash_d(9)"   LOC = AC11;
-#   #NET "flash_d(10)"  LOC = AB20;
-#   #NET "flash_d(11)"  LOC = AB21;
-#   #NET "flash_d(12)"  LOC = AB11;
-#   #NET "flash_d(13)"  LOC = AB10;
-#   #NET "flash_d(14)"  LOC = AA20;
-#   #NET "flash_d(15)"  LOC = Y21;
-#   #
-#   #NET "flash_adr(*)" IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
-#   #NET "flash_d(*)"   IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 | PULLDOWN;
-#   #
-#   #NET "flash_byte_n" LOC = D14  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
-#   #NET "flash_ce_n"   LOC = Y12  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
-#   #NET "flash_oe_n"   LOC = AA12 | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
-#   #NET "flash_rst_n"  LOC = E15  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
-#   #NET "flash_rdy"    LOC = D15  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 | PULLUP ;
-#   #NET "flash_we_n"   LOC = AA17 | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
-#   #NET "flash_wp_n"   LOC = D16  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8;
-#   
 # ==== UART ====
 NET "uart_rx"      LOC = J24  | IOSTANDARD = LVCMOS25 | PULLUP;
 NET "uart_tx"      LOC = J25  | IOSTANDARD = LVCMOS25 | SLEW = SLOW;
 
-#   # ==== GPIO ====
-#   #NET "gpios(0)"	LOC = B12;
-#   #NET "gpios(1)"	LOC = C12;
-#   #NET "gpios(2)"	LOC = C13;
-#   #NET "gpios(3)"	LOC = C14;
-#   #NET "gpios(4)"	LOC = B15;
-#   #NET "gpios(5)"	LOC = C16;
-#   #NET "gpios(6)"	LOC = B19;
-#   #NET "gpios(7)"	LOC = C18;
-#   #NET "gpios(8)"	LOC = D24;
-#   #NET "gpios(9)"	LOC = C24;
-#   #NET "gpios(10)" LOC = B26;
-#   #NET "gpios(11)" LOC = C26;
-#   #NET "gpios(12)" LOC = F9;
-#   #NET "gpios(13)" LOC = G9;
-#   #NET "gpios(14)" LOC = D26;
-#   #NET "gpios(15)" LOC = D25;
-#   #NET "gpios(16)" LOC = C19;
-#   #NET "gpios(17)" LOC = D19;
-#   #NET "gpios(18)" LOC = B21;
-#   #NET "gpios(19)" LOC = C21;
-#   #NET "gpios(20)" LOC = D21;
-#   #NET "gpios(21)" LOC = D20;
-#   #NET "gpios(22)" LOC = B24;
-#   #NET "gpios(23)" LOC = C23;
-#   #NET "gpios(24)" LOC = A18;
-#   #NET "gpios(25)" LOC = A19;
-#   #NET "gpios(26)" LOC = A20;
-#   #NET "gpios(27)" LOC = B20;
-#   #NET "gpios(28)" LOC = B22;
-#   #NET "gpios(29)" LOC = A22;
-#   #NET "gpios(30)" LOC = B25;
-#   #NET "gpios(31)" LOC = A25;
-#   #
-#   #NET "gpios(*)"  IOSTANDARD = LVCMOS25;
-#   
 # ==== LEDs ====
 NET "leds(0)" LOC = AC22;
 NET "leds(1)" LOC = AC24;

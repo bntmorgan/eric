@@ -1,6 +1,6 @@
 module checker_memory_8 (
 		input [31:0] DIA,
-		output reg [32:0] DOA,
+		output reg [31:0] DOA,
 		input [15:0] ADDRA,
 		input [3:0] WEA,
 		input CLKA,

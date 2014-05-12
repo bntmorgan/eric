@@ -8,5 +8,8 @@ include	$(dir)/rules.mk
 dir	:= $(d)/mpu
 include	$(dir)/rules.mk
 
+dir	:= $(d)/hm
+include	$(dir)/rules.mk
+
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))

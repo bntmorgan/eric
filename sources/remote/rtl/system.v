@@ -75,17 +75,17 @@ module system(
   input phy_rx_n,
   output phy_tx_p,
   output phy_tx_n,
-  output phy_rst_n//,
+  output phy_rst_n,
 
   // PCI Express
-//  output pci_exp_txp,
-//  output pci_exp_txn,
-//  input  pci_exp_rxp,
-//  input  pci_exp_rxn,
-//
-//  input pci_exp_sys_clk_p,
-//  input pci_exp_sys_clk_n,
-//  input pci_exp_rst
+  output [3:0] pci_exp_txp,
+  output [3:0] pci_exp_txn,
+  input [3:0] pci_exp_rxp,
+  input [3:0] pci_exp_rxn,
+
+  input pci_sys_clk_p,
+  input pci_sys_clk_n,
+  input pci_sys_reset_n
 );
 
 //------------------------------------------------------------------
@@ -469,15 +469,15 @@ conbus5x6 #(
 	.s1_stb_o(monitor_stb),
 	.s1_ack_i(monitor_ack),
 	// Slave 2
-//	.s2_dat_i(32'bx),
-//	.s2_dat_o(),
-//	.s2_adr_o(),
-//	.s2_cti_o(),
-//	.s2_sel_o(),
-//	.s2_we_o(),
-//	.s2_cyc_o(),
-//	.s2_stb_o(),
-//	.s2_ack_i(1'bx),
+// 	.s2_dat_i(32'bx),
+// 	.s2_dat_o(),
+// 	.s2_adr_o(),
+// 	.s2_cti_o(),
+// 	.s2_sel_o(),
+// 	.s2_we_o(),
+// 	.s2_cyc_o(),
+// 	.s2_stb_o(),
+// 	.s2_ack_i(1'bx),
 	.s2_dat_i(checker_dat_r),
 	.s2_dat_o(checker_dat_w),
 	.s2_adr_o(checker_adr),
@@ -1660,7 +1660,16 @@ checker_top #(
 	.wb_we_i(checker_we),
 	.wb_cyc_i(checker_cyc),
 	.wb_stb_i(checker_stb),
-	.wb_ack_o(checker_ack)
+	.wb_ack_o(checker_ack),
+
+  .pci_exp_txp(pci_exp_txp),
+  .pci_exp_txn(pci_exp_txn),
+  .pci_exp_rxp(pci_exp_rxp),
+  .pci_exp_rxn(pci_exp_rxn),
+
+  .pci_sys_clk_p(pci_sys_clk_p),
+  .pci_sys_clk_n(pci_sys_clk_n),
+  .pci_sys_reset_n(pci_sys_reset_n)
 );
 
 endmodule
