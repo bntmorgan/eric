@@ -134,11 +134,6 @@ begin
   // Prepare the mpu
 
   // Write the program
-//   wbwrite(32'h00000000, 32'he00801e0);
-//   wbwrite(32'h00000004, 32'h10014008);
-//   wbwrite(32'h00000008, 32'h0810C308);
-//   wbwrite(32'h0000000c, 32'hc3000000);
-
   wbwrite(32'h00000000, 32'he2097856);
   wbwrite(32'h00000004, 32'h3412e208);
   wbwrite(32'h00000008, 32'h21436587);
@@ -146,12 +141,16 @@ begin
   wbwrite(32'h00000010, 32'h0000e211);
   wbwrite(32'h00000014, 32'h00000000);
   wbwrite(32'h00000018, 32'hd30810c3);
-  wbwrite(32'h0000001c, 32'h00000000);
+  wbwrite(32'h0000001c, 32'h08c30000);
 
   wbread(32'h00000000);
   wbread(32'h00000004);
   wbread(32'h00000008);
   wbread(32'h0000000c);
+
+  // CSR WRITE ADDRES LOW
+  # 2 $display("---- low = 0x10");
+  csrwrite(`CHECKER_CSR_ADDRESS_LOW, 32'h00001000);
 
   // CSR WRITE CTRL START
   # 2 $display("---- ctrl = signlemode + start");
@@ -162,12 +161,15 @@ begin
   csrread(`CHECKER_CSR_CTRL);
 
   // Holds the cvalues
-  # 40
+  # 400
 
-  csrwrite(`CHECKER_CSR_STAT, {29'h0, 3'b111});
+  // csrwrite(`CHECKER_CSR_STAT, {29'h0, 3'b111});
 
   // Holds the cvalues
-  # 1000
+  # 2 $display("---- ctrl = signlemode + start");
+  csrwrite(`CHECKER_CSR_CTRL, {28'h0, 1'b1, `CHECKER_MODE_SINGLE, 1'b1});
+
+  # 400
 
   # 4 $finish;
 end

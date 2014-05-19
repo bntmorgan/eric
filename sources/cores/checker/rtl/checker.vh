@@ -31,6 +31,8 @@
 `define CHECKER_CSR_STAT              3'b011
 `define CHECKER_CSR_MODE_DATA_LOW     3'b100
 `define CHECKER_CSR_MODE_DATA_HIGH    3'b101
+`define CHECKER_CSR_STAT_TRN_CPT      3'b110
+`define CHECKER_CSR_STAT_TRN          3'b111
 
 // Register Status
 `define CHECKER_STAT_EVENT_END        32'h00000001

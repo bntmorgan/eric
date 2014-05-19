@@ -81,10 +81,16 @@ wire user_irq;
 wire [63:0] user_data;
 wire [63:0] hm_addr;
 wire hm_start;
-wire error;
+wire mpu_error;
+wire hm_timeout;
 
 wire hm_en;
 wire mpu_rst;
+
+
+wire [15:0] stat_trn_cpt_tx;
+wire [15:0] stat_trn_cpt_rx;
+wire [31:0] stat_trn;
 
 // Control interface
 checker_ctlif #(
@@ -107,7 +113,11 @@ checker_ctlif #(
   .mode_ack(mode_ack),
   .mode_error(mode_error),
 
-  .irq(irq)
+  .irq(irq),
+
+  .stat_trn_cpt_tx(stat_trn_cpt_tx),
+  .stat_trn_cpt_rx(stat_trn_cpt_rx),
+  .stat_trn(stat_trn)
 );
 
 /**
@@ -203,7 +213,7 @@ checker_single #(
 
   .mpu_en(single_en),
   .mpu_rst(single_rst),
-  .mpu_error(error),
+  .mpu_error(mpu_error | hm_timeout | hm_error),
   .mpu_user_data(user_data),
   .mpu_user_irq(user_irq)
 );
@@ -225,7 +235,7 @@ mpu_top mpu (
   .user_data(user_data),
   .hm_addr(hm_addr),
   .hm_start(hm_start),
-  .error(error)
+  .error(mpu_error)
 );
 
 assign mpu_en = hm_en & single_en;
@@ -247,30 +257,7 @@ checker_memory mem (
   .wb_ack_o(wb_ack_o)
 );
 
-wire hm_end_2;
-checker_psync ps_hm_end (
-  .clk1(sys_clk),
-  .i(hm_end),
-  .clk2(sys_clk_2),
-  .o(hm_end_2)
-);
-
-assign hm_en = ~hm_start | hm_end_2;
-// TODO
-wire hm_error;
-
-`ifdef SIMULATION
-checker_host_memory mhm (
-  .sys_clk(sys_clk),
-  .sys_rst(sys_rst),
-  .hm_page_addr(mode_addr),
-  .hm_page_offset(hm_addr[11:0]),
-  .hm_start(hm_start),
-  .hm_end(hm_end),
-  .hm_data(hm_data),
-  .hm_error(hm_error)
-);
-`else
+assign hm_en = ~hm_start | hm_end;
 
 /**
  * PCIE IP CORE instanciation
@@ -376,13 +363,15 @@ wire sys_clk_c;
 wire sys_reset_n_c;
 
 hm_top mhm (
-  .sys_clk(sys_clk),
-  .sys_rst(sys_rst),
+  .sys_clk(sys_clk_2),
+  .sys_rst(sys_rst_2 | single_rst),
+  .en(single_en),
   .hm_page_addr(mode_addr),
   .hm_page_offset(hm_addr[11:0]),
   .hm_start(hm_start),
   .hm_end(hm_end),
   .hm_data(hm_data),
+  .hm_timeout(hm_timeout),
   .hm_error(hm_error),
 
   .trn_clk(trn_clk),
@@ -417,8 +406,20 @@ hm_top mhm (
   .trn_tstr_n(trn_tstr_n),
   .trn_rdst_rdy_n(trn_rdst_rdy_n),
   .trn_rnp_ok_n(trn_rnp_ok_n),
-  .trn_fc_sel(trn_fc_sel)
+  .trn_fc_sel(trn_fc_sel),
+
+
+  .stat_trn_cpt_tx(stat_trn_cpt_tx),
+  .stat_trn_cpt_rx(stat_trn_cpt_rx),
+  .stat_trn(stat_trn)
 );
+
+`ifdef SIMULATION
+assign trn_clk = sys_clk_2;
+assign trn_lnk_up_n = 1'b0;
+assign trn_tdst_rdy_n = 1'b0;
+assign trn_rsrc_rdy_n = 1'b0;
+`else
 
 IBUFDS_GTXE1 refclk_ibuf (
   .O(sys_clk_c),

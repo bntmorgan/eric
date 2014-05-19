@@ -62,7 +62,7 @@ always @(posedge sys_clk) begin
         mpu_rst <= 1'b0;
         mpu_en <= 1'b1;
       end else if (state == `CHECKER_SINGLE_STATE_RUN) begin
-        if (mode_start == 1'b0) begin // RUN -> IDE
+        if (mode_start == 1'b0) begin // RUN -> IDE // user end
           state <= `CHECKER_SINGLE_STATE_IDLE;
           mpu_en <= 1'b0;
         end else if (mpu_error == 1'b1) begin // RUN -> IDLE
@@ -86,9 +86,12 @@ always @(posedge sys_clk) begin
         end
         if (mode_ack == 1'b1) begin // WAIT -> RUN
           state <= `CHECKER_SINGLE_STATE_RUN;
-          mode_irq <= 1'b0;
           mode_data <= 64'b0;
           mpu_en <= 1'b1;
+        end else if (mode_start == 1'b0) begin // RUN -> IDE user end
+          state <= `CHECKER_SINGLE_STATE_IDLE;
+          mode_data <= 64'b0;
+          mpu_en <= 1'b0;
         end
       end
     end

@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.52 (w)1999-2013 BSI
-[*] Wed Apr 30 14:11:38 2014
+[*] Mon May 19 14:24:46 2014
 [*]
 [dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/checker/checker.sim.vcd"
-[dumpfile_mtime] "Wed Apr 30 10:54:22 2014"
-[dumpfile_size] 67719
+[dumpfile_mtime] "Mon May 19 14:24:15 2014"
+[dumpfile_size] 111455
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/checker_top.gtkw"
-[timestart] 0
+[timestart] 83
 [size] 1918 1179
 [pos] -1 -1
-*-5.505374 39 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-6.505374 237 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.ck.
 [treeopen] main.ck.mem.gen_ram[0].
@@ -27,7 +27,6 @@ main.ck.csr_di[31:0]
 main.ck.csr_do[31:0]
 @28
 main.ck.csr_we
-main.ck.error
 @22
 main.ck.hm_addr[63:0]
 main.ck.hm_data[63:0]
@@ -60,7 +59,6 @@ main.ck.mode_irq_read
 main.ck.mode_irq_single
 main.ck.mode_mode[1:0]
 main.ck.mode_start
-main.ck.mpu_clk
 main.ck.mpu_en
 main.ck.mpu_rst
 main.ck.single_en
@@ -85,7 +83,7 @@ main.ck.wb_stb_i
 main.ck.wb_we_i
 @1401200
 -checker_top
-@800200
+@c00200
 -checker_ctlif
 @22
 main.ck.ctlif.csr_a[13:0]
@@ -100,9 +98,9 @@ main.ck.ctlif.event_mode_irq
 main.ck.ctlif.irq
 main.ck.ctlif.irq_en
 main.ck.ctlif.mode_ack
-@c00023
+@c00022
 main.ck.ctlif.mode_addr[63:0]
-@29
+@28
 (0)main.ck.ctlif.mode_addr[63:0]
 (1)main.ck.ctlif.mode_addr[63:0]
 (2)main.ck.ctlif.mode_addr[63:0]
@@ -167,7 +165,7 @@ main.ck.ctlif.mode_addr[63:0]
 (61)main.ck.ctlif.mode_addr[63:0]
 (62)main.ck.ctlif.mode_addr[63:0]
 (63)main.ck.ctlif.mode_addr[63:0]
-@1401201
+@1401200
 -group_end
 @22
 main.ck.ctlif.mode_data[63:0]
@@ -180,7 +178,7 @@ main.ck.ctlif.mode_start
 main.ck.ctlif.state[1:0]
 main.ck.ctlif.sys_clk
 main.ck.ctlif.sys_rst
-@1000200
+@1401200
 -checker_ctlif
 @800200
 -checker_single
@@ -208,6 +206,10 @@ main.ck.single.sys_clk
 main.ck.single.sys_rst
 @1000200
 -checker_single
+@800200
+-mhm
+@1000200
+-mhm
 @c00200
 -checker_memory
 @22
@@ -242,6 +244,8 @@ main.ck.mem.wb_we_i
 @800200
 -mpu_top
 @28
+main.ck.mpu.sys_clk
+main.ck.mpu.sys_rst
 main.ck.mpu.en
 main.ck.mpu.error
 @22
@@ -278,13 +282,8 @@ main.ck.mpu.r_data0[63:0]
 main.ck.mpu.r_data1[63:0]
 main.ck.mpu.r_data2[63:0]
 main.ck.mpu.r_data3[63:0]
-@28
-main.ck.mpu.sys_clk
-main.ck.mpu.sys_rst
-@22
 main.ck.mpu.user_data[63:0]
 @28
-main.ck.mpu.user_end
 main.ck.mpu.user_irq
 @22
 main.ck.mpu.w_data[63:0]
@@ -294,6 +293,7 @@ main.ck.mpu.w_r_sel[2:0]
 main.ck.mpu.w_sel[2:0]
 main.ck.mpu.w_size[1:0]
 main.ck.mpu.we
+main.ck.hm_timeout
 @1000200
 -mpu_top
 @c00200

@@ -35,7 +35,12 @@ module checker_ctlif #(
   input mode_error,
 
   // LM32 IRQ
-  output irq
+  output irq,
+
+  // Hm user statistics counters ans status
+  input [15:0] stat_trn_cpt_tx,
+  input [15:0] stat_trn_cpt_rx,
+  input [31:0] stat_trn
 );
 
 /* CSR interface */
@@ -112,11 +117,12 @@ always @(posedge sys_clk) begin
       if (mode_end == 1'b1) begin
         state <= `CHECKER_STATE_IDLE; // RUN -> IDLE
         mode_start <= 1'b0;
-        mode_start <= 1'b0;
         event_end <= 1'b1;
+      end else if (mode_start == 1'b0) begin
+        state <= `CHECKER_STATE_IDLE; // RUN -> IDLE user end
+        mode_start <= 1'b0;
       end else if (mode_error == 1'b1) begin
         state <= `CHECKER_STATE_IDLE; // RUN -> IDLE
-        mode_start <= 1'b0;
         mode_start <= 1'b0;
         event_error <= 1'b1;
       end else if (mode_irq == 1'b1) begin
@@ -149,6 +155,8 @@ always @(posedge sys_clk) begin
           mode_mode[0], irq_en};
         `CHECKER_CSR_MODE_DATA_LOW: csr_do <= mode_data[31:0];
         `CHECKER_CSR_MODE_DATA_HIGH: csr_do <= mode_data[63:32];
+        `CHECKER_CSR_STAT_TRN_CPT: csr_do <= {stat_trn_cpt_rx, stat_trn_cpt_tx};
+        `CHECKER_CSR_STAT_TRN: csr_do <= stat_trn;
 			endcase
 			if (csr_we) begin
 				case (csr_a[2:0])
