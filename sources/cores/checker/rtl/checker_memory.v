@@ -32,18 +32,6 @@ wire [3:0] wb_sel_i_le = {
   wb_sel_i[2],
   wb_sel_i[3]
 };
-//wire [31:0] wb_dat_i_le = {
-//  wb_dat_i[31:24],
-//  wb_dat_i[23:16],
-//  wb_dat_i[15:8],
-//  wb_dat_i[7:0]
-//};
-//wire [3:0] wb_sel_i_le = {
-//  wb_sel_i[3],
-//  wb_sel_i[2],
-//  wb_sel_i[1],
-//  wb_sel_i[0]
-//};
 
 // Wb to ram wires
 wire [11:0] wb_ram_adr [7:0];

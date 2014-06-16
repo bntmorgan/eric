@@ -57,6 +57,7 @@ simulations: $(SIMS)
 	@echo [VLG] $@ \> $@.out
 	@iverilog -o $@ $^ \
 		$(SIM_CFLAGS) -D__DUMP_FILE__=\"$(abspath $@).vcd\" &> $(abspath $@).out \
+		-D__DIR__=\"$(realpath $(dir $@))\" \
 		-DSIMULATION=1 \
 	#	-y$(XILINX_SRC)/unisims $(XILINX_SRC)/glbl.v
 

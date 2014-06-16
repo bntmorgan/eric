@@ -38,7 +38,6 @@ module checker_top #(
 );
 
 reg sys_clk_2;
-initial sys_clk_2 <= 1'b0;
 
 always @(posedge sys_clk) begin
   sys_clk_2 <= ~sys_clk_2;
@@ -70,6 +69,12 @@ wire mode_error_dummy;
 wire mode_error_single;
 wire mode_error_auto;
 wire mode_error_read;
+wire [31:0] wb_dat_o_mem;
+wire [31:0] wb_dat_o_hm;
+wire wb_ack_o_mem;
+wire wb_ack_o_hm;
+wire wb_we_i_mem;
+wire wb_we_i_hm;
 
 wire single_en;
 
@@ -82,15 +87,29 @@ wire [63:0] user_data;
 wire [63:0] hm_addr;
 wire hm_start;
 wire mpu_error;
-wire hm_timeout;
 
 wire hm_en;
+wire hm_end;
+wire hm_timeout;
+wire hm_error;
 wire mpu_rst;
-
 
 wire [15:0] stat_trn_cpt_tx;
 wire [15:0] stat_trn_cpt_rx;
 wire [31:0] stat_trn;
+
+reg mpu_rst_2;
+reg hm_start_once;
+reg started;
+wire [47:0] i_data_rst_2;
+wire mpu_error_2;
+
+initial begin
+  mpu_rst_2 = 1'b0;
+  hm_start_once = 1'b0;
+  started = 1'b0;
+  sys_clk_2 <= 1'b0;
+end
 
 // Control interface
 checker_ctlif #(
@@ -196,6 +215,30 @@ checker_dummy #(
   .mode_error(mode_error_dummy)
 );
 
+wire hm_end_2;
+checker_psync ps_hm_end_2 (
+  .clk1(sys_clk),
+  .i(hm_end),
+  .clk2(sys_clk_2),
+  .o(hm_end_2)
+);
+
+wire hm_timeout_2;
+checker_psync ps_hm_timeout_2 (
+  .clk1(sys_clk),
+  .i(hm_timeout),
+  .clk2(sys_clk_2),
+  .o(hm_timeout_2)
+);
+
+wire hm_error_2;
+checker_psync ps_hm_error_2 (
+  .clk1(sys_clk),
+  .i(hm_error),
+  .clk2(sys_clk_2),
+  .o(hm_error_2)
+);
+
 checker_single #(
   .mode(`CHECKER_MODE_SINGLE)
 ) single (
@@ -213,7 +256,7 @@ checker_single #(
 
   .mpu_en(single_en),
   .mpu_rst(single_rst),
-  .mpu_error(mpu_error | hm_timeout | hm_error),
+  .mpu_error(mpu_error_2 | hm_timeout_2 | hm_error_2),
   .mpu_user_data(user_data),
   .mpu_user_irq(user_irq)
 );
@@ -224,11 +267,34 @@ checker_single #(
  * MPU is sys_ck / 2 because of the synced RAMB36E1
  */
 
+always @(posedge sys_clk_2) begin
+  if (mpu_rst) begin
+    mpu_rst_2 <= 1'b1;
+  end else begin
+    mpu_rst_2 <= 1'b0;
+  end
+end
+
+assign i_data_rst_2 = (mpu_rst_2 == 1'b1) ? 48'b0 : i_data; 
+assign mpu_error_2 = (mpu_rst_2 == 1'b1) ? 1'b0 : mpu_error; 
+
+always @(posedge sys_clk_2) begin
+  if (hm_start && ~started) begin
+    hm_start_once <= 1'b1;
+    started <= 1'b1;
+  end else if (hm_start_once) begin
+    hm_start_once <= 1'b0;
+  end
+  if (mpu_en) begin
+    started <= 1'b0;
+  end
+end
+
 mpu_top mpu (
   .sys_clk(sys_clk_2),
   .sys_rst(mpu_rst),
   .en(mpu_en),
-  .i_data(i_data),
+  .i_data(i_data_rst_2),
   .hm_data(hm_data),
   .i_addr(i_addr),
   .user_irq(user_irq),
@@ -252,12 +318,21 @@ checker_memory mem (
   .wb_sel_i(wb_sel_i),
   .wb_stb_i(wb_stb_i),
   .wb_cyc_i(wb_cyc_i),
-  .wb_we_i(wb_we_i),
-  .wb_dat_o(wb_dat_o),
-  .wb_ack_o(wb_ack_o)
+  .wb_we_i(wb_we_i_mem),
+  .wb_dat_o(wb_dat_o_mem),
+  .wb_ack_o(wb_ack_o_mem)
 );
 
-assign hm_en = ~hm_start | hm_end;
+// Memory selection
+assign wb_dat_o = (wb_adr_i[15] == 1'b0) ? wb_dat_o_mem : wb_dat_o_hm;
+
+assign wb_ack_o = (wb_adr_i[15] == 1'b0) ? wb_ack_o_mem : wb_ack_o_hm;
+
+assign wb_we_i_mem = (wb_adr_i[15] == 1'b0) ? wb_we_i : 1'b0;
+
+assign wb_we_i_hm = 1'b0;
+
+assign hm_en = ~hm_start | hm_end_2;
 
 /**
  * PCIE IP CORE instanciation
@@ -363,16 +438,25 @@ wire sys_clk_c;
 wire sys_reset_n_c;
 
 hm_top mhm (
-  .sys_clk(sys_clk_2),
+  .sys_clk(sys_clk),
   .sys_rst(sys_rst_2 | single_rst),
   .en(single_en),
   .hm_page_addr(mode_addr),
   .hm_page_offset(hm_addr[11:0]),
-  .hm_start(hm_start),
+  .hm_start(hm_start_once),
   .hm_end(hm_end),
   .hm_data(hm_data),
   .hm_timeout(hm_timeout),
   .hm_error(hm_error),
+
+  .wb_adr_i(wb_adr_i),
+  .wb_dat_i(wb_dat_i),
+  .wb_sel_i(wb_sel_i),
+  .wb_stb_i(wb_stb_i),
+  .wb_cyc_i(wb_cyc_i),
+  .wb_we_i(wb_we_i_hm),
+  .wb_dat_o(wb_dat_o_hm),
+  .wb_ack_o(wb_ack_o_hm),
 
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
@@ -408,14 +492,13 @@ hm_top mhm (
   .trn_rnp_ok_n(trn_rnp_ok_n),
   .trn_fc_sel(trn_fc_sel),
 
-
   .stat_trn_cpt_tx(stat_trn_cpt_tx),
   .stat_trn_cpt_rx(stat_trn_cpt_rx),
   .stat_trn(stat_trn)
 );
 
 `ifdef SIMULATION
-assign trn_clk = sys_clk_2;
+assign trn_clk = sys_clk;
 assign trn_lnk_up_n = 1'b0;
 assign trn_tdst_rdy_n = 1'b0;
 assign trn_rsrc_rdy_n = 1'b0;

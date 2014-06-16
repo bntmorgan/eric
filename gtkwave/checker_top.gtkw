@@ -1,22 +1,24 @@
 [*]
-[*] GTKWave Analyzer v3.3.52 (w)1999-2013 BSI
-[*] Mon May 19 14:24:46 2014
+[*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
+[*] Mon Jun 16 13:55:21 2014
 [*]
 [dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/checker/checker.sim.vcd"
-[dumpfile_mtime] "Mon May 19 14:24:15 2014"
-[dumpfile_size] 111455
+[dumpfile_mtime] "Mon Jun 16 13:43:06 2014"
+[dumpfile_size] 639845
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/checker_top.gtkw"
-[timestart] 83
+[timestart] 4653
 [size] 1918 1179
 [pos] -1 -1
-*-6.505374 237 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-4.505374 4743 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.ck.
-[treeopen] main.ck.mem.gen_ram[0].
+[treeopen] main.ck.mem.
 [treeopen] main.ck.mem.gen_ram[7].
+[treeopen] main.ck.mhm.gen_ram[0].
+[treeopen] main.ck.mhm.gen_ram[1].
 [treeopen] main.ck.mpu.
 [sst_width] 224
-[signals_width] 467
+[signals_width] 329
 [sst_expanded] 1
 [sst_vpaned_height] 345
 @c00200
@@ -81,6 +83,11 @@ main.ck.wb_sel_i[3:0]
 @28
 main.ck.wb_stb_i
 main.ck.wb_we_i
+main.ck.wb_ack_o
+main.ck.wb_ack_o_hm
+main.ck.wb_ack_o_mem
+main.ck.wb_we_i_hm
+main.ck.wb_we_i_mem
 @1401200
 -checker_top
 @c00200
@@ -180,7 +187,7 @@ main.ck.ctlif.sys_clk
 main.ck.ctlif.sys_rst
 @1401200
 -checker_ctlif
-@800200
+@c00200
 -checker_single
 @28
 main.ck.single.mode_ack
@@ -204,12 +211,8 @@ main.ck.single.mpu_user_irq
 main.ck.single.state[1:0]
 main.ck.single.sys_clk
 main.ck.single.sys_rst
-@1000200
+@1401200
 -checker_single
-@800200
--mhm
-@1000200
--mhm
 @c00200
 -checker_memory
 @22
@@ -241,7 +244,7 @@ main.ck.mem.wb_stb_i
 main.ck.mem.wb_we_i
 @1401200
 -checker_memory
-@800200
+@c00200
 -mpu_top
 @28
 main.ck.mpu.sys_clk
@@ -293,10 +296,11 @@ main.ck.mpu.w_r_sel[2:0]
 main.ck.mpu.w_sel[2:0]
 main.ck.mpu.w_size[1:0]
 main.ck.mpu.we
-main.ck.hm_timeout
-@1000200
+@1401200
 -mpu_top
-@c00200
+@800200
+-checker_memory_mem
+@1000200
 -checker_memory_mem
 @22
 main.ck.mem.gen_ram[0].ram.\mem[0][7:0]
@@ -307,7 +311,9 @@ main.ck.mem.gen_ram[4].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[0][7:0]
 main.ck.mem.gen_ram[7].ram.\mem[0][7:0]
+@23
 main.ck.mem.gen_ram[0].ram.\mem[1][7:0]
+@22
 main.ck.mem.gen_ram[1].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[2].ram.\mem[1][7:0]
 main.ck.mem.gen_ram[3].ram.\mem[1][7:0]
@@ -363,24 +369,73 @@ main.ck.mem.gen_ram[4].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[5].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[6].ram.\mem[7][7:0]
 main.ck.mem.gen_ram[7].ram.\mem[7][7:0]
-@1401200
--checker_memory_mem
 @c00200
--mpu_ip
-@22
-main.ck.mpu.ip.data[15:0]
+-mhm
 @28
-main.ck.mpu.ip.en
+main.ck.mhm.hm_start
 @22
-main.ck.mpu.ip.incr[15:0]
+main.ck.mhm.rx.dw_h[31:0]
+main.ck.mhm.rx.dw_l[31:0]
 @28
-main.ck.mpu.ip.load
+main.ck.mhm.rx.fmt[2:0]
+main.ck.mhm.rx.is_memory_completion
 @22
-main.ck.mpu.ip.out[15:0]
+main.ck.mhm.rx.mem_h_addr[9:0]
+main.ck.mhm.rx.mem_h_data[31:0]
 @28
-main.ck.mpu.ip.sys_clk
-main.ck.mpu.ip.sys_rst
+main.ck.mhm.rx.mem_h_we
+@22
+main.ck.mhm.rx.mem_l_addr[9:0]
+main.ck.mhm.rx.mem_l_data[31:0]
+@28
+main.ck.mhm.rx.mem_l_we
+@22
+main.ck.mhm.rx.offset_h[9:0]
+main.ck.mhm.rx.offset_l[9:0]
+@28
+main.ck.mhm.rx.rx_end
+main.ck.mhm.rx.rx_ended
+main.ck.mhm.rx.rx_ended_b
+main.ck.mhm.rx.rx_start
+main.ck.mhm.rx.rx_started
+@22
+main.ck.mhm.rx.stat_trn_cpt_rx[15:0]
+@28
+main.ck.mhm.rx.state[1:0]
+main.ck.mhm.rx.state_state
+main.ck.mhm.rx.sys_rst
+main.ck.mhm.rx.timeout
+@22
+main.ck.mhm.rx.timeout_cpt[15:0]
+@28
+main.ck.mhm.rx.trn_clk
+main.ck.mhm.rx.trn_lnk_up_n
+main.ck.mhm.rx.trn_rdst_rdy_n
+main.ck.mhm.rx.trn_reof_n
+main.ck.mhm.trn_rsof_n
+main.ck.mhm.rx.trn_rsrc_dsc_n
+main.ck.mhm.rx.trn_rsrc_rdy_n
+main.ck.mhm.wb_ack_o
+@22
+main.ck.mhm.wb_adr_i[31:0]
+@28
+main.ck.mhm.wb_cyc_i
+@22
+main.ck.mhm.wb_dat_i[31:0]
+main.ck.mhm.wb_dat_o[31:0]
+@28
+main.ck.mhm.wb_en
+@22
+main.ck.mhm.wb_sel_i[3:0]
+@28
+main.ck.mhm.wb_stb_i
+main.ck.mhm.wb_we_i
+@22
+main.ck.mhm.gen_ram[0].m.ADDRA[15:0]
+main.ck.mhm.gen_ram[0].m.DOA[31:0]
+main.ck.mhm.gen_ram[1].m.ADDRA[15:0]
+main.ck.mhm.gen_ram[1].m.DOA[31:0]
 @1401200
--mpu_ip
+-mhm
 [pattern_trace] 1
 [pattern_trace] 0

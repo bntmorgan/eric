@@ -67,6 +67,26 @@ begin
 end
 endtask
 
+task wbread_nonblock;
+input [31:0] address;
+begin
+	wb_adr_i = address;
+	wb_cti_i = 3'b000;
+	wb_cyc_i = 1'b1;
+	wb_stb_i = 1'b1;
+	wb_we_i = 1'b0;
+  // wait three clocks
+  waitclock;
+  waitclock;
+	$display("WB Read : %x=%x acked in 3 clocks", address, wb_dat_o);
+	waitclock;
+	wb_adr_i = 32'hx;
+	wb_cyc_i = 1'b0;
+	wb_stb_i = 1'b0;
+	wb_we_i = 1'b0;
+end
+endtask
+
 always @(*)
 begin
   $display("-");

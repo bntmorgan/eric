@@ -13,6 +13,7 @@ module main();
 wire irq;
 
 `include "sim_wb.v"
+`include "sim_memory.v"
 `include "sim_csr.v"
 `include "sim.v"
 
@@ -131,22 +132,20 @@ begin
   // Holds the cvalues
   # 40
 
+  // SYS RESET
+  # 2 $display("---- rst");
+  sys_rst = 1'b1;
+
+  // END RESET
+  # 2 $display("---- read low");
+  sys_rst = 1'b0;
+
   // Prepare the mpu
 
+  mpumeminit;
   // Write the program
-  wbwrite(32'h00000000, 32'he2097856);
-  wbwrite(32'h00000004, 32'h3412e208);
-  wbwrite(32'h00000008, 32'h21436587);
-  wbwrite(32'h0000000c, 32'he2100100);
-  wbwrite(32'h00000010, 32'h0000e211);
-  wbwrite(32'h00000014, 32'h00000000);
-  wbwrite(32'h00000018, 32'hd30810c3);
-  wbwrite(32'h0000001c, 32'h08c30000);
 
-  wbread(32'h00000000);
-  wbread(32'h00000004);
-  wbread(32'h00000008);
-  wbread(32'h0000000c);
+  wbread(32'h58);
 
   // CSR WRITE ADDRES LOW
   # 2 $display("---- low = 0x10");
@@ -163,15 +162,28 @@ begin
   // Holds the cvalues
   # 400
 
-  // csrwrite(`CHECKER_CSR_STAT, {29'h0, 3'b111});
+  // validate the events
+  # 2 $display("---- stat = 0x7");
+  csrwrite(`CHECKER_CSR_STAT, {29'h0, 3'b111});
+
+  # 40
 
   // Holds the cvalues
   # 2 $display("---- ctrl = signlemode + start");
   csrwrite(`CHECKER_CSR_CTRL, {28'h0, 1'b1, `CHECKER_MODE_SINGLE, 1'b1});
 
+  // Holds the cvalues
   # 400
 
-  # 4 $finish;
+  // Validate the events
+  # 2 $display("---- stat = 0x7");
+  csrwrite(`CHECKER_CSR_STAT, {29'h0, 3'b111});
+
+  // Holds the cvalues
+  # 400
+  wbread(32'h8004);
+
+  # 40 $finish;
 end
 
 endmodule
