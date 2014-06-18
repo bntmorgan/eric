@@ -1,0 +1,44 @@
+[*]
+[*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
+[*] Wed Jun 18 12:23:51 2014
+[*]
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/checker/checker_read.sim.vcd"
+[dumpfile_mtime] "Wed Jun 18 12:23:12 2014"
+[dumpfile_size] 4261
+[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/checker_read.v.gtkw"
+[timestart] 0
+[size] 1918 1179
+[pos] -1 -1
+*-5.353701 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[sst_width] 224
+[signals_width] 341
+[sst_expanded] 1
+[sst_vpaned_height] 345
+@28
+main.read.hm_end
+main.read.hm_error
+@22
+main.read.hm_page_addr[63:0]
+@28
+main.read.hm_start
+main.read.hm_timeout
+main.read.mode_ack
+@22
+main.read.mode_addr[63:0]
+main.read.mode_data[63:0]
+@28
+main.read.mode_end
+main.read.mode_error
+main.read.mode_irq
+main.read.mode_mode[1:0]
+main.read.mode_selected
+main.read.mode_start
+main.read.mode_started
+@29
+main.read.state
+@28
+main.read.sys_clk
+main.read.sys_rst
+[pattern_trace] 1
+[pattern_trace] 0

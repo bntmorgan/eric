@@ -43,6 +43,13 @@ $(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl \
  -I$(CORES_DIR)/hm/rtl
 SIMS						+= $(SIM)
 
+SIM 			      := $(call SRC_2_BIN, $(d)/checker_read.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_read.v
+$(SIM)					: $(SRC_SIM_$(d))
+$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl \
+ -I$(CORES_DIR)/hm/rtl
+SIMS						+= $(SIM)
+
 SIM 			      := $(call SRC_2_BIN, $(d)/checker_memory.sim)
 SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_memory.v
 $(SIM)					: $(SRC_SIM_$(d))
