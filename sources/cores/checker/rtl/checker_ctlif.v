@@ -37,6 +37,17 @@ module checker_ctlif #(
   // LM32 IRQ
   output irq,
 
+  // cfg ip core interface
+  input [7:0] cfg_bus_number,
+  input [4:0] cfg_device_number,
+  input [2:0] cfg_function_number,
+  input [15:0] cfg_command,
+  input [15:0] cfg_dstatus,
+  input [15:0] cfg_dcommand,
+  input [15:0] cfg_lstatus,
+  input [15:0] cfg_lcommand,
+  input [15:0] cfg_dcommand2,
+
   // Hm user statistics counters ans status
   input [15:0] stat_trn_cpt_tx,
   input [15:0] stat_trn_cpt_rx,
@@ -146,7 +157,7 @@ always @(posedge sys_clk) begin
     // CSR 
 		csr_do <= 32'd0;
 		if (csr_selected) begin
-			case (csr_a[2:0])
+			case (csr_a[9:0])
 				`CHECKER_CSR_ADDRESS_LOW: csr_do <= mode_addr[31:0];
 				`CHECKER_CSR_ADDRESS_HIGH: csr_do <= mode_addr[63:32];
         `CHECKER_CSR_STAT: csr_do <= {29'b0, event_mode_irq, event_error,
@@ -157,9 +168,17 @@ always @(posedge sys_clk) begin
         `CHECKER_CSR_MODE_DATA_HIGH: csr_do <= mode_data[63:32];
         `CHECKER_CSR_STAT_TRN_CPT: csr_do <= {stat_trn_cpt_rx, stat_trn_cpt_tx};
         `CHECKER_CSR_STAT_TRN: csr_do <= stat_trn;
+        `CHECKER_CSR_CFG_PCI_ADDR: csr_do <= {16'b0, cfg_bus_number,
+          cfg_device_number, cfg_function_number};
+        `CHECKER_CSR_CFG_COMMAND: csr_do <= {16'b0, cfg_command};
+        `CHECKER_CSR_CFG_DSTATUS: csr_do <= {16'b0, cfg_dstatus};
+        `CHECKER_CSR_CFG_DCOMMAND: csr_do <= {16'b0, cfg_dcommand};
+        `CHECKER_CSR_CFG_DCOMMAND2: csr_do <= {16'b0, cfg_dcommand2};
+        `CHECKER_CSR_CFG_LSTATUS: csr_do <= {16'b0, cfg_lstatus};
+        `CHECKER_CSR_CFG_LCOMMAND: csr_do <= {16'b0, cfg_lcommand};
 			endcase
 			if (csr_we) begin
-				case (csr_a[2:0])
+				case (csr_a[9:0])
           `CHECKER_CSR_ADDRESS_LOW: begin
             if (state == `CHECKER_STATE_IDLE) begin
               mode_addr[31:0] <= csr_di;

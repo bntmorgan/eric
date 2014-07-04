@@ -1,4 +1,6 @@
 `include "checker.vh"
+// XXX
+`define PCIE_NUMBER_OF_LANES 1 
 
 module checker_top #(
 	parameter csr_addr = 4'h0
@@ -27,26 +29,25 @@ module checker_top #(
 	input wb_we_i,
 
   // PCIE hardware
-  output [3:0] pci_exp_txp,
-  output [3:0] pci_exp_txn,
-  input [3:0] pci_exp_rxp,
-  input [3:0] pci_exp_rxn,
+  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txp,
+  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txn,
+  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxp,
+  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxn,
 
   input pci_sys_clk_p,
   input pci_sys_clk_n,
   input pci_sys_reset_n
 );
 
-reg sys_clk_2;
+reg mpu_clk;
 
 always @(posedge sys_clk) begin
-  sys_clk_2 <= ~sys_clk_2;
+  mpu_clk <= ~mpu_clk;
 end
 
 // Wires
 wire [1:0] mode_mode;
 wire mode_start;
-wire mode_ack;
 wire cstop;
 wire [63:0] mode_addr;
 wire mode_end;
@@ -77,6 +78,8 @@ wire wb_we_i_mem;
 wire wb_we_i_hm;
 
 wire single_en;
+wire single_rst;
+wire read_rst;
 
 wire [47:0] i_data;
 wire [63:0] hm_data;
@@ -88,7 +91,6 @@ wire [63:0] hm_addr;
 wire hm_start;
 wire mpu_error;
 
-wire hm_en;
 wire hm_end;
 wire hm_timeout;
 wire hm_error;
@@ -98,18 +100,81 @@ wire [15:0] stat_trn_cpt_tx;
 wire [15:0] stat_trn_cpt_rx;
 wire [31:0] stat_trn;
 
-reg mpu_rst_2;
-reg hm_start_once;
-reg started;
-wire [47:0] i_data_rst_2;
-wire mpu_error_2;
+reg mpu_rst_r;
+wire [47:0] i_data_c;
+wire mpu_error_c;
+
+wire sys__mode_ack;
+wire mpu__mode_ack;
+
+// wire sys__sys_rst is sys_rst
+wire mpu__sys_rst;
 
 initial begin
-  mpu_rst_2 = 1'b0;
-  hm_start_once = 1'b0;
-  started = 1'b0;
-  sys_clk_2 <= 1'b0;
+  mpu_rst_r = 1'b0;
+  mpu_clk <= 1'b0;
 end
+
+/**
+ * PCIE IP CORE synced wires
+ */
+
+wire [7:0] cfg_bus_number;
+wire [7:0] sys__cfg_bus_number;
+wire [4:0] cfg_device_number;
+wire [4:0] sys__cfg_device_number;
+wire [2:0] cfg_function_number;
+wire [2:0] sys__cfg_function_number;
+wire [15:0] cfg_command;
+wire [15:0] sys__cfg_command;
+wire [15:0] cfg_dstatus;
+wire [15:0] sys__cfg_dstatus;
+wire [15:0] cfg_dcommand;
+wire [15:0] sys__cfg_dcommand;
+wire [15:0] cfg_lstatus;
+wire [15:0] sys__cfg_lstatus;
+wire [15:0] cfg_lcommand;
+wire [15:0] sys__cfg_lcommand;
+wire [15:0] cfg_dcommand2;
+wire [15:0] sys__cfg_dcommand2;
+
+checker_sync sync (
+  .sys_clk(sys_clk),
+  .mpu_clk(mpu_clk),
+
+  .sys__sys_rst(sys_rst),
+  .mpu__sys_rst(mpu__sys_rst),
+
+  .sys__mode_ack(sys__mode_ack),
+  .mpu__mode_ack(mpu__mode_ack),
+
+  .sys__cfg_bus_number(sys__cfg_bus_number),
+  .trn__cfg_bus_number(cfg_bus_number),
+
+  .sys__cfg_device_number(sys__cfg_device_number),
+  .trn__cfg_device_number(cfg_device_number),
+
+  .sys__cfg_function_number(sys__cfg_function_number),
+  .trn__cfg_function_number(cfg_function_number),
+
+  .sys__cfg_command(sys__cfg_command),
+  .trn__cfg_command(cfg_command),
+
+  .sys__cfg_dstatus(sys__cfg_dstatus),
+  .trn__cfg_dstatus(cfg_dstatus),
+
+  .sys__cfg_dcommand(sys__cfg_dcommand),
+  .trn__cfg_dcommand(cfg_dcommand),
+
+  .sys__cfg_lstatus(sys__cfg_lstatus),
+  .trn__cfg_lstatus(cfg_lstatus),
+
+  .sys__cfg_lcommand(sys__cfg_lcommand),
+  .trn__cfg_lcommand(cfg_lcommand),
+
+  .sys__cfg_dcommand2(sys__cfg_dcommand2),
+  .trn__cfg_dcommand2(cfg_dcommand2)
+);
 
 // Control interface
 checker_ctlif #(
@@ -129,10 +194,20 @@ checker_ctlif #(
   .mode_end(mode_end),
   .mode_data(mode_data),
   .mode_irq(mode_irq),
-  .mode_ack(mode_ack),
+  .mode_ack(sys__mode_ack),
   .mode_error(mode_error),
 
   .irq(irq),
+
+  .cfg_bus_number(sys__cfg_bus_number),
+  .cfg_device_number(sys__cfg_device_number),
+  .cfg_function_number(sys__cfg_function_number),
+  .cfg_command(sys__cfg_command),
+  .cfg_dstatus(sys__cfg_dstatus),
+  .cfg_dcommand(sys__cfg_dcommand),
+  .cfg_lstatus(sys__cfg_lstatus),
+  .cfg_lcommand(sys__cfg_lcommand),
+  .cfg_dcommand2(sys__cfg_dcommand2),
 
   .stat_trn_cpt_tx(stat_trn_cpt_tx),
   .stat_trn_cpt_rx(stat_trn_cpt_rx),
@@ -150,7 +225,7 @@ assign mode_end =
   mode_end_dummy; 
 // TODO remove
 assign mode_end_auto = 1'b0;
-assign mode_end_read = 1'b0;
+// assign mode_end_read = 1'b0;
 // assign mode_end_single = 1'b0;
 
 assign mode_data = 
@@ -160,7 +235,7 @@ assign mode_data =
   mode_data_dummy; 
 // TODO remove
 assign mode_data_auto = 64'b0;
-assign mode_data_read = 64'b0;
+// assign mode_data_read = 64'b0;
 // assign mode_data_single = 64'b0;
 
 assign mode_irq = 
@@ -170,7 +245,7 @@ assign mode_irq =
   mode_irq_dummy; 
 // TODO remove
 assign mode_irq_auto = 1'b0;
-assign mode_irq_read = 1'b0;
+// assign mode_irq_read = 1'b0;
 // assign mode_irq_single = 1'b0;
 
 assign mode_error = 
@@ -180,24 +255,8 @@ assign mode_error =
   mode_error_dummy; 
 // TODO remove
 assign mode_error_auto = 1'b0;
-assign mode_error_read = 1'b0;
+// assign mode_error_read = 1'b0;
 // assign mode_error_single = 1'b0;
-
-wire mode_ack_2;
-checker_psync ps_mode_ack_2 (
-  .clk1(sys_clk),
-  .i(mode_ack),
-  .clk2(sys_clk_2),
-  .o(mode_ack_2)
-);
-
-wire sys_rst_2;
-checker_psync ps_sys_rst_2 (
-  .clk1(sys_clk),
-  .i(sys_rst),
-  .clk2(sys_clk_2),
-  .o(sys_rst_2)
-);
 
 checker_dummy #(
   .mode(`CHECKER_MODE_DUMMY)
@@ -211,39 +270,15 @@ checker_dummy #(
   .mode_end(mode_end_dummy),
   .mode_data(mode_data_dummy),
   .mode_irq(mode_irq_dummy),
-  .mode_ack(mode_ack),
+  .mode_ack(sys__mode_ack),
   .mode_error(mode_error_dummy)
-);
-
-wire hm_end_2;
-checker_psync ps_hm_end_2 (
-  .clk1(sys_clk),
-  .i(hm_end),
-  .clk2(sys_clk_2),
-  .o(hm_end_2)
-);
-
-wire hm_timeout_2;
-checker_psync ps_hm_timeout_2 (
-  .clk1(sys_clk),
-  .i(hm_timeout),
-  .clk2(sys_clk_2),
-  .o(hm_timeout_2)
-);
-
-wire hm_error_2;
-checker_psync ps_hm_error_2 (
-  .clk1(sys_clk),
-  .i(hm_error),
-  .clk2(sys_clk_2),
-  .o(hm_error_2)
 );
 
 checker_single #(
   .mode(`CHECKER_MODE_SINGLE)
 ) single (
-  .sys_clk(sys_clk_2),
-  .sys_rst(sys_rst_2),
+  .sys_clk(mpu_clk),
+  .sys_rst(mpu__sys_rst),
 
   .mode_mode(mode_mode),
   .mode_start(mode_start),
@@ -251,14 +286,36 @@ checker_single #(
   .mode_end(mode_end_single),
   .mode_data(mode_data_single),
   .mode_irq(mode_irq_single),
-  .mode_ack(mode_ack_2),
+  .mode_ack(mpu__mode_ack),
   .mode_error(mode_error_single),
 
   .mpu_en(single_en),
   .mpu_rst(single_rst),
-  .mpu_error(mpu_error_2 | hm_timeout_2 | hm_error_2),
+  .mpu_error(mpu_error_c),
   .mpu_user_data(user_data),
   .mpu_user_irq(user_irq)
+);
+
+checker_read #(
+  .mode(`CHECKER_MODE_READ)
+) read (
+  .sys_clk(sys_clk),
+  .sys_rst(sys_rst),
+
+  .mode_mode(mode_mode),
+  .mode_start(mode_start),
+  .mode_addr(mode_addr),
+  .mode_end(mode_end_read),
+  .mode_data(mode_data_read),
+  .mode_irq(mode_irq_read),
+  .mode_ack(sys__mode_ack),
+  .mode_error(mode_error_read),
+
+  .hm_start(hm_start),
+  .hm_end(hm_end),
+  .hm_timeout(hm_timeout),
+  .hm_error(hm_error),
+  .hm_rst(read_rst)
 );
 
 /**
@@ -267,45 +324,32 @@ checker_single #(
  * MPU is sys_ck / 2 because of the synced RAMB36E1
  */
 
-always @(posedge sys_clk_2) begin
+always @(posedge mpu_clk) begin
   if (mpu_rst) begin
-    mpu_rst_2 <= 1'b1;
+    mpu_rst_r <= 1'b1;
   end else begin
-    mpu_rst_2 <= 1'b0;
+    mpu_rst_r <= 1'b0;
   end
 end
 
-assign i_data_rst_2 = (mpu_rst_2 == 1'b1) ? 48'b0 : i_data; 
-assign mpu_error_2 = (mpu_rst_2 == 1'b1) ? 1'b0 : mpu_error; 
-
-always @(posedge sys_clk_2) begin
-  if (hm_start && ~started) begin
-    hm_start_once <= 1'b1;
-    started <= 1'b1;
-  end else if (hm_start_once) begin
-    hm_start_once <= 1'b0;
-  end
-  if (mpu_en) begin
-    started <= 1'b0;
-  end
-end
+assign i_data_c = (mpu_rst_r == 1'b1) ? 48'b0 : i_data; 
+assign mpu_error_c = (mpu_rst_r == 1'b1) ? 1'b0 : mpu_error; 
 
 mpu_top mpu (
-  .sys_clk(sys_clk_2),
+  .sys_clk(mpu_clk),
   .sys_rst(mpu_rst),
   .en(mpu_en),
-  .i_data(i_data_rst_2),
-  .hm_data(hm_data),
+  .i_data(i_data_c),
   .i_addr(i_addr),
   .user_irq(user_irq),
   .user_data(user_data),
   .hm_addr(hm_addr),
-  .hm_start(hm_start),
+  .hm_data(hm_data),
   .error(mpu_error)
 );
 
-assign mpu_en = hm_en & single_en;
-assign mpu_rst = sys_rst_2 | single_rst;
+assign mpu_en = single_en;
+assign mpu_rst = mpu__sys_rst | single_rst;
 
 checker_memory mem (
   .sys_clk(sys_clk),
@@ -331,8 +375,6 @@ assign wb_ack_o = (wb_adr_i[15] == 1'b0) ? wb_ack_o_mem : wb_ack_o_hm;
 assign wb_we_i_mem = (wb_adr_i[15] == 1'b0) ? wb_we_i : 1'b0;
 
 assign wb_we_i_hm = 1'b0;
-
-assign hm_en = ~hm_start | hm_end_2;
 
 /**
  * PCIE IP CORE instanciation
@@ -406,16 +448,7 @@ wire cfg_turnoff_ok_n;
 wire cfg_to_turnoff_n;
 wire cfg_trn_pending_n;
 wire cfg_pm_wake_n;
-wire [7:0] cfg_bus_number;
-wire [4:0] cfg_device_number;
-wire [2:0] cfg_function_number;
 wire [15:0] cfg_status;
-wire [15:0] cfg_command;
-wire [15:0] cfg_dstatus;
-wire [15:0] cfg_dcommand;
-wire [15:0] cfg_lstatus;
-wire [15:0] cfg_lcommand;
-wire [15:0] cfg_dcommand2;
 wire [2:0] cfg_pcie_link_state_n;
 wire [63:0] cfg_dsn;
 
@@ -437,23 +470,29 @@ wire pl_upstream_prefer_deemph;
 wire sys_clk_c;
 wire sys_reset_n_c;
 
+/**
+ * Memory acces sharing between MPU and Wishbone !
+ */
+
 hm_top mhm (
   .sys_clk(sys_clk),
-  .sys_rst(sys_rst_2 | single_rst),
-  .en(single_en),
+  .sys_rst(sys_rst | read_rst),
+  .en(1'b1),
   .hm_page_addr(mode_addr),
-  .hm_page_offset(hm_addr[11:0]),
-  .hm_start(hm_start_once),
+  .hm_start(hm_start),
   .hm_end(hm_end),
-  .hm_data(hm_data),
   .hm_timeout(hm_timeout),
   .hm_error(hm_error),
+
+  // MPU page cache access
+  .hm_page_offset(hm_addr[11:0]),
+  .hm_data(hm_data),
 
   .wb_adr_i(wb_adr_i),
   .wb_dat_i(wb_dat_i),
   .wb_sel_i(wb_sel_i),
-  .wb_stb_i(wb_stb_i),
-  .wb_cyc_i(wb_cyc_i),
+  .wb_stb_i(wb_stb_i & ~mode_start), // MPU access Protection
+  .wb_cyc_i(wb_cyc_i & ~mode_start), // MPU access Protection
   .wb_we_i(wb_we_i_hm),
   .wb_dat_o(wb_dat_o_hm),
   .wb_ack_o(wb_ack_o_hm),

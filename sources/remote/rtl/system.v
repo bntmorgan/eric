@@ -78,10 +78,10 @@ module system(
   output phy_rst_n,
 
   // PCI Express
-  output [3:0] pci_exp_txp,
-  output [3:0] pci_exp_txn,
-  input [3:0] pci_exp_rxp,
-  input [3:0] pci_exp_rxn,
+  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txp,
+  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txn,
+  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxp,
+  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxn,
 
   input pci_sys_clk_p,
   input pci_sys_clk_n,

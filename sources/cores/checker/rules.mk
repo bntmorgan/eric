@@ -22,8 +22,8 @@ SRC_$(d)				:= $(wildcard $(d)/rtl/checker_*.v) $(SRC_MPU_$(d)) \
 
 # Icarus simulations
 
-SIM 			      := $(call SRC_2_BIN, $(d)/checker.sim)
-SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_csr.v
+SIM 			      := $(call SRC_2_BIN, $(d)/checker_top.sim)
+SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_checker_top.v
 $(SIM)					: $(SRC_SIM_$(d))
 $(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/mpu/rtl \
  -I$(CORES_DIR)/hm/rtl

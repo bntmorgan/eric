@@ -16,8 +16,8 @@ wire mode_end;
 wire [63:0] mode_data;
 wire mode_irq;
 wire mode_error;
-wire [63:0] hm_page_addr;
 wire hm_start;
+wire hm_rst;
 
 initial begin
   mode_mode <= 0;
@@ -40,11 +40,11 @@ checker_read read (
   .mode_irq(mode_irq),
   .mode_ack(mode_ack),
   .mode_error(mode_error),
-  .hm_page_addr(hm_page_addr),
   .hm_start(hm_start),
   .hm_end(hm_end),
   .hm_timeout(hm_timeout),
-  .hm_error(hm_error)
+  .hm_error(hm_error),
+  .hm_rst(hm_rst)
 );
 
 initial begin

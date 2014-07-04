@@ -90,7 +90,6 @@ mpu_decoder decoder (
 );
 
 // Execution
-wire hm_start_b;
 mpu_execution execution (
   .isize(isize),
   .op_size(op_size),
@@ -122,16 +121,6 @@ mpu_execution execution (
   .hm_start(hm_start),
   .hm_data(hm_data)
 );
-
-// We send hm_start only once
-//initial hm_start <= 1'b0;
-//always @(posedge sys_clk) begin
-//  if (hm_start == 1'b1) begin
-//    hm_start <= 1'b0;
-//  end else begin
-//    @(posedge hm_start_b) hm_start <= 1'b1;
-//  end
-//end
 
 // Registers
 mpu_registers registers (

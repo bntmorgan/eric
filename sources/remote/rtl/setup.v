@@ -62,3 +62,7 @@
  */
 `define SDRAM_DEPTH 15
 
+/*
+ * PCIE Number of lanes
+ */
+`define PCIE_NUMBER_OF_LANES 1

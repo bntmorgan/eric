@@ -60,13 +60,13 @@ INST "ck/refclk_ibuf" LOC = IBUFDS_GTXE1_X0Y6;
 #
 
 # PCIe Lane 0
-# INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
+INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
 # PCIe Lane 1
-INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
+# INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
 # PCIe Lane 2
-INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
+# INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
 # PCIe Lane 3
-INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
+# INST "ck/core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
 
 #
 # PCI Express Block placement. This constraint selects the PCI Express

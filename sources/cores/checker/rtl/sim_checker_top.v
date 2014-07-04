@@ -47,23 +47,8 @@ always @(posedge irq) begin
   $display("irq %d !!! Job is done", irq); 
 end
 
-/**
- * Simulation
- */
-integer i;
-initial
+task test_mpu;
 begin
-  for (i = 0; i < 8; i = i + 1)
-  begin
-    $dumpvars(0,ck.mem.gen_ram[0].ram.mem[i]);
-    $dumpvars(0,ck.mem.gen_ram[1].ram.mem[i]);
-    $dumpvars(0,ck.mem.gen_ram[2].ram.mem[i]);
-    $dumpvars(0,ck.mem.gen_ram[3].ram.mem[i]);
-    $dumpvars(0,ck.mem.gen_ram[4].ram.mem[i]);
-    $dumpvars(0,ck.mem.gen_ram[5].ram.mem[i]);
-    $dumpvars(0,ck.mem.gen_ram[6].ram.mem[i]);
-    $dumpvars(0,ck.mem.gen_ram[7].ram.mem[i]);
-  end
   // CSR WRITE IRQ
   # 2 $display("---- CTRL = IRQ_EN");
   csrwrite(`CHECKER_CSR_CTRL, `CHECKER_CTRL_IRQ_EN);
@@ -182,6 +167,57 @@ begin
   // Holds the cvalues
   # 400
   wbread(32'h8004);
+end
+endtask
+
+task test_read;
+begin
+  // CSR WRITE IRQ
+  # 2 $display("---- CTRL = IRQ_EN");
+  csrwrite(`CHECKER_CSR_CTRL, `CHECKER_CTRL_IRQ_EN);
+
+  // CSR READ IRQ
+  # 2 $display("---- read CTRL");
+  csrread(`CHECKER_CSR_CTRL);
+
+  // CSR WRITE ADDRES LOW
+  # 2 $display("---- low = 0x10");
+  csrwrite(`CHECKER_CSR_ADDRESS_LOW, 32'h00001000);
+
+  // CSR WRITE ADDRES LOW
+  # 2 $display("---- read low");
+  csrread(`CHECKER_CSR_ADDRESS_LOW);
+
+  // Holds the cvalues
+  # 10
+
+  // CSR WRITE CTRL START
+  # 2 $display("---- ctrl = dummymode + start");
+  csrwrite(`CHECKER_CSR_CTRL, {28'h0, 1'b1, `CHECKER_MODE_READ, 1'b1});
+
+  # 40;
+end
+endtask
+
+/**
+ * Simulation
+ */
+integer i;
+initial
+begin
+  for (i = 0; i < 8; i = i + 1)
+  begin
+    $dumpvars(0,ck.mem.gen_ram[0].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[1].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[2].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[3].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[4].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[5].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[6].ram.mem[i]);
+    $dumpvars(0,ck.mem.gen_ram[7].ram.mem[i]);
+  end
+
+  test_read;
 
   # 40 $finish;
 end

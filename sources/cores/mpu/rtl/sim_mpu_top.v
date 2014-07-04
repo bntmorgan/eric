@@ -21,7 +21,6 @@ wire [15:0] i_addr;
 wire user_irq;
 wire [63:0] user_data;
 wire [63:0] hm_addr;
-wire hm_start;
 
 `SIM_SYS_CLK
 
@@ -37,8 +36,7 @@ mpu_top mpu (
   .i_addr(i_addr),
   .user_irq(user_irq),
   .user_data(user_data),
-  .hm_addr(hm_addr),
-  .hm_start(hm_start)
+  .hm_addr(hm_addr)
 );
 
 mpu_memory mem (
@@ -63,7 +61,6 @@ always @(posedge sys_clk) begin
   $display("user_irq %x", user_irq);
   $display("user_data %x", user_data);
   $display("hm_addr %x", hm_addr);
-  $display("hm_start %x", hm_start);
 end
 
 /**
