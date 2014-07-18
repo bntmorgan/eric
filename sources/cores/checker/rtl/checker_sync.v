@@ -30,12 +30,66 @@ module checker_sync (
   input [15:0] trn__cfg_dcommand2,
   output reg [15:0] sys__cfg_dcommand2,
 
+  input [11:0] trn__trn_fc_cpld,
+  output reg [11:0] sys__trn_fc_cpld,
+
+  input [7:0] trn__trn_fc_cplh,
+  output reg [7:0] sys__trn_fc_cplh,
+
+  input [11:0] trn__trn_fc_npd,
+  output reg [11:0] sys__trn_fc_npd,
+
+  input [7:0] trn__trn_fc_nph,
+  output reg [7:0] sys__trn_fc_nph,
+
+  input [11:0] trn__trn_fc_pd,
+  output reg [11:0] sys__trn_fc_pd,
+
+  input [7:0] trn__trn_fc_ph,
+  output reg [7:0] sys__trn_fc_ph,
+
   input sys__mode_ack,
   output mpu__mode_ack,
 
   input sys__sys_rst,
   output mpu__sys_rst
 );
+
+reg [7:0] trn__trn_fc_ph_r;
+always @(posedge sys_clk) begin 
+	trn__trn_fc_ph_r <= trn__trn_fc_ph;
+	sys__trn_fc_ph <= trn__trn_fc_ph_r;
+end
+
+reg [7:0] trn__trn_fc_pd_r;
+always @(posedge sys_clk) begin 
+	trn__trn_fc_pd_r <= trn__trn_fc_pd;
+	sys__trn_fc_pd <= trn__trn_fc_pd_r;
+end
+
+reg [7:0] trn__trn_fc_nph_r;
+always @(posedge sys_clk) begin 
+	trn__trn_fc_nph_r <= trn__trn_fc_nph;
+	sys__trn_fc_nph <= trn__trn_fc_nph_r;
+end
+
+reg [7:0] trn__trn_fc_npd_r;
+always @(posedge sys_clk) begin 
+	trn__trn_fc_npd_r <= trn__trn_fc_npd;
+	sys__trn_fc_npd <= trn__trn_fc_npd_r;
+end
+
+reg [7:0] trn__trn_fc_cplh_r;
+always @(posedge sys_clk) begin 
+	trn__trn_fc_cplh_r <= trn__trn_fc_cplh;
+	sys__trn_fc_cplh <= trn__trn_fc_cplh_r;
+end
+
+reg [7:0] trn__trn_fc_cpld_r;
+always @(posedge sys_clk) begin 
+	trn__trn_fc_cpld_r <= trn__trn_fc_cpld;
+	sys__trn_fc_cpld <= trn__trn_fc_cpld_r;
+end
 
 reg [7:0] trn__cfg_bus_number_r;
 always @(posedge sys_clk) begin 

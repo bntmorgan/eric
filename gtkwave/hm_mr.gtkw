@@ -1,0 +1,96 @@
+[*]
+[*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
+[*] Thu Jul 17 14:07:32 2014
+[*]
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/hm/hm_mr.sim.vcd"
+[dumpfile_mtime] "Thu Jul 17 14:06:54 2014"
+[dumpfile_size] 6587
+[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/hm_mr.gtkw"
+[timestart] 0
+[size] 1918 1179
+[pos] -1 -1
+*-4.904943 18 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[sst_width] 224
+[signals_width] 372
+[sst_expanded] 1
+[sst_vpaned_height] 612
+@800200
+-all
+@28
+main.mr.trn_clk
+@22
+main.mr.pci_r_id[15:0]
+main.mr.pci_c_id[15:0]
+main.mr.stat_trn_cpt_tx[15:0]
+@28
+main.mr.state[1:0]
+@22
+main.mr.lower_addr[6:0]
+main.mr.cfg_bus_number[7:0]
+main.mr.cfg_device_number[4:0]
+@28
+main.mr.cfg_function_number[2:0]
+@22
+main.mr.fdw[3:0]
+main.mr.ldw[3:0]
+main.mr.length[9:0]
+@1000200
+-all
+@800200
+-rx
+@28
+main.mr.is_memory_read_request
+main.mr.trn_rdst_rdy_n
+main.mr.trn_rsrc_rdy_n
+main.mr.trn_rsof_n
+main.mr.trn_reof_n
+@22
+main.mr.trn_rd[63:0]
+main.mr.trn_rbar_hit_n[6:0]
+main.mr.req_addr[12:0]
+@23
+main.mr.lower_addr[6:0]
+@1000200
+-rx
+@800200
+-tx
+@28
+main.mr.trn_tsrc_rdy_n
+main.mr.trn_tdst_rdy_n
+main.mr.trn_tsof_n
+main.mr.trn_teof_n
+@22
+main.mr.trn_td[63:0]
+@28
+main.mr.dw_sent[1:0]
+main.mr.trn_trem_n
+@1000200
+-tx
+@800200
+-other
+@28
+main.mr.sys_rst
+main.mr.trn_lnk_up_n
+main.mr.trn_rerrfwd_n
+main.mr.trn_reset_n
+main.mr.trn_rnp_ok_n
+main.mr.trn_rrem_n
+@22
+main.mr.trn_tbuf_av[5:0]
+@28
+main.mr.trn_tcfg_gnt_n
+main.mr.trn_tcfg_req_n
+main.mr.trn_terr_drop_n
+main.mr.trn_terrfwd_n
+main.mr.trn_tsrc_dsc_n
+main.mr.trn_rsrc_dsc_n
+main.mr.trn_tstr_n
+main.mr.mem32_bar_hit_n
+main.mr.mem64_bar_hit_n
+main.mr.erom_bar_hit_n
+main.mr.io_bar_hit_n
+@1000200
+-other
+[pattern_trace] 1
+[pattern_trace] 0

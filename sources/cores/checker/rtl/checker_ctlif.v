@@ -48,6 +48,15 @@ module checker_ctlif #(
   input [15:0] cfg_lcommand,
   input [15:0] cfg_dcommand2,
 
+  // flow control ip core interface
+  input [11:0] trn_fc_cpld,
+  input [7:0] trn_fc_cplh,
+  input [11:0] trn_fc_npd,
+  input [7:0] trn_fc_nph,
+  input [11:0] trn_fc_pd,
+  input [7:0] trn_fc_ph,
+  output reg [2:0] trn_fc_sel,
+
   // Hm user statistics counters ans status
   input [15:0] stat_trn_cpt_tx,
   input [15:0] stat_trn_cpt_rx,
@@ -99,6 +108,7 @@ assign irq = (event_end & irq_en) | (event_error & irq_en) | (event_mode_irq
   mode_mode[1:0] <= `CHECKER_MODE_SINGLE; \
   mode_start <= 1'b0; \
   mode_ack <= 1'b0; \
+  trn_fc_sel <= 3'b000; \
   state <= `CHECKER_STATE_IDLE; \
 end
 
@@ -176,6 +186,13 @@ always @(posedge sys_clk) begin
         `CHECKER_CSR_CFG_DCOMMAND2: csr_do <= {16'b0, cfg_dcommand2};
         `CHECKER_CSR_CFG_LSTATUS: csr_do <= {16'b0, cfg_lstatus};
         `CHECKER_CSR_CFG_LCOMMAND: csr_do <= {16'b0, cfg_lcommand};
+        `CHECKER_CSR_TRN_FC_CPLD: csr_do <= {20'b0, trn_fc_cpld};
+        `CHECKER_CSR_TRN_FC_CPLH: csr_do <= {24'b0, trn_fc_cplh};
+        `CHECKER_CSR_TRN_FC_NPD: csr_do <= {20'b0, trn_fc_npd};
+        `CHECKER_CSR_TRN_FC_NPH: csr_do <= {24'b0, trn_fc_nph};
+        `CHECKER_CSR_TRN_FC_PD: csr_do <= {20'b0, trn_fc_pd};
+        `CHECKER_CSR_TRN_FC_PH: csr_do <= {24'b0, trn_fc_ph};
+        `CHECKER_CSR_TRN_FC_SEL: csr_do <= {29'b0, trn_fc_sel};
 			endcase
 			if (csr_we) begin
 				case (csr_a[9:0])
@@ -208,6 +225,9 @@ always @(posedge sys_clk) begin
             end
             // We can only write stop when one checker is lanched
             mode_start <= csr_di[3];
+          end
+          `CHECKER_CSR_TRN_FC_SEL: begin
+            trn_fc_sel <= csr_di[2:0];
           end
         endcase
       end

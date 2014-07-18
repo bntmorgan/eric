@@ -1,0 +1,20 @@
+`define HM_TX_STATE_IDLE 1'b0
+`define HM_TX_STATE_SEND 1'b1
+
+`define HM_RX_STATE_IDLE 2'b00
+`define HM_RX_STATE_WAIT 2'b01
+`define HM_RX_STATE_IGN  2'b10
+`define HM_RX_STATE_RECV 2'b11
+
+`define HM_STATE_IDLE 2'b00
+`define HM_STATE_READ_PAGE 2'b01
+`define HM_STATE_READ_RAMB 2'b10
+`define HM_STATE_READ_RAMB_END 2'b11
+`define HM_STATE_SEND 2'b01
+`define HM_STATE_RECV 2'b10
+
+`define HM_MR_STATE_IDLE 2'b00
+`define HM_MR_STATE_READ_ADDRESS 2'b01
+`define HM_MR_STATE_SEND 2'b10
+
+`define HM_TX_DW_TO_SEND 2'b10

@@ -138,6 +138,20 @@ wire [15:0] sys__cfg_lcommand;
 wire [15:0] cfg_dcommand2;
 wire [15:0] sys__cfg_dcommand2;
 
+wire [11:0] trn_fc_cpld;
+wire [11:0] sys__trn_fc_cpld;
+wire [7:0] trn_fc_cplh;
+wire [7:0] sys__trn_fc_cplh;
+wire [11:0] trn_fc_npd;
+wire [11:0] sys__trn_fc_npd;
+wire [7:0] trn_fc_nph;
+wire [7:0] sys__trn_fc_nph;
+wire [11:0] trn_fc_pd;
+wire [11:0] sys__trn_fc_pd;
+wire [7:0] trn_fc_ph;
+wire [7:0] sys__trn_fc_ph;
+wire [2:0] trn_fc_sel;
+
 checker_sync sync (
   .sys_clk(sys_clk),
   .mpu_clk(mpu_clk),
@@ -147,6 +161,24 @@ checker_sync sync (
 
   .sys__mode_ack(sys__mode_ack),
   .mpu__mode_ack(mpu__mode_ack),
+
+  .trn__trn_fc_cpld(trn_fc_cpld),
+  .sys__trn_fc_cpld(sys__trn_fc_cpld),
+
+  .trn__trn_fc_cplh(trn_fc_cplh),
+  .sys__trn_fc_cplh(sys__trn_fc_cplh),
+
+  .trn__trn_fc_npd(trn_fc_npd),
+  .sys__trn_fc_npd(sys__trn_fc_npd),
+
+  .trn__trn_fc_nph(trn_fc_nph),
+  .sys__trn_fc_nph(sys__trn_fc_nph),
+
+  .trn__trn_fc_pd(trn_fc_pd),
+  .sys__trn_fc_pd(sys__trn_fc_pd),
+
+  .trn__trn_fc_ph(trn_fc_ph),
+  .sys__trn_fc_ph(sys__trn_fc_ph),
 
   .sys__cfg_bus_number(sys__cfg_bus_number),
   .trn__cfg_bus_number(cfg_bus_number),
@@ -208,6 +240,14 @@ checker_ctlif #(
   .cfg_lstatus(sys__cfg_lstatus),
   .cfg_lcommand(sys__cfg_lcommand),
   .cfg_dcommand2(sys__cfg_dcommand2),
+
+  .trn_fc_cpld(sys__trn_fc_cpld),
+  .trn_fc_cplh(sys__trn_fc_cplh),
+  .trn_fc_npd(sys__trn_fc_npd),
+  .trn_fc_nph(sys__trn_fc_nph),
+  .trn_fc_pd(sys__trn_fc_pd),
+  .trn_fc_ph(sys__trn_fc_ph),
+  .trn_fc_sel(trn_fc_sel),
 
   .stat_trn_cpt_tx(stat_trn_cpt_tx),
   .stat_trn_cpt_rx(stat_trn_cpt_rx),
@@ -409,14 +449,6 @@ wire [6:0] trn_rbar_hit_n;
 wire trn_rdst_rdy_n;
 wire trn_rnp_ok_n;
 
-wire [11:0] trn_fc_cpld;
-wire [7:0] trn_fc_cplh;
-wire [11:0] trn_fc_npd;
-wire [7:0] trn_fc_nph;
-wire [11:0] trn_fc_pd;
-wire [7:0] trn_fc_ph;
-wire [2:0] trn_fc_sel;
-
 wire [31:0] cfg_do;
 wire cfg_rd_wr_done_n;
 wire [31:0] cfg_di;
@@ -512,12 +544,6 @@ hm_top mhm (
   .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
   .trn_rerrfwd_n(trn_rerrfwd_n),
   .trn_rbar_hit_n(trn_rbar_hit_n),
-  .trn_fc_cpld(trn_fc_cpld),
-  .trn_fc_cplh(trn_fc_cplh),
-  .trn_fc_npd(trn_fc_npd),
-  .trn_fc_nph(trn_fc_nph),
-  .trn_fc_pd(trn_fc_pd),
-  .trn_fc_ph(trn_fc_ph),
   .trn_td(trn_td),
   .trn_trem_n(trn_trem_n),
   .trn_tsof_n(trn_tsof_n),
@@ -529,7 +555,16 @@ hm_top mhm (
   .trn_tstr_n(trn_tstr_n),
   .trn_rdst_rdy_n(trn_rdst_rdy_n),
   .trn_rnp_ok_n(trn_rnp_ok_n),
-  .trn_fc_sel(trn_fc_sel),
+
+  .cfg_bus_number(cfg_bus_number),
+  .cfg_device_number(cfg_device_number),
+  .cfg_function_number(cfg_function_number),
+  .cfg_command(cfg_command),
+  .cfg_dstatus(cfg_dstatus),
+  .cfg_dcommand(cfg_dcommand),
+  .cfg_lstatus(cfg_lstatus),
+  .cfg_lcommand(cfg_lcommand),
+  .cfg_dcommand2(cfg_dcommand2),
 
   .stat_trn_cpt_tx(stat_trn_cpt_tx),
   .stat_trn_cpt_rx(stat_trn_cpt_rx),
@@ -584,9 +619,7 @@ FDCP #(
 `define PCI_EXP_EP_DSN_1 {{8'h1},`PCI_EXP_EP_OUI}
 `define PCI_EXP_EP_DSN_2 32'h00000001
 
-assign trn_fc_sel = 3'b0; 
-
-assign trn_tecrc_gen_n = 1'b1;
+// set in ctlif assign trn_fc_sel = 3'b0; 
 
 assign cfg_err_cor_n = 1'b1;
 assign cfg_err_ur_n = 1'b1;
@@ -616,7 +649,7 @@ assign cfg_err_tlp_cpl_header = 47'h0;
 assign cfg_di = 0;
 assign cfg_byte_en_n = 4'hf;
 assign cfg_wr_en_n = 1;
-assign cfg_dsn = {`PCI_EXP_EP_DSN_2, `PCI_EXP_EP_DSN_1};
+// assign cfg_dsn = {`PCI_EXP_EP_DSN_2, `PCI_EXP_EP_DSN_1};
 
 v6_pcie_v1_7 core (
   .pci_exp_txp(pci_exp_txp),
