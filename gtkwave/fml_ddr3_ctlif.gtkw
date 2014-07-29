@@ -1,14 +1,14 @@
 [*]
 [*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
-[*] Tue Jul 29 12:49:34 2014
+[*] Tue Jul 29 14:45:36 2014
 [*]
-[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/fml_ddr3/fml_ddr3_top.sim.vcd"
-[dumpfile_mtime] "Tue Jul 29 12:32:27 2014"
-[dumpfile_size] 21399
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/fml_ddr3/fml_ddr3_ctlif.sim.vcd"
+[dumpfile_mtime] "Tue Jul 29 14:44:25 2014"
+[dumpfile_size] 21062
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/fml_ddr3_top.gtkw"
-[timestart] 346000
+[timestart] 217800
 [size] 1918 1179
-[pos] -1 -1
+[pos] -1 -1201
 *-16.407576 538000 538000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [sst_width] 224
@@ -20,8 +20,9 @@
 @28
 main.ddr3.sys_clk
 main.ddr3.sys_rst
-main.ddr3.ddr_clk
-main.ddr3.ddr_rst
+main.ddr3.ui_clk
+@29
+main.ddr3.ui_clk_sync_rst
 @1000200
 -system
 @800200
@@ -146,21 +147,17 @@ main.ddr3.sys__write_end
 -write
 @800200
 -app
-@28
-main.ddr3.phy_init_done
 @22
 main.ddr3.app_addr[26:0]
 @28
 main.ddr3.app_cmd[2:0]
 main.ddr3.app_en
-main.ddr3.app_hi_pri
 @22
 main.ddr3.app_rd_data[255:0]
 @28
 main.ddr3.app_rd_data_end
 main.ddr3.app_rd_data_valid
 main.ddr3.app_rdy
-main.ddr3.app_sz
 @22
 main.ddr3.app_wdf_data[255:0]
 @28

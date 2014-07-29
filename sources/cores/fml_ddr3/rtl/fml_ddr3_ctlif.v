@@ -3,22 +3,22 @@
  * core
  */
 module fml_ddr3_ctlif #(
-  // IP CORE parameters
+  // FML parameters
+	parameter adr_width = 30,
+  // MIG IP CORE parameters
   parameter DQ_WIDTH = 64,
   parameter ADDR_WIDTH = 27,
   parameter ECC_TEST = "OFF",
   parameter DATA_WIDTH = 64,
   parameter PAYLOAD_WIDTH = (ECC_TEST == "OFF") ? DATA_WIDTH : DQ_WIDTH,
   parameter APP_DATA_WIDTH = PAYLOAD_WIDTH * 4,
-  parameter APP_MASK_WIDTH = APP_DATA_WIDTH / 8,
-  // FML para
-	parameter adr_width = ADDR_WIDTH + 3
+  parameter APP_MASK_WIDTH = APP_DATA_WIDTH / 8
 ) (
   input sys_clk, // @80 MHz
   input sys_rst,
 
-  input ddr_clk, // @400 MHz
-  input ddr_rst,
+  input ui_clk, // @400 MHz
+  input ui_clk_sync_rst,
 
   input [adr_width-1:0] fml_adr,
   input fml_stb,
@@ -36,14 +36,11 @@ module fml_ddr3_ctlif #(
   input app_rd_data_end,
   input app_rd_data_valid,
   input app_wdf_rdy,
-  input phy_init_done,
   
   // Output
   output [ADDR_WIDTH-1:0] app_addr,
   output [2:0] app_cmd,
   output app_en,
-  output app_hi_pri,
-  output app_sz,
   output [APP_DATA_WIDTH-1:0] app_wdf_data,
   output app_wdf_end,
   output [APP_MASK_WIDTH-1:0] app_wdf_mask,
@@ -71,10 +68,10 @@ reg [1:0] offset;
 wire [qword_width-1:0] addr = {base, offset};
 
 reg read_start;
-wire ddr__read_end;
+wire ddr3__read_end;
 wire sys__read_end;
 reg write_start;
-wire ddr__write_end;
+wire ddr3__write_end;
 wire sys__write_end;
 
 reg [2:0] cpt;
@@ -194,13 +191,11 @@ parameter CMD_NULL = 3'b000;
 reg [2:0] read_state;
 reg read_end;
 reg read_start_safe;
-assign ddr__read_end = read_end;
+assign ddr3__read_end = read_end;
 
 reg [ADDR_WIDTH-1:0] read_app_addr;
 reg [2:0] read_app_cmd;
 reg read_app_en;
-reg read_app_hi_pri;
-reg read_app_sz;
 reg [APP_DATA_WIDTH-1:0] read_app_wdf_data;
 reg read_app_wdf_end;
 reg [APP_MASK_WIDTH-1:0] read_app_wdf_mask;
@@ -217,8 +212,6 @@ begin
   read_app_addr <= 0;
   read_app_cmd <= 0;
   read_app_en <= 0;
-  read_app_hi_pri <= 0;
-  read_app_sz <= 0;
   read_app_wdf_data <= 0;
   read_app_wdf_end <= 0;
   read_app_wdf_mask <= 0;
@@ -227,8 +220,8 @@ begin
 end
 endtask
 
-always @(posedge ddr_clk) begin
-  if (ddr_rst) begin
+always @(posedge ui_clk) begin
+  if (ui_clk_sync_rst) begin
     init_read;
   end else begin
     read_end <= 1'b0;
@@ -275,13 +268,11 @@ end
 reg [2:0] write_state;
 reg write_end;
 reg write_start_safe;
-assign ddr__write_end = write_end;
+assign ddr3__write_end = write_end;
 
 reg [ADDR_WIDTH-1:0] write_app_addr;
 reg [2:0] write_app_cmd;
 reg write_app_en;
-reg write_app_hi_pri;
-reg write_app_sz;
 reg [APP_DATA_WIDTH-1:0] write_app_wdf_data;
 reg write_app_wdf_end;
 reg [APP_MASK_WIDTH-1:0] write_app_wdf_mask;
@@ -294,8 +285,6 @@ begin
   write_app_addr <= 0;
   write_app_cmd <= 0;
   write_app_en <= 0;
-  write_app_hi_pri <= 0;
-  write_app_sz <= 0;
   write_app_wdf_data <= 0;
   write_app_wdf_end <= 0;
   write_app_wdf_mask <= 0;
@@ -304,8 +293,8 @@ begin
 end
 endtask
 
-always @(posedge ddr_clk) begin
-  if (ddr_rst) begin
+always @(posedge ui_clk) begin
+  if (ui_clk_sync_rst) begin
     init_write;
   end else begin
     write_end <= 1'b0;
@@ -354,8 +343,6 @@ end
 assign app_addr = read_app_addr | write_app_addr;
 assign app_cmd = read_app_cmd | write_app_cmd;
 assign app_en = read_app_en | write_app_en;
-assign app_hi_pri = read_app_hi_pri | write_app_hi_pri;
-assign app_sz = read_app_sz | write_app_sz;
 assign app_wdf_data = read_app_wdf_data | write_app_wdf_data;
 assign app_wdf_end = read_app_wdf_end | write_app_wdf_end;
 assign app_wdf_mask = read_app_wdf_mask | write_app_wdf_mask;
@@ -374,15 +361,15 @@ end
 // Synchronization
 //
 fml_ddr3_psync psync_read_end (
-	.clk1(ddr_clk),
-	.i(ddr__read_end),
+	.clk1(ui_clk),
+	.i(ddr3__read_end),
 	.clk2(sys_clk),
 	.o(sys__read_end)
 );
 
 fml_ddr3_psync psync_write_end (
-	.clk1(ddr_clk),
-	.i(ddr__write_end),
+	.clk1(ui_clk),
+	.i(ddr3__write_end),
 	.clk2(sys_clk),
 	.o(sys__write_end)
 );

@@ -6,7 +6,7 @@ module main #(
 
 `include "sim.v"
 `include "sim_fml.v"
-`include "sim_ddr.v"
+`include "sim_ddr3.v"
 
 // Ip core parameters
 localparam DQ_WIDTH = 64;
@@ -23,14 +23,11 @@ reg [APP_DATA_WIDTH-1:0] app_rd_data;
 reg app_rd_data_end;
 reg app_rd_data_valid;
 reg app_wdf_rdy;
-reg phy_init_done;
 
 // Outputs
 wire [ADDR_WIDTH-1:0] app_addr;
 wire [2:0] app_cmd;
 wire app_en;
-wire app_hi_pri;
-wire app_sz;
 wire [APP_DATA_WIDTH-1:0] app_wdf_data;
 wire app_wdf_end;
 wire [APP_MASK_WIDTH-1:0] app_wdf_mask;
@@ -48,7 +45,6 @@ initial begin
   app_rd_data_end <= 1;
   app_rd_data_valid <= 1;
   app_wdf_rdy <= 1;
-  phy_init_done <= 1;
 end
 
 
@@ -59,8 +55,8 @@ fml_ddr3_ctlif ddr3 (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
 
-  .ddr_clk(ddr_clk),
-  .ddr_rst(ddr_rst),
+  .ui_clk(ui_clk),
+  .ui_clk_sync_rst(ui_clk_sync_rst),
 
   .fml_adr(fml_adr),
   .fml_stb(fml_stb),
@@ -75,12 +71,9 @@ fml_ddr3_ctlif ddr3 (
   .app_rd_data_end(app_rd_data_end),
   .app_rd_data_valid(app_rd_data_valid),
   .app_wdf_rdy(app_wdf_rdy),
-  .phy_init_done(phy_init_done),
   .app_addr(app_addr),
   .app_cmd(app_cmd),
   .app_en(app_en),
-  .app_hi_pri(app_hi_pri),
-  .app_sz(app_sz),
   .app_wdf_data(app_wdf_data),
   .app_wdf_end(app_wdf_end),
   .app_wdf_mask(app_wdf_mask),

@@ -1,17 +1,17 @@
-reg ddr_clk;
-reg ddr_rst;
+reg ui_clk;
+reg ui_clk_sync_rst;
 
-always #1 ddr_clk = !ddr_clk;
+always #1 ui_clk = !ui_clk;
 
 initial begin
-  ddr_clk = 1'b0;
-  ddr_rst = 1'b0;
+  ui_clk = 1'b0;
+  ui_clk_sync_rst = 1'b0;
 end
 
 /* Wishbone Helpers */
 task waitddrclock;
 begin
-	@(posedge ddr_clk);
+	@(posedge ui_clk);
 	#2;
 end
 endtask

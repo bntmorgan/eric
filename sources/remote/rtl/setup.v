@@ -66,3 +66,20 @@
  * PCIE Number of lanes
  */
 `define PCIE_NUMBER_OF_LANES 1
+
+/*
+ * DRAM configuration
+ */
+localparam DQ_WIDTH = 64;
+localparam ROW_WIDTH = 13;
+localparam BANK_WIDTH = 3;
+localparam CS_WIDTH = 1;
+localparam nCS_PER_RANK = 1;
+localparam CKE_WIDTH = 1;
+localparam CK_WIDTH = 1;
+localparam DM_WIDTH = 8;
+localparam DQS_WIDTH = 8;
+localparam ECC_TEST = "OFF";
+localparam DATA_WIDTH = 64;
+localparam PAYLOAD_WIDTH = (ECC_TEST == "OFF") ? DATA_WIDTH : DQ_WIDTH;
+localparam ADDR_WIDTH = 27;

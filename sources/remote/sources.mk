@@ -78,5 +78,7 @@ SRC_$(d) +=$(wildcard $(CORES_DIR)/monitor/rtl/*.v)
 SRC_$(d) += $(wildcard $(d)/rtl/v6_pcie_v1_7/*.v)
 # HARD_ETHERNET_SRC
 SRC_$(d) += $(wildcard $(CORES_DIR)/wb_emac/rtl/*.v) $(wildcard $(d)/rtl/v6_emac_v1_6/*.v)
+# HARD_DRAM_SRC
+SRC_$(d) += $(wildcard $(d)/rtl/mig_39_2/*.v)
 # BRAM_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/bram/rtl/*.v)
