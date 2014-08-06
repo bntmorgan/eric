@@ -97,7 +97,7 @@ simulations: $(SIMS)
 	@echo [NGD] $@ \> $@.out
 	@cd $(dir $@) && ngdbuild -uc $(realpath $^) &> $(abspath $@).out
 
-%.ngc: %.prj %.xst
+%.ngc: %.xst %.prj
 	@mkdir -p $(dir $@)
 	@echo [NGC] $@ \> $@.out
 	@cd $(dir $@) && xst -ifn $(abspath $<) &> $(abspath $@).out
