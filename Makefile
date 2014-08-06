@@ -69,11 +69,17 @@ simulations: $(SIMS)
 		-o $(abspath $@) -d __DUMP_FILE__=\"$(abspath $@).vcd\"  -d SIMULATION -L \
 		unisims_ver -L secureip
 
+%.load: %.bit
+	@echo [LOD] $<
+	@./impact.sh $(dir $<)impact.batch $(realpath $<) && cd $(dir $<) && impact \
+		-batch impact.batch > impact.batch.out
+
 %.bit: %.routed.ncd %.ncd %.ngd %.ngc %.ucf %.prj %.xst
 	@mkdir -p $(dir $@)
 	@echo [BIT] $@ \> $@.out
 	@cd $(dir $@) && bitgen -g LCK_cycle:6 -g Binary:Yes -g DriveDone:Yes \
-		-w $(realpath $<) $(abspath $@) &> $(abspath $@).out
+		-w $(realpath $<) $(abspath $@) $(patsubst %.bit, %.pcf, $(abspath $@)) \
+		&> $(abspath $@).out
 
 %.routed.ncd: %.ncd 
 	@mkdir -p $(dir $@)
@@ -94,7 +100,7 @@ simulations: $(SIMS)
 %.ngc: %.prj %.xst
 	@mkdir -p $(dir $@)
 	@echo [NGC] $@ \> $@.out
-	@cd $(dir $@) && xst -ifn ./system.xst &> $(abspath $@).out
+	@cd $(dir $@) && xst -ifn $(abspath $<) &> $(abspath $@).out
 
 %.prj:
 	@mkdir -p $(dir $@)
