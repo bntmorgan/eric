@@ -11,6 +11,9 @@ SRC_$(d)				:=
 include $(d)/sources.mk
 
 CONSTRAINTS_$(d)  := $(d)/synthesis/common.ucf $(d)/synthesis/v6_pcie_v1_7.ucf
+# $(d)/synthesis/mig_v3_6.ucf 
+	
+	# $(d)/synthesis/mig_v3_6.ucf
 
 # Fixed
 TARGETS 				+= $(call GEN_TARGETS, $(TARGET))

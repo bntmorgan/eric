@@ -2,7 +2,7 @@
 SRC_$(d) += $(wildcard $(d)/rtl/*.v) $(d)/rtl/gen_capabilities.v
 
 # ASFIFO_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/asfifo/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/asfifo/rtl/*.v)
 # CONBUS_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/conbus/rtl/*.v)
 # LM32_SRC
@@ -34,6 +34,10 @@ SRC_$(d) +=$(wildcard $(CORES_DIR)/hm/rtl/hm*.v)
 SRC_$(d) +=$(wildcard $(CORES_DIR)/checker/rtl/checker*.v)
 # MPU_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v)
+# FML_DRAM_SRC
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/fml_ddr3/rtl/fml_ddr3*.v)
+# CSR_DRAM_SRC
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/csr_ddr3/rtl/csr_ddr3*.v)
 # FMLARB_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/fmlarb/rtl/*.v)
 # FMLBRG_SRC
@@ -41,44 +45,44 @@ SRC_$(d) +=$(wildcard $(CORES_DIR)/fmlbrg/rtl/*.v)
 # CSRBRG_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/csrbrg/rtl/*.v)
 # NORFLASH_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/norflash16/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/norflash16/rtl/*.v)
 # UART_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/uart/rtl/*.v)
 # SYSCTL_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/sysctl/rtl/*.v)
 # HPDMC_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/hpdmc_ddr32/rtl/*.v) $(wildcard $(CORES_DIR)/hpdmc_ddr32/rtl/spartan6/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/hpdmc_ddr32/rtl/*.v) $(wildcard $(CORES_DIR)/hpdmc_ddr32/rtl/spartan6/*.v)
 # VGAFB_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/vgafb/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/vgafb/rtl/*.v)
 # MEMCARD_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/memcard/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/memcard/rtl/*.v)
 # AC97_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/ac97/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/ac97/rtl/*.v)
 # PFPU_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/pfpu/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/pfpu/rtl/*.v)
 # TMU_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/tmu2/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/tmu2/rtl/*.v)
 # ETHERNET_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/minimac2/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/minimac2/rtl/*.v)
 # FMLMETER_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/fmlmeter/rtl/*.v)
 # VIDEOIN_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/bt656cap/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/bt656cap/rtl/*.v)
 # IR_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/rc5/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/rc5/rtl/*.v)
 # DMX_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/dmx/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/dmx/rtl/*.v)
 # USB_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/softusb/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/softusb/rtl/*.v)
 # MEMTEST_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/memtest/rtl/*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/memtest/rtl/*.v)
 # MONITOR_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/monitor/rtl/*.v)
 # HARD_PCIE_SRC
 SRC_$(d) += $(wildcard $(d)/rtl/v6_pcie_v1_7/*.v)
+# HARD_DRAM_SRC
+# SRC_$(d) += $(wildcard $(d)/rtl/mig_v3_6/*/*.v)
 # HARD_ETHERNET_SRC
 SRC_$(d) += $(wildcard $(CORES_DIR)/wb_emac/rtl/*.v) $(wildcard $(d)/rtl/v6_emac_v1_6/*.v)
-# HARD_DRAM_SRC
-SRC_$(d) += $(wildcard $(d)/rtl/mig_39_2/*.v)
 # BRAM_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/bram/rtl/*.v)

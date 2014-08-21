@@ -15,6 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+`ifndef __SETUP_V__
+`define __SETUP_V__
+
 `define ONCHIP_ROM
 
 /*
@@ -25,6 +28,7 @@
  */
 // `define ENABLE_MEMORYCARD
 `define ENABLE_ETHERNET
+// `define ENABLE_DRAM
 // `define ENABLE_USB
 // `define ENABLE_PCIE
 
@@ -61,25 +65,29 @@
  * array with byte granularity)
  */
 `define SDRAM_DEPTH 15
+// `define DRAM_DEPTH 27
 
 /*
  * PCIE Number of lanes
  */
-`define PCIE_NUMBER_OF_LANES 1
+parameter PCIE_NUMBER_OF_LANES = 4;
 
 /*
  * DRAM configuration
  */
-localparam DQ_WIDTH = 64;
-localparam ROW_WIDTH = 13;
-localparam BANK_WIDTH = 3;
-localparam CS_WIDTH = 1;
-localparam nCS_PER_RANK = 1;
-localparam CKE_WIDTH = 1;
-localparam CK_WIDTH = 1;
-localparam DM_WIDTH = 8;
-localparam DQS_WIDTH = 8;
-localparam ECC_TEST = "OFF";
-localparam DATA_WIDTH = 64;
-localparam PAYLOAD_WIDTH = (ECC_TEST == "OFF") ? DATA_WIDTH : DQ_WIDTH;
-localparam ADDR_WIDTH = 27;
+`ifdef ENABLE_SDRAM
+parameter DQ_WIDTH = 64;
+parameter ROW_WIDTH = 14;
+parameter BANK_WIDTH = 3;
+parameter CS_WIDTH = 1;
+parameter nCS_PER_RANK = 1;
+parameter CKE_WIDTH = 1;
+parameter CK_WIDTH = 1;
+parameter DM_WIDTH = 8;
+parameter DQS_WIDTH = 8;
+parameter ECC_TEST = "OFF";
+parameter DATA_WIDTH = 64;
+parameter ADDR_WIDTH = 28;
+`endif
+
+`endif//__SETUP_V__

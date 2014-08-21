@@ -4,7 +4,7 @@
  */
 module fml_ddr3_ctlif #(
   // FML parameters
-	parameter adr_width = 30,
+	parameter adr_width = 27,
   // MIG IP CORE parameters
   parameter DQ_WIDTH = 64,
   parameter ADDR_WIDTH = 27,
@@ -17,8 +17,8 @@ module fml_ddr3_ctlif #(
   input sys_clk, // @80 MHz
   input sys_rst,
 
-  input ui_clk, // @400 MHz
-  input ui_clk_sync_rst,
+  input ui_clk, // @200 MHz
+  input ui_rst,
 
   input [adr_width-1:0] fml_adr,
   input fml_stb,
@@ -74,7 +74,9 @@ reg write_start;
 wire ddr3__write_end;
 wire sys__write_end;
 
-reg [2:0] cpt;
+reg [3:0] cpt;
+reg [3:0] cptdr;
+reg [3:0] cptdw;
 
 reg [63:0] write_buf [3:0];
 reg [63:0] read_buf [3:0];
@@ -87,7 +89,11 @@ parameter READ_WAIT	= 3'd2;
 parameter WRITE	= 3'd3;
 parameter WRITE_WAIT = 3'd4;
 
-parameter nburst = 3'd3;
+parameter nburst = 4'd3;
+// Data send must be delayed because of the fmlarb tim_cas bhaviour @see
+// fmlarb_dack
+parameter data_delay_read = 4'd5;
+parameter data_delay_write = 4'd2;
 
 task init;
 begin
@@ -98,27 +104,37 @@ begin
   base <= 0;
   offset <= 0;
   cpt <= nburst;
+  cptdr <= data_delay_read;
+  cptdw <= data_delay_write;
   write_buf[0] <= 0;
   write_buf[1] <= 0;
   write_buf[2] <= 0;
   write_buf[3] <= 0;
-  fml_do <= 0;
+  fml_do <= 64'b0;
 end
 endtask
 
 task inc_fml_do;
 begin
-  offset <= offset + 2'b1;
-  cpt <= cpt - 2'b1;
-  fml_do <= read_buf[offset];
+  if (cptdr > 3'b0) begin
+    cptdr <= cptdr - 2'b1;
+  end else begin
+    offset <= offset + 2'b1;
+    cpt <= cpt - 2'b1;
+    fml_do <= read_buf[offset];
+  end
 end
 endtask
 
 task inc_write_buf;
 begin
-  offset <= offset + 2'b1;
-  cpt <= cpt - 2'b1;
-  write_buf[offset] <= fml_di;
+  if (cptdw > 3'b0) begin
+    cptdw <= cptdw - 2'b1;
+  end else begin
+    offset <= offset + 2'b1;
+    cpt <= cpt - 2'b1;
+    write_buf[offset] <= fml_di;
+  end
 end
 endtask
 
@@ -159,6 +175,7 @@ always @(posedge sys_clk) begin
         if (cpt == 3'd0) begin
           state <= IDLE;
           cpt <= nburst;
+          cptdr <= data_delay_read;
         end
       end
       WRITE: begin
@@ -167,6 +184,7 @@ always @(posedge sys_clk) begin
           state <= WRITE_WAIT;
           write_start <= 1'b1;
           cpt <= nburst;
+          cptdw <= data_delay_write;
         end
       end
       WRITE_WAIT: begin
@@ -205,23 +223,19 @@ task init_read;
 begin
   read_state <= IDLE;
   read_end <= 0;
-  read_buf[0] <= 64'haa;
-  read_buf[1] <= 64'hbb;
-  read_buf[2] <= 64'hcc;
-  read_buf[3] <= 64'hdd;
+  read_buf[0] <= 64'haaaaaaaaaaaaaaaa;
+  read_buf[1] <= 64'hbbbbbbbbbbbbbbbb;
+  read_buf[2] <= 64'hcccccccccccccccc;
+  read_buf[3] <= 64'hdddddddddddddddd;
   read_app_addr <= 0;
   read_app_cmd <= 0;
   read_app_en <= 0;
-  read_app_wdf_data <= 0;
-  read_app_wdf_end <= 0;
-  read_app_wdf_mask <= 0;
-  read_app_wdf_wren <= 0;
   read_start_safe <= 1;
 end
 endtask
 
 always @(posedge ui_clk) begin
-  if (ui_clk_sync_rst) begin
+  if (ui_rst) begin
     init_read;
   end else begin
     read_end <= 1'b0;
@@ -250,10 +264,10 @@ always @(posedge ui_clk) begin
       end
       READ_WAIT: begin
         if (app_rd_data_valid & app_rd_data_end) begin
-          read_buf[0] = app_rd_data[255:192];
-          read_buf[1] = app_rd_data[191:128];
-          read_buf[2] = app_rd_data[127:64];
-          read_buf[3] = app_rd_data[63:0];
+          read_buf[0] <= app_rd_data[255:192];
+          read_buf[1] <= app_rd_data[191:128];
+          read_buf[2] <= app_rd_data[127:64];
+          read_buf[3] <= app_rd_data[63:0];
           read_state <= IDLE;
           read_end <= 1'b1;
         end
@@ -294,7 +308,7 @@ end
 endtask
 
 always @(posedge ui_clk) begin
-  if (ui_clk_sync_rst) begin
+  if (ui_rst) begin
     init_write;
   end else begin
     write_end <= 1'b0;
@@ -320,18 +334,18 @@ always @(posedge ui_clk) begin
           write_app_en <= 1'b0;
           write_state <= WRITE_WAIT;
           // Write the data
-          read_app_wdf_data <= {write_buf[3], write_buf[2], write_buf[1],
+          write_app_wdf_data <= {write_buf[3], write_buf[2], write_buf[1],
             write_buf[0]};
-          read_app_wdf_wren <= 1'b1;
-          read_app_wdf_end <= 1'b1;
+          write_app_wdf_wren <= 1'b1;
+          write_app_wdf_end <= 1'b1;
         end
       end
       WRITE_WAIT: begin
         write_state <= IDLE;
         write_end <= 1'b1;
-        read_app_wdf_data <= {DATA_WIDTH{1'b0}};
-        read_app_wdf_wren <= 1'b0;
-        read_app_wdf_end <= 1'b0;
+        write_app_wdf_data <= {DATA_WIDTH{1'b0}};
+        write_app_wdf_wren <= 1'b0;
+        write_app_wdf_end <= 1'b0;
       end
     endcase
   end
@@ -343,10 +357,10 @@ end
 assign app_addr = read_app_addr | write_app_addr;
 assign app_cmd = read_app_cmd | write_app_cmd;
 assign app_en = read_app_en | write_app_en;
-assign app_wdf_data = read_app_wdf_data | write_app_wdf_data;
-assign app_wdf_end = read_app_wdf_end | write_app_wdf_end;
-assign app_wdf_mask = read_app_wdf_mask | write_app_wdf_mask;
-assign app_wdf_wren = read_app_wdf_wren | write_app_wdf_wren;
+assign app_wdf_data = write_app_wdf_data;
+assign app_wdf_end = write_app_wdf_end;
+assign app_wdf_mask = write_app_wdf_mask;
+assign app_wdf_wren = write_app_wdf_wren;
 
 //
 // Initialization

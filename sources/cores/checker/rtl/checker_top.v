@@ -1,9 +1,8 @@
 `include "checker.vh"
-// XXX
-`define PCIE_NUMBER_OF_LANES 1 
 
 module checker_top #(
-	parameter csr_addr = 4'h0
+	parameter csr_addr = 4'h0,
+  parameter PCIE_NUMBER_OF_LANES = 1
 ) (
   // System
 	input sys_clk,
@@ -29,10 +28,10 @@ module checker_top #(
 	input wb_we_i,
 
   // PCIE hardware
-  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txp,
-  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txn,
-  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxp,
-  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxn,
+  output [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txp,
+  output [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txn,
+  input [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxp,
+  input [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxn,
 
   input pci_sys_clk_p,
   input pci_sys_clk_n,
@@ -151,62 +150,6 @@ wire [11:0] sys__trn_fc_pd;
 wire [7:0] trn_fc_ph;
 wire [7:0] sys__trn_fc_ph;
 wire [2:0] trn_fc_sel;
-
-checker_sync sync (
-  .sys_clk(sys_clk),
-  .mpu_clk(mpu_clk),
-
-  .sys__sys_rst(sys_rst),
-  .mpu__sys_rst(mpu__sys_rst),
-
-  .sys__mode_ack(sys__mode_ack),
-  .mpu__mode_ack(mpu__mode_ack),
-
-  .trn__trn_fc_cpld(trn_fc_cpld),
-  .sys__trn_fc_cpld(sys__trn_fc_cpld),
-
-  .trn__trn_fc_cplh(trn_fc_cplh),
-  .sys__trn_fc_cplh(sys__trn_fc_cplh),
-
-  .trn__trn_fc_npd(trn_fc_npd),
-  .sys__trn_fc_npd(sys__trn_fc_npd),
-
-  .trn__trn_fc_nph(trn_fc_nph),
-  .sys__trn_fc_nph(sys__trn_fc_nph),
-
-  .trn__trn_fc_pd(trn_fc_pd),
-  .sys__trn_fc_pd(sys__trn_fc_pd),
-
-  .trn__trn_fc_ph(trn_fc_ph),
-  .sys__trn_fc_ph(sys__trn_fc_ph),
-
-  .sys__cfg_bus_number(sys__cfg_bus_number),
-  .trn__cfg_bus_number(cfg_bus_number),
-
-  .sys__cfg_device_number(sys__cfg_device_number),
-  .trn__cfg_device_number(cfg_device_number),
-
-  .sys__cfg_function_number(sys__cfg_function_number),
-  .trn__cfg_function_number(cfg_function_number),
-
-  .sys__cfg_command(sys__cfg_command),
-  .trn__cfg_command(cfg_command),
-
-  .sys__cfg_dstatus(sys__cfg_dstatus),
-  .trn__cfg_dstatus(cfg_dstatus),
-
-  .sys__cfg_dcommand(sys__cfg_dcommand),
-  .trn__cfg_dcommand(cfg_dcommand),
-
-  .sys__cfg_lstatus(sys__cfg_lstatus),
-  .trn__cfg_lstatus(cfg_lstatus),
-
-  .sys__cfg_lcommand(sys__cfg_lcommand),
-  .trn__cfg_lcommand(cfg_lcommand),
-
-  .sys__cfg_dcommand2(sys__cfg_dcommand2),
-  .trn__cfg_dcommand2(cfg_dcommand2)
-);
 
 // Control interface
 checker_ctlif #(
@@ -651,7 +594,10 @@ assign cfg_byte_en_n = 4'hf;
 assign cfg_wr_en_n = 1;
 // assign cfg_dsn = {`PCI_EXP_EP_DSN_2, `PCI_EXP_EP_DSN_1};
 
-v6_pcie_v1_7 core (
+v6_pcie_v1_7 #(
+  .LINK_CAP_MAX_LINK_WIDTH(PCIE_NUMBER_OF_LANES),
+  .LTSSM_MAX_LINK_WIDTH(PCIE_NUMBER_OF_LANES)
+) core (
   .pci_exp_txp(pci_exp_txp),
   .pci_exp_txn(pci_exp_txn),
 
@@ -761,5 +707,63 @@ v6_pcie_v1_7 core (
   .sys_reset_n(sys_reset_n_c)
 );
 `endif//SIMULATION
+
+checker_sync sync (
+  .sys_clk(sys_clk),
+  .mpu_clk(mpu_clk),
+  .trn_clk(trn_clk),
+
+  .sys__sys_rst(sys_rst),
+  .mpu__sys_rst(mpu__sys_rst),
+
+  .sys__mode_ack(sys__mode_ack),
+  .mpu__mode_ack(mpu__mode_ack),
+
+  .trn__trn_fc_cpld(trn_fc_cpld),
+  .sys__trn_fc_cpld(sys__trn_fc_cpld),
+
+  .trn__trn_fc_cplh(trn_fc_cplh),
+  .sys__trn_fc_cplh(sys__trn_fc_cplh),
+
+  .trn__trn_fc_npd(trn_fc_npd),
+  .sys__trn_fc_npd(sys__trn_fc_npd),
+
+  .trn__trn_fc_nph(trn_fc_nph),
+  .sys__trn_fc_nph(sys__trn_fc_nph),
+
+  .trn__trn_fc_pd(trn_fc_pd),
+  .sys__trn_fc_pd(sys__trn_fc_pd),
+
+  .trn__trn_fc_ph(trn_fc_ph),
+  .sys__trn_fc_ph(sys__trn_fc_ph),
+
+  .sys__cfg_bus_number(sys__cfg_bus_number),
+  .trn__cfg_bus_number(cfg_bus_number),
+
+  .sys__cfg_device_number(sys__cfg_device_number),
+  .trn__cfg_device_number(cfg_device_number),
+
+  .sys__cfg_function_number(sys__cfg_function_number),
+  .trn__cfg_function_number(cfg_function_number),
+
+  .sys__cfg_command(sys__cfg_command),
+  .trn__cfg_command(cfg_command),
+
+  .sys__cfg_dstatus(sys__cfg_dstatus),
+  .trn__cfg_dstatus(cfg_dstatus),
+
+  .sys__cfg_dcommand(sys__cfg_dcommand),
+  .trn__cfg_dcommand(cfg_dcommand),
+
+  .sys__cfg_lstatus(sys__cfg_lstatus),
+  .trn__cfg_lstatus(cfg_lstatus),
+
+  .sys__cfg_lcommand(sys__cfg_lcommand),
+  .trn__cfg_lcommand(cfg_lcommand),
+
+  .sys__cfg_dcommand2(sys__cfg_dcommand2),
+  .trn__cfg_dcommand2(cfg_dcommand2)
+);
+
 
 endmodule

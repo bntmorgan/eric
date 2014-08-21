@@ -1,7 +1,7 @@
 # ==== Clock input ====
 NET "clkin66" LOC = U23 | IOSTANDARD = LVCMOS25;
 NET "clkin66" TNM_NET = "GRPclkin66";
-TIMESPEC "TSclkin66" = PERIOD "GRPclkin66" 10.00 ns;
+TIMESPEC "TSclkin66" = PERIOD "GRPclkin66" 15.00 ns;
 
 # ==== UART ====
 NET "uart_rx"      LOC = J24  | IOSTANDARD = LVCMOS25 | PULLUP;

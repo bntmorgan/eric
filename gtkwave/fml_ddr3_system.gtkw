@@ -1,0 +1,109 @@
+[*]
+[*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
+[*] Thu Aug 14 08:23:49 2014
+[*]
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/fml_ddr3/fml_ddr3_system.sim.vcd"
+[dumpfile_mtime] "Thu Aug 14 08:22:28 2014"
+[dumpfile_size] 29597654
+[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/fml_ddr3_system.gtkw"
+[timestart] 1190
+[size] 1918 1179
+[pos] -1 -1
+*-6.381989 1425 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.ddr3.
+[sst_width] 224
+[signals_width] 298
+[sst_expanded] 1
+[sst_vpaned_height] 345
+@800200
+-wishbone
+@28
+main.wb_ack_o
+@22
+main.wb_adr_i[31:0]
+@28
+main.wb_cti_i[2:0]
+main.wb_cyc_i
+@22
+main.wb_dat_i[31:0]
+main.wb_dat_o[31:0]
+main.wb_sel_i[3:0]
+@28
+main.wb_stb_i
+main.wb_we_i
+@1000200
+-wishbone
+@800200
+-fml_brg_out
+@28
+main.fmlbrg_test.fml_ack
+@22
+main.fmlbrg_test.fml_adr[26:0]
+main.fmlbrg_test.fml_di[63:0]
+main.fmlbrg_test.fml_do[63:0]
+main.fmlbrg_test.fml_sel[7:0]
+@28
+main.fmlbrg_test.fml_stb
+main.fmlbrg_test.fml_we
+@1000200
+-fml_brg_out
+@800200
+-fml_arb_out
+@22
+main.fmlarb_test.s_di[63:0]
+main.fmlarb_test.s_do[63:0]
+@28
+main.fmlarb_test.s_eack
+@22
+main.fmlarb_test.s_adr[26:0]
+main.fmlarb_test.s_sel[7:0]
+@28
+main.fmlarb_test.s_stb
+main.fmlarb_test.s_we
+@1000200
+-fml_arb_out
+@800200
+-fml_ddr3
+@28
+main.ddr3.fml_ack
+@22
+main.ddr3.fml_di[63:0]
+main.ddr3.fml_do[63:0]
+main.ddr3.fml_sel[7:0]
+@28
+main.ddr3.fml_stb
+main.ddr3.fml_we
+@23
+main.ddr3.ctlif.\read_buf[0][63:0]
+main.ddr3.ctlif.\read_buf[1][63:0]
+main.ddr3.ctlif.\read_buf[2][63:0]
+main.ddr3.ctlif.\read_buf[3][63:0]
+main.ddr3.ctlif.\write_buf[0][63:0]
+main.ddr3.ctlif.\write_buf[1][63:0]
+main.ddr3.ctlif.\write_buf[2][63:0]
+main.ddr3.ctlif.\write_buf[3][63:0]
+@22
+main.ddr3.app_addr[27:0]
+@28
+main.ddr3.app_cmd[2:0]
+main.ddr3.app_en
+main.ddr3.app_rdy
+@22
+main.ddr3.app_rd_data[255:0]
+@28
+main.ddr3.app_rd_data_end
+main.ddr3.app_rd_data_valid
+@22
+main.ddr3.app_wdf_data[255:0]
+@28
+main.ddr3.app_wdf_end
+@22
+main.ddr3.app_wdf_mask[31:0]
+@28
+main.ddr3.app_wdf_rdy
+main.ddr3.app_wdf_wren
+@1000200
+-fml_ddr3
+[pattern_trace] 1
+[pattern_trace] 0

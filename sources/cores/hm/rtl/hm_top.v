@@ -218,6 +218,8 @@ always @(posedge trn_clk) begin
   if (sys_rst | ~trn_reset_n) begin
     init_b();
   end else if (en == 1'b1) begin
+    tx_start <= 1'b0;
+    rx_start <= 1'b0;
     if (state_b == `HM_STATE_IDLE) begin
       trn__page_read_end = 1'b0;
       if (page_read_start == 1'b1) begin
@@ -227,18 +229,16 @@ always @(posedge trn_clk) begin
         tx_start <= 1'b1;
       end
     end else if (state_b == `HM_STATE_SEND) begin
-      tx_start <= 1'b0;
-//      if (tx_timeout == 1'b1) begin
-//        state_b <= `HM_STATE_IDLE;
-//      end else if (tx_end == 1'b1) begin
-//        state_b <= `HM_STATE_RECV;
-//        rx_start <= 1'b1;
-//      end
+      if (trn__tx_timeout == 1'b1) begin
+        state_b <= `HM_STATE_IDLE;
+      end else if (tx_end == 1'b1) begin
+        state_b <= `HM_STATE_RECV;
+        rx_start <= 1'b1;
+      end
       // XXX test 
       state_b <= `HM_STATE_IDLE;
       trn__page_read_end = 1'b1;
     end else if (state_b == `HM_STATE_RECV) begin
-      rx_start <= 1'b0;
       if (trn__rx_timeout == 1'b1) begin
         state_b <= `HM_STATE_IDLE;
       end else if (rx_end == 1'b1) begin
@@ -317,49 +317,6 @@ hm_rx rx (
   .stat_state(state_rx),
   .timeout(trn__rx_timeout)
 );
-
-`ifdef MH_MR
-
-hm_mr mr (
-  .sys_rst(sys_rst),
-
-  .trn_clk(trn_clk),
-  .trn_reset_n(trn_reset_n),
-  .trn_lnk_up_n(trn__trn_lnk_up_n),
-
-  .trn_td(trn_td),
-  .trn_tsof_n(trn_tsof_n),
-  .trn_trem_n(trn_trem_n),
-  .trn_teof_n(trn_teof_n),
-  .trn_tsrc_rdy_n(trn_tsrc_rdy_n),
-  .trn_tdst_rdy_n(trn_tdst_rdy_n),
-  .trn_tbuf_av(trn_tbuf_av),
-  .trn_tcfg_req_n(trn_tcfg_req_n),
-  .trn_terr_drop_n(trn_terr_drop_n),
-  .trn_tsrc_dsc_n(trn_tsrc_dsc_n),
-  .trn_terrfwd_n(trn_terrfwd_n),
-  .trn_tcfg_gnt_n(trn_tcfg_gnt_n),
-  .trn_tstr_n(trn_tstr_n),
-
-  .trn_rd(trn_rd),
-  .trn_rrem_n(trn_rrem_n),
-  .trn_rsof_n(trn_rsof_n),
-  .trn_reof_n(trn_reof_n),
-  .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
-  .trn_rdst_rdy_n(trn_rdst_rdy_n),
-  .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
-  .trn_rerrfwd_n(trn_rerrfwd_n),
-  .trn_rnp_ok_n(trn_rnp_ok_n),
-  .trn_rbar_hit_n(trn_rbar_hit_n),
-
-  .cfg_bus_number(cfg_bus_number),
-  .cfg_device_number(cfg_device_number),
-  .cfg_function_number(cfg_function_number),
-
-  .stat_trn_cpt_tx(trn__stat_trn_cpt_tx)
-);
-
-`endif
 
 `ifndef SIMULATION
 genvar ram_index;

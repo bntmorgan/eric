@@ -1,0 +1,89 @@
+[*]
+[*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
+[*] Tue Aug 19 15:29:54 2014
+[*]
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/csr_ddr3/csr_ddr3_top.sim.vcd"
+[dumpfile_mtime] "Tue Aug 19 15:29:31 2014"
+[dumpfile_size] 31958
+[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/csr_ddr3_top.gtkw"
+[timestart] 800
+[size] 1918 1179
+[pos] -1 -1
+*-6.000000 841 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.ddr3.
+[sst_width] 224
+[signals_width] 245
+[sst_expanded] 1
+[sst_vpaned_height] 194
+@800200
+-csr
+@22
+main.csr_a[13:0]
+main.csr_di[31:0]
+main.csr_do[31:0]
+@28
+main.csr_we
+@1000200
+-csr
+@800200
+-buf
+@22
+main.ddr3.ctlif.\read_buf[0][31:0]
+main.ddr3.ctlif.\read_buf[1][31:0]
+main.ddr3.ctlif.\read_buf[2][31:0]
+main.ddr3.ctlif.\read_buf[3][31:0]
+main.ddr3.ctlif.\read_buf[4][31:0]
+main.ddr3.ctlif.\read_buf[5][31:0]
+main.ddr3.ctlif.\read_buf[6][31:0]
+main.ddr3.ctlif.\read_buf[7][31:0]
+main.ddr3.ctlif.\write_buf[0][31:0]
+main.ddr3.ctlif.\write_buf[1][31:0]
+main.ddr3.ctlif.\write_buf[2][31:0]
+main.ddr3.ctlif.\write_buf[3][31:0]
+main.ddr3.ctlif.\write_buf[4][31:0]
+main.ddr3.ctlif.\write_buf[5][31:0]
+main.ddr3.ctlif.\write_buf[6][31:0]
+main.ddr3.ctlif.\write_buf[7][31:0]
+@1000200
+-buf
+@800200
+-app
+@28
+main.ddr3.ctlif.ui_clk
+@22
+main.ddr3.ctlif.app_addr[27:0]
+@28
+main.ddr3.ctlif.app_cmd[2:0]
+main.ddr3.ctlif.app_en
+@22
+main.ddr3.ctlif.app_rd_data[255:0]
+@28
+main.ddr3.ctlif.app_rd_data_end
+main.ddr3.ctlif.app_rd_data_valid
+main.ddr3.ctlif.app_rdy
+@22
+main.ddr3.ctlif.app_wdf_data[255:0]
+@28
+main.ddr3.ctlif.app_wdf_end
+@22
+main.ddr3.ctlif.app_wdf_mask[31:0]
+@28
+main.ddr3.ctlif.app_wdf_rdy
+main.ddr3.ctlif.app_wdf_wren
+@1000200
+-app
+@28
+main.ddr3.ctlif.ddr3__read_end
+main.ddr3.ctlif.sys__read_end
+@29
+main.ddr3.ctlif.ddr3__write_end
+@28
+main.ddr3.ctlif.sys__write_end
+@22
+main.ddr3.ctlif.rtc[3:0]
+main.ddr3.ctlif.grtc[31:0]
+main.ddr3.ctlif.wtc[3:0]
+main.ddr3.ctlif.gwtc[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

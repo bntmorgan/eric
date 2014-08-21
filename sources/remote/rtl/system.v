@@ -1,6 +1,7 @@
 /*
  * Milkymist SoC
  * Copyright (C) 2013 Fernand Lone-Sang
+ * Copyright (C) 2014 Benoit Morgan
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,19 +19,8 @@
 `include "setup.v"
 `include "lm32_include.v"
 
-module system(
+module system (
 	input clkin66,
-
-// FIXME 	// Boot ROM
-// FIXME 	output [25:0] flash_adr,
-// FIXME 	inout [15:0] flash_d,
-// FIXME 	output flash_oe_n,
-// FIXME 	output flash_we_n,
-// FIXME 	output flash_ce_n,
-// FIXME 	output flash_rst_n,
-// FIXME 	output flash_byte_n,
-// FIXME 	output flash_wp_n,
-// FIXME 	input flash_rdy,
 
  	// UART
  	input uart_rx,
@@ -40,33 +30,30 @@ module system(
 	input [31:0] gpios,
 	output [3:0] leds,
 
+`ifdef ENABLE_SDRAM
 	// DDR SDRAM
-// 	output sdram_clk_p,
-// 	output sdram_clk_n,
-// 	output sdram_cke,
-// 	output sdram_cs_n,
-// 	output sdram_we_n,
-// 	output sdram_cas_n,
-// 	output sdram_ras_n,
-// 	output [3:0] sdram_dm,
-// 	output [12:0] sdram_adr,
-// 	output [1:0] sdram_ba,
-// 	inout [31:0] sdram_dq,
-// 	inout [3:0] sdram_dqs,
-
-
-// 	// USB
-// 	output usba_spd,
-// 	output usba_oe_n,
-// 	input usba_rcv,
-// 	inout usba_vp,
-// 	inout usba_vm,
-// 
-// 	output usbb_spd,
-// 	output usbb_oe_n,
-// 	input usbb_rcv,
-// 	inout usbb_vp,
-// 	inout usbb_vm,
+  input ddr3_clk_ref_p,
+  input ddr3_clk_ref_n,
+  inout [DQ_WIDTH-1:0] ddr3_dq,
+  output [ROW_WIDTH-1:0] ddr3_addr,
+  output [BANK_WIDTH-1:0] ddr3_ba,
+  output ddr3_ras_n,
+  output ddr3_cas_n,
+  output ddr3_we_n,
+  output ddr3_reset_n,
+  output [(CS_WIDTH*nCS_PER_RANK)-1:0] ddr3_cs_n,
+  output [(CS_WIDTH*nCS_PER_RANK)-1:0] ddr3_odt,
+  output [CKE_WIDTH-1:0] ddr3_cke,
+  output [DM_WIDTH-1:0] ddr3_dm,
+  inout [DQS_WIDTH-1:0] ddr3_dqs_p,
+  inout [DQS_WIDTH-1:0] ddr3_dqs_n,
+  output [CK_WIDTH-1:0] ddr3_ck_p,
+  output [CK_WIDTH-1:0] ddr3_ck_n,
+  output ddr3_phy_init_done,
+  output ddr3_error,
+  output ddr3_pll_lock, // ML605 GPIO LED
+  output ddr3_heartbeat, // ML605 GPIO LED
+`endif
 
 	// Ethernet
   input phy_mgtclk_n,
@@ -78,10 +65,10 @@ module system(
   output phy_rst_n,
 
   // PCI Express
-  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txp,
-  output [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txn,
-  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxp,
-  input [`PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxn,
+  output [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txp,
+  output [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_txn,
+  input [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxp,
+  input [PCIE_NUMBER_OF_LANES - 1:0] pci_exp_rxn,
 
   input pci_sys_clk_p,
   input pci_sys_clk_n,
@@ -308,6 +295,7 @@ wire [31:0]	norflash_adr,
 		checker_adr,
 		eth_adr,
 		brg_adr,
+		brg_adr_test,
 		csrbrg_adr;
 
 wire [2:0]	brg_cti;
@@ -323,7 +311,9 @@ wire [31:0]	norflash_dat_r,
 		eth_dat_r,
 		eth_dat_w,
 		brg_dat_r,
+		brg_dat_r_test,
 		brg_dat_w,
+		brg_dat_w_test,
 		csrbrg_dat_r,
 		csrbrg_dat_w;
 
@@ -332,7 +322,8 @@ wire [3:0]	norflash_sel,
 		usb_sel,
 		checker_sel,
 		eth_sel,
-		brg_sel;
+		brg_sel,
+		brg_sel_test;
 
 wire		norflash_we,
 		monitor_we,
@@ -340,6 +331,7 @@ wire		norflash_we,
 		checker_we,
 		eth_we,
 		brg_we,
+		brg_we_test,
 		csrbrg_we;
 
 wire		norflash_cyc,
@@ -348,6 +340,7 @@ wire		norflash_cyc,
 		checker_cyc,
 		eth_cyc,
 		brg_cyc,
+		brg_cyc_test,
 		csrbrg_cyc;
 
 wire		norflash_stb,
@@ -356,6 +349,7 @@ wire		norflash_stb,
 		checker_stb,
 		eth_stb,
 		brg_stb,
+		brg_stb_test,
 		csrbrg_stb;
 
 wire		norflash_ack,
@@ -364,6 +358,7 @@ wire		norflash_ack,
 		checker_ack,
 		eth_ack,
 		brg_ack,
+		brg_ack_test,
 		csrbrg_ack;
 
 //------------------------------------------------------------------
@@ -458,26 +453,44 @@ conbus5x6 #(
 	.s0_cyc_o(norflash_cyc),
 	.s0_stb_o(norflash_stb),
 	.s0_ack_i(norflash_ack),
-	// Slave 1
-	.s1_dat_i(monitor_dat_r),
-	.s1_dat_o(monitor_dat_w),
-	.s1_adr_o(monitor_adr),
+	.s1_dat_i(32'bx),
+	.s1_dat_o(),
+	.s1_adr_o(),
 	.s1_cti_o(),
-	.s1_sel_o(monitor_sel),
-	.s1_we_o(monitor_we),
-	.s1_cyc_o(monitor_cyc),
-	.s1_stb_o(monitor_stb),
-	.s1_ack_i(monitor_ack),
+	.s1_sel_o(),
+	.s1_we_o(),
+	.s1_cyc_o(),
+	.s1_stb_o(),
+	.s1_ack_i(1'bx),
+// Slave 1 XXX test FML BRG 2
+// 	.s1_dat_i(monitor_dat_r),
+// 	.s1_dat_o(monitor_dat_w),
+// 	.s1_adr_o(monitor_adr),
+// 	.s1_cti_o(),
+// 	.s1_sel_o(monitor_sel),
+// 	.s1_we_o(monitor_we),
+// 	.s1_cyc_o(monitor_cyc),
+// 	.s1_stb_o(monitor_stb),
+// 	.s1_ack_i(monitor_ack),
+// 	.s1_dat_i(brg_dat_r_test),
+// 	.s1_dat_o(brg_dat_w_test),
+// 	.s1_adr_o(brg_adr_test),
+// 	.s1_cti_o(brg_cti_test),
+// 	.s1_sel_o(brg_sel_test),
+// 	.s1_we_o(brg_we_test),
+// 	.s1_cyc_o(brg_cyc_test),
+// 	.s1_stb_o(brg_stb_test),
+// 	.s1_ack_i(brg_ack_test),
 	// Slave 2
-// 	.s2_dat_i(32'bx),
-// 	.s2_dat_o(),
-// 	.s2_adr_o(),
-// 	.s2_cti_o(),
-// 	.s2_sel_o(),
-// 	.s2_we_o(),
-// 	.s2_cyc_o(),
-// 	.s2_stb_o(),
-// 	.s2_ack_i(1'bx),
+//	.s2_dat_i(32'bx),
+//	.s2_dat_o(),
+//	.s2_adr_o(),
+//	.s2_cti_o(),
+//	.s2_sel_o(),
+//	.s2_we_o(),
+//	.s2_cyc_o(),
+//	.s2_stb_o(),
+//	.s2_ack_i(1'bx),
 	.s2_dat_i(checker_dat_r),
 	.s2_dat_o(checker_dat_w),
 	.s2_adr_o(checker_adr),
@@ -550,6 +563,7 @@ wire [31:0]	csr_dr_uart,
 		csr_dr_dmx_rx,
 		csr_dr_ir,
 		csr_dr_usb,
+		csr_dr_csr_ddr3,
 		csr_dr_checker;
 
 //------------------------------------------------------------------
@@ -714,6 +728,7 @@ csrbrg csrbrg(
 //		|csr_dr_dmx_rx
 //		|csr_dr_ir
 		|csr_dr_usb
+    |csr_dr_csr_ddr3
 		|csr_dr_checker
 	)
 );
@@ -1074,6 +1089,49 @@ gen_capabilities gen_capabilities(
 // 	.sdram_dqs(sdram_dqs)
 // );
 
+/*
+fml_ddr3_top #(
+	.adr_width(`SDRAM_DEPTH)
+) ddr3 (
+	.sys_clk(sys_clk),
+	.sys_rst(sys_rst),
+
+	.fml_adr(fml_adr),
+	.fml_stb(fml_stb),
+	.fml_we(fml_we),
+	.fml_ack(fml_eack),
+	.fml_sel(fml_sel),
+	.fml_di(fml_dw),
+	.fml_do(fml_dr),
+
+  .ddr3_sys_clk_p(ddr3_sys_clk_p),
+  .ddr3_sys_clk_n(ddr3_sys_clk_n),
+//   .ddr3_clk_ref_p(ddr3_clk_ref_p),
+//   .ddr3_clk_ref_n(ddr3_clk_ref_n),
+  .ddr3_sys_rst(ddr3_sys_rst),
+  .ddr3_dq(ddr3_dq),
+  .ddr3_addr(ddr3_addr),
+  .ddr3_ba(ddr3_ba),
+  .ddr3_ras_n(ddr3_ras_n),
+  .ddr3_cas_n(ddr3_cas_n),
+  .ddr3_we_n(ddr3_we_n),
+  .ddr3_reset_n(ddr3_reset_n),
+  .ddr3_cs_n(ddr3_cs_n),
+  .ddr3_odt(ddr3_odt),
+  .ddr3_cke(ddr3_cke),
+  .ddr3_dm(ddr3_dm),
+  .ddr3_dqs_p(ddr3_dqs_p),
+  .ddr3_dqs_n(ddr3_dqs_n),
+  .ddr3_ck_p(ddr3_ck_p),
+  .ddr3_ck_n(ddr3_ck_n),
+//   .sda(sda),
+//   .scl(scl),
+  .phy_init_done(ddr3_phy_init_done)
+); */
+
+/**
+ * Goodbye fake FML bram
+ */
 fml_bram #(
 	.adr_width(`SDRAM_DEPTH)
 ) fake_bram (
@@ -1641,8 +1699,10 @@ assign usbb_vm = 1'bz;
 //------------------------------------------------------------------
 // Checker
 //------------------------------------------------------------------
+
 checker_top #(
-	.csr_addr(4'hf)
+	.csr_addr(4'hf),
+  .PCIE_NUMBER_OF_LANES(PCIE_NUMBER_OF_LANES)
 ) ck (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
@@ -1671,5 +1731,235 @@ checker_top #(
   .pci_sys_clk_n(pci_sys_clk_n),
   .pci_sys_reset_n(pci_sys_reset_n)
 );
+
+//
+// Test FML BRG 2
+//
+
+// wire [`DRAM_DEPTH-1:0]	fml_brg_adr_test;
+// wire fml_brg_stb_test;
+// wire fml_brg_we_test;
+// wire fml_brg_ack_test;
+// wire [7:0] fml_brg_sel_test;
+// wire [63:0]fml_brg_dw_test;
+// wire [63:0]fml_brg_dr_test;
+// 
+// wire [`DRAM_DEPTH-1:0] fml_adr_test;
+// wire fml_stb_test;
+// wire fml_we_test;
+// wire fml_eack_test;
+// wire [7:0] fml_sel_test;
+// wire [63:0] fml_dw_test;
+// wire [63:0] fml_dr_test;
+// 
+// 
+// wire dcb_stb_test;
+// wire [`DRAM_DEPTH-1:0] dcb_adr_test;
+// wire [63:0] dcb_dat_test;
+// wire dcb_hit_test;
+// 
+// fmlbrg #(
+// 	.fml_depth(`DRAM_DEPTH),
+// 	.cache_depth(6)
+// ) fmlbrg_test (
+// 	.sys_clk(sys_clk),
+// 	.sys_rst(sys_rst),
+// 
+// 	.wb_adr_i(brg_adr_test),
+// 	.wb_cti_i(brg_cti_test),
+// 	.wb_dat_o(brg_dat_r_test),
+// 	.wb_dat_i(brg_dat_w_test),
+// 	.wb_sel_i(brg_sel_test),
+// 	.wb_stb_i(brg_stb_test),
+// 	.wb_cyc_i(brg_cyc_test),
+// 	.wb_ack_o(brg_ack_test),
+// 	.wb_we_i(brg_we_test),
+// 
+// 	.fml_adr(fml_brg_adr_test),
+// 	.fml_stb(fml_brg_stb_test),
+// 	.fml_we(fml_brg_we_test),
+// 	.fml_ack(fml_brg_ack_test),
+// 	.fml_sel(fml_brg_sel_test),
+// 	.fml_di(fml_brg_dr_test),
+// 	// .fml_di(64'hbabebabecafecafe),
+// 	.fml_do(fml_brg_dw_test),
+// 
+// 	.dcb_stb(dcb_stb_test),
+// 	.dcb_adr(dcb_adr_test),
+// 	.dcb_dat(dcb_dat_test),
+// 	.dcb_hit(dcb_hit_test)
+// );
+// assign dcb_stb_test = 1'b0;
+// assign dcb_adr_test = {`DRAM_DEPTH{1'bx}};
+// 
+// fmlarb #(
+// 	.fml_depth(`DRAM_DEPTH)
+// ) fmlarb_test (
+// 	.sys_clk(sys_clk),
+// 	.sys_rst(sys_rst),
+// 
+// 	/* VGA framebuffer (high priority) */
+// 	.m0_adr({`DRAM_DEPTH{1'bx}} /* fml_vga_adr */),
+// 	.m0_stb(1'b0 /* fml_vga_stb */),
+// 	.m0_we(1'b0),
+// 	.m0_ack(/* fml_vga_ack */),
+// 	.m0_sel(8'bx),
+// 	.m0_di(64'bx),
+// 	.m0_do(/* fml_vga_dr */),
+// 
+// 	/* WISHBONE bridge */
+// 	.m1_adr(fml_brg_adr_test),
+// 	.m1_stb(fml_brg_stb_test),
+// 	.m1_we(fml_brg_we_test),
+// 	.m1_ack(fml_brg_ack_test),
+// 	.m1_sel(fml_brg_sel_test),
+// 	.m1_di(fml_brg_dw_test),
+// 	.m1_do(fml_brg_dr_test),
+// 
+// 	/* TMU, pixel read DMA (texture) */
+// 	/* Also used as memory test port */
+// 	.m2_adr({`DRAM_DEPTH{1'bx}} /* fml_tmuw_adr */),
+// 	.m2_stb(1'b0 /* fml_tmuw_stb */),
+// 	.m2_we(1'b1),
+// 	.m2_ack(/* fml_tmuw_ack */),
+// 	.m2_sel(8'bx /* fml_tmuw_sel */),
+// 	.m2_di(64'bx /* fml_tmuw_dw */),
+// 	.m2_do(),
+// 
+// 	/* TMU, pixel write DMA */
+// 	.m3_adr({`DRAM_DEPTH{1'bx}} /* fml_tmuw_adr */),
+// 	.m3_stb(1'b0 /* fml_tmuw_stb */),
+// 	.m3_we(1'b1),
+// 	.m3_ack(/* fml_tmuw_ack */),
+// 	.m3_sel(8'bx /* fml_tmuw_sel */),
+// 	.m3_di(64'bx /* fml_tmuw_dw */),
+// 	.m3_do(),
+// 
+// 	/* TMU, pixel read DMA (destination) */
+// 	.m4_adr({`DRAM_DEPTH{1'bx}} /* fml_tmudr_adr */),
+// 	.m4_stb(1'b0 /* fml_tmudr_stb */),
+// 	.m4_we(1'b0),
+// 	.m4_ack(/* fml_tmudr_ack */),
+// 	.m4_sel(8'bx),
+// 	.m4_di(64'bx),
+// 	.m4_do(/* fml_tmudr_dr */),
+// 
+// 	/* Video in */
+// 	.m5_adr({`DRAM_DEPTH{1'bx}} /* fml_videoin_adr */),
+// 	.m5_stb(1'b0 /* fml_videoin_stb */),
+// 	.m5_we(1'b1),
+// 	.m5_ack(/* fml_videoin_ack */),
+// 	.m5_sel(8'hff),
+// 	.m5_di(64'bx /* fml_videoin_dw */),
+// 	.m5_do(),
+// 
+// 	.s_adr(fml_adr_test),
+// 	.s_stb(fml_stb_test),
+// 	.s_we(fml_we_test),
+// 	.s_eack(fml_eack_test),
+// 	.s_sel(fml_sel_test),
+// 	.s_di(fml_dr_test),
+// 	// .s_di(64'hbabebabecafecafe),
+// 	.s_do(fml_dw_test)
+// );
+// 
+// fml_ddr3_top #(
+// 	.adr_width(`DRAM_DEPTH),
+//   .DQ_WIDTH(DQ_WIDTH),
+//   .ROW_WIDTH(ROW_WIDTH),
+//   .BANK_WIDTH(BANK_WIDTH),
+//   .CS_WIDTH(CS_WIDTH),
+//   .nCS_PER_RANK(nCS_PER_RANK),
+//   .CKE_WIDTH(CKE_WIDTH),
+//   .CK_WIDTH(CK_WIDTH),
+//   .DM_WIDTH(DM_WIDTH),
+//   .DQS_WIDTH(DQS_WIDTH),
+//   .DATA_WIDTH(DATA_WIDTH),
+//   .ADDR_WIDTH(ADDR_WIDTH)
+// ) ddr3 (
+// 	.sys_clk(sys_clk),
+// 	.sys_rst(sys_rst),
+// 
+// 	.fml_adr(fml_adr_test),
+// 	.fml_stb(fml_stb_test),
+// 	.fml_we(fml_we_test),
+// 	.fml_ack(fml_eack_test),
+// 	.fml_sel(fml_sel_test),
+// 	.fml_di(fml_dw_test),
+// 	.fml_do(fml_dr_test),
+// 
+//   .ddr3_clk_ref_p(ddr3_clk_ref_p),
+//   .ddr3_clk_ref_n(ddr3_clk_ref_n),
+//   .ddr3_sys_rst(sys_rst), // Should do better XXX LOL
+//   .ddr3_dq(ddr3_dq),
+//   .ddr3_addr(ddr3_addr),
+//   .ddr3_ba(ddr3_ba),
+//   .ddr3_ras_n(ddr3_ras_n),
+//   .ddr3_cas_n(ddr3_cas_n),
+//   .ddr3_we_n(ddr3_we_n),
+//   .ddr3_reset_n(ddr3_reset_n),
+//   .ddr3_cs_n(ddr3_cs_n),
+//   .ddr3_odt(ddr3_odt),
+//   .ddr3_cke(ddr3_cke),
+//   .ddr3_dm(ddr3_dm),
+//   .ddr3_dqs_p(ddr3_dqs_p),
+//   .ddr3_dqs_n(ddr3_dqs_n),
+//   .ddr3_ck_p(ddr3_ck_p),
+//   .ddr3_ck_n(ddr3_ck_n),
+//   .ddr3_phy_init_done(ddr3_phy_init_done),
+//   .ddr3_error(ddr3_error),
+//   .ddr3_pll_lock(ddr3_pll_lock),
+//   .ddr3_heartbeat(ddr3_heartbeat)
+// );
+
+`ifdef ENABLE_SDRAM
+csr_ddr3_top #(
+  .csr_adr(4'hb),
+  .DQ_WIDTH(DQ_WIDTH),
+  .ROW_WIDTH(ROW_WIDTH),
+  .BANK_WIDTH(BANK_WIDTH),
+  .CS_WIDTH(CS_WIDTH),
+  .nCS_PER_RANK(nCS_PER_RANK),
+  .CKE_WIDTH(CKE_WIDTH),
+  .CK_WIDTH(CK_WIDTH),
+  .DM_WIDTH(DM_WIDTH),
+  .DQS_WIDTH(DQS_WIDTH),
+  .DATA_WIDTH(DATA_WIDTH),
+  .ADDR_WIDTH(ADDR_WIDTH)
+) ddr3 (
+	.sys_clk(sys_clk),
+	.sys_rst(sys_rst),
+
+  .csr_a(csr_a),
+  .csr_we(csr_we),
+  .csr_di(csr_dw),
+  .csr_do(csr_dr_csr_ddr3),
+
+  .ddr3_clk_ref_p(ddr3_clk_ref_p),
+  .ddr3_clk_ref_n(ddr3_clk_ref_n),
+  .ddr3_sys_rst(sys_rst), // Should do better XXX LOL
+  .ddr3_dq(ddr3_dq),
+  .ddr3_addr(ddr3_addr),
+  .ddr3_ba(ddr3_ba),
+  .ddr3_ras_n(ddr3_ras_n),
+  .ddr3_cas_n(ddr3_cas_n),
+  .ddr3_we_n(ddr3_we_n),
+  .ddr3_reset_n(ddr3_reset_n),
+  .ddr3_cs_n(ddr3_cs_n),
+  .ddr3_odt(ddr3_odt),
+  .ddr3_cke(ddr3_cke),
+  .ddr3_dm(ddr3_dm),
+  .ddr3_dqs_p(ddr3_dqs_p),
+  .ddr3_dqs_n(ddr3_dqs_n),
+  .ddr3_ck_p(ddr3_ck_p),
+  .ddr3_ck_n(ddr3_ck_n),
+  .ddr3_phy_init_done(ddr3_phy_init_done),
+  .ddr3_error(ddr3_error),
+  .ddr3_pll_lock(ddr3_pll_lock),
+  .ddr3_heartbeat(ddr3_heartbeat)
+);
+`else
+assign csr_dr_csr_ddr3 = 32'b0;
+`endif
 
 endmodule
