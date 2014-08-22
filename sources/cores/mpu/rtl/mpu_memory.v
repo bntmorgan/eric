@@ -46,7 +46,7 @@ wire [31:0] wb_dat;
  * Converts 4 bytes double words adressing in a byte adresse ram made of RAMB36
  * Xilinx blocks wb_adr_i is 15 bits because 8 * 4096 is 2 ^ (3 + 12)
  */
-checker_wb_to_ram conv_wb (
+mpu_wb_to_ram conv_wb (
   .wb_adr_i(wb_adr_i[14:0]),
   .wb_dat_i(wb_dat_i_le),
   .wb_sel_i({4{wb_en & wb_we_i}} & wb_sel_i_le),
@@ -85,7 +85,7 @@ checker_wb_to_ram conv_wb (
   .ram_we_7_o(wb_ram_we[7])
 );
 
-checker_mpu_to_ram conv_mpu (
+mpu_mpu_to_ram conv_mpu (
   .i_data_o(mpu_do),
   .i_addr_i(mpu_addr[14:0]),
   .ram_adr_0_o(mpu_ram_adr[0]),
@@ -154,7 +154,7 @@ endgenerate
 genvar ram_index;
 generate for (ram_index=0; ram_index < 8; ram_index=ram_index+1) 
 begin: gen_ram
-  checker_memory_8 ram (
+  mpu_memory_8 ram (
 		.DIA({24'b0, wb_ram_dat_o[ram_index]}),
 		.DOA(wb_ram_dat_i[ram_index]),
 		.ADDRA({1'b0, wb_ram_adr[ram_index], 3'b0}), 

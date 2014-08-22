@@ -1,28 +1,22 @@
-`include "sim.vh"
+`timescale 1ns/10ps
 
 module main();
+
+`include "sim.v"
+`include "sim_csr.v"
+`include "sim_wb.v"
+`include "sim_memory.v"
 
 /**
  * Top module signals
  */
 
 // Inputs
-reg sys_clk;
-reg sys_rst;
-wire [47:0] i_data;
-wire user_en;
 wire [63:0] hm_data;
-wire hm_en;
-wire en;
-reg checker_en;
 
 // Outputs
-wire [15:0] i_addr;
-wire user_irq;
-wire [63:0] user_data;
 wire [63:0] hm_addr;
-
-`SIM_SYS_CLK
+wire irq;
 
 /**
  * Tested components
@@ -30,48 +24,33 @@ wire [63:0] hm_addr;
 mpu_top mpu (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
-  .en(en),
-  .i_data(i_data),
+  .csr_a(csr_a),
+  .csr_we(csr_we),
+  .csr_di(csr_di),
+  .csr_do(csr_do),
   .hm_data(hm_data),
-  .i_addr(i_addr),
-  .user_irq(user_irq),
-  .user_data(user_data),
-  .hm_addr(hm_addr)
-);
-
-mpu_memory mem (
-  .sys_clk(sys_clk),
-  .sys_rst(sys_rst),
-  .r_addr(i_addr),
-  .r_data(i_data)
+  .hm_addr(hm_addr),
+  .wb_adr_i(wb_adr_i),
+  .wb_dat_o(wb_dat_o),
+  .wb_dat_i(wb_dat_i),
+  .wb_sel_i(wb_sel_i),
+  .wb_stb_i(wb_stb_i),
+  .wb_cyc_i(wb_cyc_i),
+  .wb_ack_o(wb_ack_o),
+  .wb_we_i(wb_we_i),
+  .irq(irq)
 );
 
 assign hm_data = 64'h1234567812345678;
-assign hm_en = 1'b1;
-
-assign en = user_en & hm_en & checker_en;
-
-always @(posedge sys_clk) begin
-  $display("-");
-  $display("i_addr %x", i_addr);
-  $display("i_data %x", i_data);
-  $display("user_en %x", user_en);
-  $display("hm_data %x", hm_data);
-  $display("hm_en %x", hm_en);
-  $display("user_irq %x", user_irq);
-  $display("user_data %x", user_data);
-  $display("hm_addr %x", hm_addr);
-end
 
 /**
  * Dumpfile configuration
  */
 integer idx;
 initial begin
-  `SIM_DUMPFILE
   // Dump registers
   for (idx = 0; idx < 32; idx = idx + 1)
-    $dumpvars(0,mpu.registers.regs[idx]);
+    $dumpvars(0,mpu.mpu.registers.regs[idx]);
 end
 
 /**
@@ -79,17 +58,47 @@ end
  */
 
 initial begin
-  checker_en <= 1'b0;
+  waitclock;
 
-  # 8 $display("checker_en <- 1"); 
-  checker_en <= 1'b1;
+  // Prepare the mpu
+  mpumeminit;
 
-  # 40 $display("rst <- 1");
-  sys_rst <= 1'b1;
-  # 2
-  sys_rst <= 1'b0;
+  wbread(32'h00000000);
 
-  # 40 $finish;
+  waitnclock(10);
+
+  // Activate IRQs and read it
+  csrwrite(`MPU_CSR_CTRL, 32'b1); 
+  csrread(14'h0); 
+
+  // Run MPU
+  csrwrite(`MPU_CSR_CTRL, 32'b11);
+
+  waitnclock(40);
+  // Commit event
+  csrwrite(`MPU_CSR_STAT, 32'hffffffff);
+
+  waitnclock(40);
+  $finish;
+end
+
+/**
+ * Simulation
+ */
+integer i;
+initial
+begin
+  for (i = 0; i < 8; i = i + 1)
+  begin
+    $dumpvars(0,mpu.mem.gen_ram[0].ram.mem[i]);
+    $dumpvars(0,mpu.mem.gen_ram[1].ram.mem[i]);
+    $dumpvars(0,mpu.mem.gen_ram[2].ram.mem[i]);
+    $dumpvars(0,mpu.mem.gen_ram[3].ram.mem[i]);
+    $dumpvars(0,mpu.mem.gen_ram[4].ram.mem[i]);
+    $dumpvars(0,mpu.mem.gen_ram[5].ram.mem[i]);
+    $dumpvars(0,mpu.mem.gen_ram[6].ram.mem[i]);
+    $dumpvars(0,mpu.mem.gen_ram[7].ram.mem[i]);
+  end
 end
 
 endmodule

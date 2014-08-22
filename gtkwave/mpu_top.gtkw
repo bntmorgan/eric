@@ -1,17 +1,32 @@
 [*]
-[*] GTKWave Analyzer v3.3.52 (w)1999-2013 BSI
-[*] Fri Apr  4 14:00:00 2014
+[*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
+[*] Fri Aug 22 14:59:55 2014
 [*]
-[dumpfile] "/home/bmorgan/Documents/laas/pci-device/remote/binary/cores/mpu/mpu_top.sim.vcd"
-[dumpfile_mtime] "Fri Apr  4 13:58:33 2014"
-[dumpfile_size] 45737
-[savefile] "/home/bmorgan/Documents/laas/pci-device/remote/registers.gtkw"
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/mpu/mpu_top.sim.vcd"
+[dumpfile_mtime] "Fri Aug 22 14:51:40 2014"
+[dumpfile_size] 85229
+[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/mpu_top.gtkw"
 [timestart] 0
 [size] 1918 1179
 [pos] -1 -1
-*-2.901352 8 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-17.901352 46000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
-[treeopen] main.mpu.execution.
+[treeopen] main.mpu.
+[treeopen] main.mpu.mem.
+[treeopen] main.mpu.mem.gen_ram[0].
+[treeopen] main.mpu.mem.gen_ram[0].ram.
+[treeopen] main.mpu.mem.gen_ram[1].
+[treeopen] main.mpu.mem.gen_ram[1].ram.
+[treeopen] main.mpu.mem.gen_ram[2].
+[treeopen] main.mpu.mem.gen_ram[2].ram.
+[treeopen] main.mpu.mem.gen_ram[3].
+[treeopen] main.mpu.mem.gen_ram[3].ram.
+[treeopen] main.mpu.mem.gen_ram[4].
+[treeopen] main.mpu.mem.gen_ram[4].ram.
+[treeopen] main.mpu.mem.gen_ram[5].
+[treeopen] main.mpu.mem.gen_ram[5].ram.
+[treeopen] main.mpu.mem.gen_ram[6].
+[treeopen] main.mpu.mem.gen_ram[7].
 [sst_width] 224
 [signals_width] 312
 [sst_expanded] 1
@@ -20,70 +35,162 @@
 -System
 @28
 main.sys_clk
-@29
 main.sys_rst
-@28
-main.en
+main.mpu.irq
 @1000200
 -System
 @800200
--Registers
+-csr
+@22
+main.csr_a[13:0]
+main.csr_di[31:0]
+main.csr_do[31:0]
+@28
+main.csr_we
+@1000200
+-csr
+@800200
+-wishbone
+@22
+main.wb_adr_i[31:0]
+@28
+main.wb_cti_i[2:0]
+main.wb_cyc_i
+@22
+main.wb_dat_i[31:0]
+main.wb_dat_o[31:0]
+main.wb_sel_i[3:0]
+@28
+main.wb_stb_i
+main.wb_we_i
+main.wb_ack_o
+@1000200
+-wishbone
+@800200
+-mpu
+@28
+main.mpu.mpu.en
+main.mpu.mpu.error
+@22
+main.mpu.mpu.i_addr[15:0]
+main.mpu.mpu.i_data[47:0]
+@28
+main.mpu.mpu.sys_clk
+main.mpu.mpu.sys_rst
+@22
+main.mpu.mpu.decoder.op[3:0]
+@28
+main.mpu.mpu.decoder.error
+@22
+main.mpu.hm_addr[63:0]
+main.mpu.hm_data[63:0]
+@1000200
+-mpu
+@c00200
 -regs
 @22
-main.mpu.registers.\regs[0][63:0]
-main.mpu.registers.\regs[1][63:0]
-main.mpu.registers.\regs[2][63:0]
-main.mpu.registers.\regs[3][63:0]
-main.mpu.registers.\regs[4][63:0]
-@1000200
+main.mpu.mpu.registers.\regs[0][63:0]
+main.mpu.mpu.registers.\regs[1][63:0]
+main.mpu.mpu.registers.\regs[2][63:0]
+main.mpu.mpu.registers.\regs[3][63:0]
+main.mpu.mpu.registers.\regs[4][63:0]
+main.mpu.mpu.registers.\regs[5][63:0]
+main.mpu.mpu.registers.\regs[6][63:0]
+main.mpu.mpu.registers.\regs[7][63:0]
+main.mpu.mpu.registers.\regs[8][63:0]
+main.mpu.mpu.registers.\regs[9][63:0]
+main.mpu.mpu.registers.\regs[10][63:0]
+main.mpu.mpu.registers.\regs[11][63:0]
+main.mpu.mpu.registers.\regs[12][63:0]
+main.mpu.mpu.registers.\regs[13][63:0]
+main.mpu.mpu.registers.\regs[14][63:0]
+main.mpu.mpu.registers.\regs[15][63:0]
+main.mpu.mpu.registers.\regs[16][63:0]
+main.mpu.mpu.registers.\regs[17][63:0]
+main.mpu.mpu.registers.\regs[18][63:0]
+main.mpu.mpu.registers.\regs[19][63:0]
+main.mpu.mpu.registers.\regs[20][63:0]
+main.mpu.mpu.registers.\regs[21][63:0]
+main.mpu.mpu.registers.\regs[22][63:0]
+main.mpu.mpu.registers.\regs[23][63:0]
+main.mpu.mpu.registers.\regs[24][63:0]
+main.mpu.mpu.registers.\regs[25][63:0]
+main.mpu.mpu.registers.\regs[26][63:0]
+main.mpu.mpu.registers.\regs[27][63:0]
+main.mpu.mpu.registers.\regs[28][63:0]
+main.mpu.mpu.registers.\regs[29][63:0]
+main.mpu.mpu.registers.\regs[30][63:0]
+main.mpu.mpu.registers.\regs[31][63:0]
+@1401200
 -regs
-@22
-main.mpu.registers.w_data[63:0]
-main.mpu.registers.w_idx[4:0]
-@28
-main.mpu.registers.w_r_sel[2:0]
-main.mpu.registers.w_sel[2:0]
-main.mpu.registers.w_size[1:0]
-main.mpu.registers.we
-@1000200
--Registers
-@800200
--decoder
-@22
-main.mpu.decoder.isize[15:0]
-main.mpu.decoder.op[3:0]
-main.mpu.decoder.op_idx0[4:0]
-main.mpu.decoder.op_idx1[4:0]
-main.mpu.decoder.op_idx2[4:0]
-main.mpu.decoder.op_idx3[4:0]
-main.mpu.decoder.op_o0[63:0]
-main.mpu.decoder.op_o1[63:0]
-main.mpu.decoder.op_o2[63:0]
-main.mpu.decoder.op_o3[63:0]
-main.mpu.decoder.op_op[3:0]
-@28
-main.mpu.decoder.op_s0[2:0]
-main.mpu.decoder.op_s1[2:0]
-main.mpu.decoder.op_s2[2:0]
-main.mpu.decoder.op_s3[2:0]
-main.mpu.decoder.op_size[1:0]
-@1000200
--decoder
-@800200
--mpu_top
-@22
-main.i_addr[15:0]
-@28
-main.user_irq
-@22
-main.user_data[63:0]
-@28
-main.hm_start
-@22
-main.hm_addr[63:0]
-@28
-main.mpu.hm_start
-@1000200
--mpu_top
+@800201
+-mem
+@23
+main.mpu.mem.gen_ram[0].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[0][7:0]
+main.mpu.mem.gen_ram[0].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[1][7:0]
+main.mpu.mem.gen_ram[0].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[2][7:0]
+main.mpu.mem.gen_ram[0].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[3][7:0]
+main.mpu.mem.gen_ram[0].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[4][7:0]
+main.mpu.mem.gen_ram[0].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[5][7:0]
+main.mpu.mem.gen_ram[0].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[6][7:0]
+main.mpu.mem.gen_ram[0].ram.\mem[7][7:0]
+main.mpu.mem.gen_ram[1].ram.\mem[7][7:0]
+main.mpu.mem.gen_ram[2].ram.\mem[7][7:0]
+main.mpu.mem.gen_ram[3].ram.\mem[7][7:0]
+main.mpu.mem.gen_ram[4].ram.\mem[7][7:0]
+main.mpu.mem.gen_ram[5].ram.\mem[7][7:0]
+main.mpu.mem.gen_ram[6].ram.\mem[7][7:0]
+main.mpu.mem.gen_ram[7].ram.\mem[7][7:0]
+@1000201
+-mem
 [pattern_trace] 1
 [pattern_trace] 0

@@ -1,0 +1,66 @@
+[*]
+[*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
+[*] Thu Aug 21 14:47:54 2014
+[*]
+[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/mpu/mpu_ctlif.sim.vcd"
+[dumpfile_mtime] "Thu Aug 21 14:47:44 2014"
+[dumpfile_size] 7078
+[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/mpu_ctlif.gtkw"
+[timestart] 226100
+[size] 1918 1179
+[pos] -1 -1
+*-16.328484 491400 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[sst_width] 239
+[signals_width] 249
+[sst_expanded] 1
+[sst_vpaned_height] 345
+@800200
+-csr
+@22
+main.ctlif.csr_a[13:0]
+main.ctlif.csr_di[31:0]
+main.ctlif.csr_do[31:0]
+@28
+main.ctlif.csr_selected
+main.ctlif.csr_we
+@1000200
+-csr
+@800200
+-system
+@28
+main.sys_clk
+main.sys_rst
+@1000200
+-system
+@800200
+-ctlif
+@28
+main.ctlif.event_end
+main.ctlif.event_error
+main.ctlif.event_user_irq
+main.ctlif.irq_en
+main.ctlif.irq
+@1000200
+-ctlif
+@800200
+-mpu
+@28
+main.mpu_clk
+main.ctlif.mpu_rst
+main.ctlif.state[2:0]
+main.ctlif.mpu_en
+main.error
+@22
+main.user_data[63:0]
+@23
+main.ctlif.user_data_r[63:0]
+@28
+main.user_irq
+main.ctlif.mpu__event_end
+main.ctlif.mpu__event_error
+main.ctlif.mpu__event_user_irq
+@1000200
+-mpu
+[pattern_trace] 1
+[pattern_trace] 0

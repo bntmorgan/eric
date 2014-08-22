@@ -2,145 +2,92 @@ module mpu_top (
   // System
   input sys_clk,
   input sys_rst,
-  input en,
 
-  // Instruction bus, synchronous memory for instructions
-  output [15:0] i_addr,
-  input [47:0] i_data,
+  // CSR bus
+	input [13:0] csr_a,
+	input csr_we,
+	input [31:0] csr_di,
+	output [31:0] csr_do,
 
-  // Mpu user interruptions
-  output user_irq,
-  output [63:0] user_data,
+  // Wishbone bus
+	input [31:0] wb_adr_i,
+	output [31:0] wb_dat_o,
+	input [31:0] wb_dat_i,
+	input [3:0] wb_sel_i,
+	input wb_stb_i,
+	input wb_cyc_i,
+	output wb_ack_o,
+	input wb_we_i,
   
-  // Data bus Memory to check, clock might be async so we acknoledge the data
-  // receive
+  // Host memory bus
   output [63:0] hm_addr,
-  output hm_start,
   input [63:0] hm_data,
 
-  // Error
-  output error
+  // IRQ
+  output irq
 );
 
-// Interconnection wires
-wire [15:0] ip_incr;
-wire [15:0] ip_data;
-wire ip_load;
+reg mpu_clk;
+wire mpu_en;
+wire mpu_rst;
+wire error;
+wire [63:0] user_data;
+wire user_irq;
 
-wire [1:0] op_size;
-wire [3:0] op_op;
-wire [63:0] op_o0;
-wire [63:0] op_o1;
-wire [63:0] op_o2;
-wire [63:0] op_o3;
-wire [2:0] op_s0;
-wire [2:0] op_s1;
-wire [2:0] op_s2;
-wire [2:0] op_s3;
-wire [4:0] op_idx0;
-wire [4:0] op_idx1;
-wire [4:0] op_idx2;
-wire [4:0] op_idx3;
-wire [15:0] isize;
-wire [63:0] r_data0;
-wire [63:0] r_data1;
-wire [63:0] r_data2;
-wire [63:0] r_data3;
+wire [15:0] i_addr;
+wire [47:0] i_data;
 
-wire [4:0] w_idx;
-wire [63:0] w_data;
-wire [2:0] w_sel;
-wire [2:0] w_r_sel;
-wire [1:0] w_size;
-wire we;
+always @(posedge sys_clk) begin
+  mpu_clk <= ~mpu_clk;
+end
 
-mpu_counter ip (
+initial begin
+  mpu_clk <= 1'b0;
+end
+
+mpu_ctlif ctlif (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
-  .out(i_addr),
-  .en(en),
-  .incr(ip_incr[15:0]),
-  .data(ip_data[15:0]),
-  .load(ip_load)
+  .csr_a(csr_a),
+  .csr_we(csr_we),
+  .csr_di(csr_di),
+  .csr_do(csr_do),
+  .mpu_clk(mpu_clk),
+  .mpu_en(mpu_en),
+  .mpu_rst(mpu_rst),
+  .user_irq(user_irq),
+  .user_data(user_data),
+  .error(error),
+  .irq(irq)
 );
 
-// Decoder
-mpu_decoder decoder (
-  .i(i_data),
-  .isize(isize),
-  .op_size(op_size),
-  .r_data0(r_data0),
-  .r_data1(r_data1),
-  .r_data2(r_data2),
-  .r_data3(r_data3),
-  .op_op(op_op),
-  .op_o0(op_o0),
-  .op_o1(op_o1),
-  .op_o2(op_o2),
-  .op_o3(op_o3),
-  .op_idx0(op_idx0),
-  .op_idx1(op_idx1),
-  .op_idx2(op_idx2),
-  .op_idx3(op_idx3),
-  .op_s0(op_s0),
-  .op_s1(op_s1),
-  .op_s2(op_s2),
-  .op_s3(op_s3),
+mpu mpu (
+  .sys_clk(mpu_clk),
+  .sys_rst(mpu_rst),
+  .en(mpu_en),
+  .i_data(i_data),
+  .i_addr(i_addr),
+  .user_irq(user_irq),
+  .user_data(user_data),
+  .hm_addr(hm_addr),
+  .hm_data(hm_data),
   .error(error)
 );
 
-// Execution
-mpu_execution execution (
-  .isize(isize),
-  .op_size(op_size),
-  .op_op(op_op),
-  .op_o0(op_o0),
-  .op_o1(op_o1),
-  .op_o2(op_o2),
-  .op_o3(op_o3),
-  .op_s0(op_s0),
-  .op_s1(op_s1),
-  .op_s2(op_s2),
-  .op_s3(op_s3),
-  .op_idx0(op_idx0),
-  .op_idx1(op_idx1),
-  .op_idx2(op_idx2),
-  .op_idx3(op_idx3),
-  .ip_incr(ip_incr),
-  .ip_load(ip_load),
-  .ip_data(ip_data),
-  .user_irq(user_irq),
-  .user_data(user_data),
-  .w_idx(w_idx),
-  .w_data(w_data),
-  .w_sel(w_sel),
-  .w_r_sel(w_r_sel),
-  .w_size(w_size),
-  .we(we),
-  .hm_addr(hm_addr),
-  .hm_start(hm_start),
-  .hm_data(hm_data)
-);
-
-// Registers
-mpu_registers registers (
+mpu_memory mem (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
-  .en(en),
-  .r_idx0(op_idx0[4:0]),
-  .r_idx1(op_idx1[4:0]),
-  .r_idx2(op_idx2[4:0]),
-  .r_idx3(op_idx3[4:0]),
-  .r_data0(r_data0),
-  .r_data1(r_data1),
-  .r_data2(r_data2),
-  .r_data3(r_data3),
-  .w_idx(w_idx),
-  .w_data(w_data),
-  .w_sel(w_sel),
-  .w_r_sel(w_r_sel),
-  .w_size(w_size),
-  .we(we)
+  .mpu_clk(sys_clk),
+  .mpu_addr(i_addr),
+  .mpu_do(i_data),
+  .wb_adr_i(wb_adr_i),
+  .wb_dat_o(wb_dat_o),
+  .wb_dat_i(wb_dat_i),
+  .wb_sel_i(wb_sel_i),
+  .wb_stb_i(wb_stb_i),
+  .wb_cyc_i(wb_cyc_i),
+  .wb_ack_o(wb_ack_o),
+  .wb_we_i(wb_we_i)
 );
 
 endmodule
