@@ -1,17 +1,29 @@
 `include "hm.vh"
 
-module hm_top (
+module hm_top #(
+	parameter csr_addr = 4'h0
+) (
   input sys_clk,
   input sys_rst,
-  input en,
 
-  input hm_start,
-  output reg hm_end,
-  input [63:0] hm_page_addr,
-  output hm_timeout,
-  output reg hm_error,
+  // CSR bus
+	input [13:0] csr_a,
+	input csr_we,
+	input [31:0] csr_di,
+	output reg [31:0] csr_do,
 
-  input [11:0] hm_page_offset,
+  // Wishbone bus
+	input [31:0] wb_adr_i,
+	output reg [31:0] wb_dat_o,
+	input [31:0] wb_dat_i,
+	input [3:0] wb_sel_i,
+	input wb_stb_i,
+	input wb_cyc_i,
+	output reg wb_ack_o,
+	input wb_we_i,
+  
+  // Host memory bus
+  input [63:0] hm_addr,
   output [63:0] hm_data,
 
   // Trn interface
@@ -48,53 +60,53 @@ module hm_top (
   output trn_rdst_rdy_n,
   output trn_rnp_ok_n,
 
-  // Wishbone bus page read acces
-	input [31:0] wb_adr_i,
-	output reg [31:0] wb_dat_o,
-	input [31:0] wb_dat_i,
-	input [3:0] wb_sel_i,
-	input wb_stb_i,
-	input wb_cyc_i,
-	output reg wb_ack_o,
-	input wb_we_i,
-
-  // cfg ip core interface
-  input [7:0] cfg_bus_number,
-  input [4:0] cfg_device_number,
-  input [2:0] cfg_function_number,
-  input [15:0] cfg_command,
-  input [15:0] cfg_dstatus,
-  input [15:0] cfg_dcommand,
-  input [15:0] cfg_lstatus,
-  input [15:0] cfg_lcommand,
-  input [15:0] cfg_dcommand2,
-
-  // User statistics counters ans status
-  output [15:0] stat_trn_cpt_tx,
-  output [15:0] stat_trn_cpt_rx,
-  output [31:0] stat_trn
+  // IRQ
+  output irq
 );
 
-wire trn__trn_lnk_up_n;
-wire sys__trn_lnk_up_n;
-wire sys__rx_timeout;
-wire sys__tx_timeout;
-wire trn__rx_timeout;
-wire trn__tx_timeout;
-assign hm_timeout = sys__rx_timeout | sys__tx_timeout;
-assign trn__trn_lnk_up_n = trn_lnk_up_n;
+// Sys
 
-reg [1:0] state_a; 
-reg [1:0] state_b; 
-reg [3:0] n; 
-reg [11:0] page_offset; 
-reg tx_start; 
-reg rx_start; 
-reg page_read_start;
-reg trn__page_read_end;
-wire sys__page_read_end;
-reg [63:0] page_addr;
+wire csr_selected = csr_a[13:10] == csr_addr;
+reg hm_start;
+reg event_end;
+reg event_error;
+reg event_tx_timeout;
+reg event_rx_timeout;
+reg [63:0] address;
 
+// IRQs
+reg irq_en;
+assign irq = (event_end & irq_en) | (event_tx_timeout & irq_en) |
+  (event_rx_timeout & irq_en);
+
+wire wb_en = wb_cyc_i & wb_stb_i;
+
+// Trn
+
+reg [1:0] state;
+reg tx_start;
+reg rx_start;
+reg hm_end;
+
+wire tx_end;
+wire rx_end;
+
+task init_csr;
+begin
+  hm_start <= 1'b0;
+  event_end <= 1'b0;
+  csr_do <= 32'd0; 
+  irq_en <= 1'b0;
+  address <= 64'b0;
+end
+endtask
+
+// Memory
+
+wire [9:0] mem_l_addr;
+wire [9:0] mem_h_addr;
+wire mem_l_we;
+wire mem_h_we;
 wire [31:0] m_doa [1:0];
 wire [9:0] m_addra [1:0];
 wire [31:0] m_dib [1:0];
@@ -104,173 +116,183 @@ assign m_web[0] = (mem_l_we == 1'b1) ? 4'b1111 : 4'b0000;
 assign m_web[1] = (mem_h_we == 1'b1) ? 4'b1111 : 4'b0000;
 assign m_addrb[0] = mem_l_addr;
 assign m_addrb[1] = mem_h_addr;
-
 assign hm_data [63:0] = {m_doa[0][31:0], m_doa[1][31:0]};
 
-wire [9:0] mem_l_addr;
-wire [9:0] mem_h_addr;
-wire mem_l_we;
-wire mem_h_we;
-wire [1:0] state_rx; 
-wire [1:0] state_tx; 
-wire [7:0] stat_trn_cpt_drop;
+// Rx / Tx engines sync
 
-wire wb_en = wb_cyc_i & wb_stb_i;
+wire [31:0] trn__stat_trn_cpt_tx;
+wire [31:0] sys__stat_trn_cpt_tx;
+wire [31:0] trn__stat_trn_cpt_rx;
+wire [31:0] sys__stat_trn_cpt_rx;
+wire [1:0] trn__state_rx; 
+wire [1:0] sys__state_rx; 
+wire [1:0] trn__state_tx; 
+wire [1:0] sys__state_tx; 
+wire [31:0] trn__stat_trn_cpt_drop;
+wire [31:0] sys__stat_trn_cpt_drop;
+wire trn__hm_end = hm_end;
+wire sys__hm_end;
+wire trn__tx_timeout;
+wire sys__tx_timeout;
+wire trn__rx_timeout;
+wire sys__rx_timeout;
+wire trn__trn_lnk_up_n = trn_lnk_up_n;
+wire sys__trn_lnk_up_n;
 
-wire [31:0] trn__stat_trn;
-wire [31:0] sys__stat_trn;
-assign stat_trn = sys__stat_trn;
-
-wire [15:0] trn__stat_trn_cpt_tx;
-wire [15:0] trn__stat_trn_cpt_rx;
-wire [15:0] sys__stat_trn_cpt_tx;
-wire [15:0] sys__stat_trn_cpt_rx;
-assign stat_trn_cpt_tx = sys__stat_trn_cpt_tx;
-assign stat_trn_cpt_rx = sys__stat_trn_cpt_rx;
-
-reg is_loaded;
-
-task init_a;
+task init_trn;
 begin
-  state_a <= `HM_STATE_IDLE;
-  page_read_start <= 1'b0;
-  page_addr <= 63'b0;
-  hm_end <= 1'b0;
-  hm_error <= 1'b0;
-  is_loaded <= 1'b0;
-end
-endtask
-
-task init_b;
-begin
-  state_b <= `HM_STATE_IDLE;
-  page_offset <= 12'b0;
-  trn__page_read_end = 1'b0;
-  n <= 4'b0;
+  state <= `HM_STATE_IDLE;
   tx_start <= 1'b0;
   rx_start <= 1'b0;
+  hm_end <= 1'b0;
 end
 endtask
 
 initial begin
-  init_a();
-  init_b();
+  init_csr;
+  init_trn;
 end
 
-// Stats
-assign trn__stat_trn = {
-    7'b0000000,
-    // Dropped sent packets
-    stat_trn_cpt_drop,
-    // sate TX
-    state_tx,
-    // state RX
-    state_rx,
-    // A state,
-    state_a,
-    // B state,
-    state_b,
-    // TX
-    trn_tbuf_av, // 6-bits
-    trn_tdst_rdy_n,
-    // RX
-    trn_rsrc_rdy_n,
-    // Common
-    trn__trn_lnk_up_n
-  };
+// CSR state machine
 
-// State machine A sys_clk clocked @80 MHz
 always @(posedge sys_clk) begin
   if (sys_rst) begin
-    init_a();
-  end else if (en == 1'b1) begin
-    if (state_a == `HM_STATE_IDLE) begin
-      hm_end <= 1'b0;
-      if (hm_start == 1'b1) begin
-        if (sys__trn_lnk_up_n == 1'b1) begin
-          hm_error <= 1'b1;
-        end else if (hm_page_addr == page_addr && is_loaded == 1'b1) begin
-          hm_end <= 1'b1;
-          state_a <= `HM_STATE_IDLE;
-        end else begin
-          page_addr <= hm_page_addr;
-          state_a <= `HM_STATE_READ_PAGE;
-          page_read_start <= 1'b1;
-        end
-      end 
-    end else if (state_a == `HM_STATE_READ_PAGE) begin
-      page_read_start <= 1'b0;
-      if (hm_timeout == 1'b1) begin
-        state_a <= `HM_STATE_IDLE;
-      end else if (sys__page_read_end == 1'b1) begin
-        hm_end <= 1'b1;
-        state_a <= `HM_STATE_IDLE;
-        is_loaded <= 1'b1;
+    init_csr;
+  end else begin
+    // CSR 
+		csr_do <= 32'd0;
+    hm_start <= 1'b0;
+		if (csr_selected) begin
+			case (csr_a[9:0])
+        `HM_CSR_STAT: csr_do <= {29'b0, event_rx_timeout, event_tx_timeout,
+          event_end};
+        `HM_CSR_CTRL: csr_do <= {29'b0, hm_start, irq_en};
+        `HM_CSR_ADDRESS_LOW: csr_do <= address[31:0];
+        `HM_CSR_ADDRESS_HIGH: csr_do <= address[63:32];
+			endcase
+			if (csr_we) begin
+				case (csr_a[9:0])
+          `HM_CSR_STAT: begin 
+            if (state == `HM_STATE_IDLE)
+            begin
+              /* write one to clear */
+              if(csr_di[0])
+                event_end <= 1'b0;
+              if(csr_di[1])
+                event_tx_timeout <= 1'b0;
+              if(csr_di[2])
+                event_rx_timeout <= 1'b0;
+            end
+          end
+          `HM_CSR_CTRL: begin
+            if (state == `HM_STATE_IDLE) begin
+              irq_en <= csr_di[0];
+            end
+            // We can only write stop when one mpu is launched
+            hm_start <= csr_di[1];
+          end
+          `HM_CSR_ADDRESS_LOW: address[31:0] <= csr_di;
+          `HM_CSR_ADDRESS_HIGH: address[61:32] <= csr_di;
+        endcase
       end
     end
-  end else begin
-    hm_error <= 1'b0;
+    // Get events
+    if (sys__hm_end) begin
+      event_end <= 1'b1;
+    end
+    if (sys__rx_timeout) begin
+      event_rx_timeout <= 1'b1;
+    end
+    if (sys__tx_timeout) begin
+      event_tx_timeout <= 1'b1;
+    end
   end
 end
 
-// State machine B, trn_clk clocked @100 MHz
+// TRN state machine
+
 always @(posedge trn_clk) begin
   if (sys_rst | ~trn_reset_n) begin
-    init_b();
-  end else if (en == 1'b1) begin
+    init_trn();
+  end else begin
     tx_start <= 1'b0;
     rx_start <= 1'b0;
-    if (state_b == `HM_STATE_IDLE) begin
-      trn__page_read_end = 1'b0;
-      if (page_read_start == 1'b1) begin
-        n <= 4'b0; 
-        page_offset <= 12'b0;
-        state_b <= `HM_STATE_SEND;
+    hm_end <= 1'b0;
+    if (state == `HM_STATE_IDLE) begin
+      if (hm_start == 1'b1) begin
+        state <= `HM_STATE_SEND;
         tx_start <= 1'b1;
       end
-    end else if (state_b == `HM_STATE_SEND) begin
+    end else if (state == `HM_STATE_SEND) begin
       if (trn__tx_timeout == 1'b1) begin
-        state_b <= `HM_STATE_IDLE;
+        state <= `HM_STATE_IDLE;
       end else if (tx_end == 1'b1) begin
-        state_b <= `HM_STATE_RECV;
+        state <= `HM_STATE_RECV;
         rx_start <= 1'b1;
       end
-      // XXX test 
-      state_b <= `HM_STATE_IDLE;
-      trn__page_read_end = 1'b1;
-    end else if (state_b == `HM_STATE_RECV) begin
+    end else if (state == `HM_STATE_RECV) begin
       if (trn__rx_timeout == 1'b1) begin
-        state_b <= `HM_STATE_IDLE;
+        state <= `HM_STATE_IDLE;
       end else if (rx_end == 1'b1) begin
-        n <= n + 1'b1;
-        if (n == 4'h3) begin
-          state_b <= `HM_STATE_IDLE;
-          trn__page_read_end = 1'b1;
-        end else begin
-          page_offset <= page_offset + 12'h400;
-          state_b <= `HM_STATE_SEND;
-          tx_start <= 1'b1;
-        end
+        state <= `HM_STATE_IDLE;
+        hm_end <= 1'b1;
       end
     end else begin
-      // Error go back to IDLE state_b
-      init_b();
+      init_trn();
     end
   end
 end
 
-assign m_addra[0] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_page_offset[11:3];
-assign m_addra[1] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_page_offset[11:3];
+initial wb_ack_o <= 1'b0;
+always @(posedge sys_clk) begin
+	if(sys_rst)
+		wb_ack_o <= 1'b0;
+	else begin
+		wb_ack_o <= 1'b0;
+		if(wb_en & ~wb_ack_o)
+			wb_ack_o <= 1'b1;
+	end
+end
 
-// TX Engine
+// Rx Engine
+
+hm_rx rx (
+  .sys_rst(sys_rst),
+  .rx_start(rx_start),
+  .rx_end(rx_end),
+  .mem_l_addr(mem_l_addr),
+  .mem_l_data(m_dib[0]),
+  .mem_l_we(mem_l_we),
+  .mem_h_addr(mem_h_addr),
+  .mem_h_data(m_dib[1]),
+  .mem_h_we(mem_h_we),
+  .trn_clk(trn_clk),
+  .trn_reset_n(trn_reset_n),
+  .trn_lnk_up_n(trn_lnk_up_n),
+  .trn_rd(trn_rd),
+  .trn_rrem_n(trn_rrem_n),
+  .trn_rsof_n(trn_rsof_n),
+  .trn_reof_n(trn_reof_n),
+  .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
+  .trn_rdst_rdy_n(trn_rdst_rdy_n),
+  .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
+  .trn_rerrfwd_n(trn_rerrfwd_n),
+  .trn_rnp_ok_n(trn_rnp_ok_n),
+  .trn_rbar_hit_n(trn_rbar_hit_n),
+  .stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
+  .stat_state(trn__state_rx),
+  .timeout(trn__rx_timeout)
+);
+
+// Tx Engine
 hm_tx tx (
   .sys_rst(sys_rst),
   .tx_start(tx_start),
   .tx_end(tx_end),
-  .hm_addr({page_addr[63:12],page_offset[11:0]}),
+  .hm_addr({address[63:12],12'b0}),
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
-  .trn_lnk_up_n(trn__trn_lnk_up_n),
+  .trn_lnk_up_n(trn_lnk_up_n),
   .trn_td(trn_td),
   .trn_tsof_n(trn_tsof_n),
   .trn_trem_n(trn_trem_n),
@@ -285,38 +307,15 @@ hm_tx tx (
   .trn_tcfg_gnt_n(trn_tcfg_gnt_n),
   .trn_tstr_n(trn_tstr_n),
   .stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
-  .stat_state(state_tx),
-  .stat_trn_cpt_drop(stat_trn_cpt_drop),
+  .stat_state(trn__state_tx),
+  .stat_trn_cpt_drop(trn__stat_trn_cpt_drop),
   .timeout(trn__tx_timeout)
 );
 
-hm_rx rx (
-  .sys_rst(sys_rst),
-  .rx_start(rx_start),
-  .rx_end(rx_end),
-  .mem_l_addr(mem_l_addr),
-  .mem_l_data(m_dib[0]),
-  .mem_l_we(mem_l_we),
-  .mem_h_addr(mem_h_addr),
-  .mem_h_data(m_dib[1]),
-  .mem_h_we(mem_h_we),
-  .trn_clk(trn_clk),
-  .trn_reset_n(trn_reset_n),
-  .trn_lnk_up_n(trn__trn_lnk_up_n),
-  .trn_rd(trn_rd),
-  .trn_rrem_n(trn_rrem_n),
-  .trn_rsof_n(trn_rsof_n),
-  .trn_reof_n(trn_reof_n),
-  .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
-  .trn_rdst_rdy_n(trn_rdst_rdy_n),
-  .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
-  .trn_rerrfwd_n(trn_rerrfwd_n),
-  .trn_rnp_ok_n(trn_rnp_ok_n),
-  .trn_rbar_hit_n(trn_rbar_hit_n),
-  .stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
-  .stat_state(state_rx),
-  .timeout(trn__rx_timeout)
-);
+// Memory
+
+assign m_addra[0] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
+assign m_addra[1] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
 
 `ifndef SIMULATION
 genvar ram_index;
@@ -404,41 +403,29 @@ always @(*) begin
   end
 end
 
-initial wb_ack_o <= 1'b0;
-always @(posedge sys_clk) begin
-	if(sys_rst)
-		wb_ack_o <= 1'b0;
-	else begin
-		wb_ack_o <= 1'b0;
-		if(wb_en & ~wb_ack_o)
-			wb_ack_o <= 1'b1;
-	end
-end
+// Sync
 
 hm_sync sync (
-  .trn_clk(trn_clk),
   .sys_clk(sys_clk),
-
+  .trn_clk(trn_clk),
   .trn__rx_timeout(trn__rx_timeout),
   .sys__rx_timeout(sys__rx_timeout),
-
   .trn__tx_timeout(trn__tx_timeout),
   .sys__tx_timeout(sys__tx_timeout),
-
-  .trn__page_read_end(trn__page_read_end),
-  .sys__page_read_end(sys__page_read_end),
-
-  .trn__stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
-  .sys__stat_trn_cpt_tx(sys__stat_trn_cpt_tx),
-
-  .trn__stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
-  .sys__stat_trn_cpt_rx(sys__stat_trn_cpt_rx),
-  
+  .trn__hm_end(trn__hm_end),
+  .sys__hm_end(sys__hm_end),
   .trn__trn_lnk_up_n(trn__trn_lnk_up_n),
   .sys__trn_lnk_up_n(sys__trn_lnk_up_n),
-
-  .trn__stat_trn(trn__stat_trn),
-  .sys__stat_trn(sys__stat_trn)
+  .trn__state_rx(trn__state_rx),
+  .sys__state_rx (sys__state_rx ),
+  .trn__state_tx(trn__state_tx),
+  .sys__state_tx(sys__state_tx),
+  .trn__stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
+  .sys__stat_trn_cpt_rx(sys__stat_trn_cpt_rx),
+  .trn__stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
+  .sys__stat_trn_cpt_tx(sys__stat_trn_cpt_tx),
+  .trn__stat_trn_cpt_drop(trn__stat_trn_cpt_drop),
+  .sys__stat_trn_cpt_drop(sys__stat_trn_cpt_drop)
 );
 
 endmodule

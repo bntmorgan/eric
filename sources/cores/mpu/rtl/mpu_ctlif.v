@@ -1,5 +1,8 @@
 `include "mpu.vh"
 
+/**
+ * TODO psync mpu_start
+ */
 module mpu_ctlif #(
 	parameter csr_addr = 4'h0
 ) (

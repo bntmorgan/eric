@@ -31,8 +31,8 @@ module hm_tx (
   output trn_tstr_n,
 
   // User statistics counters ans status
-  output reg [15:0] stat_trn_cpt_tx,
-  output reg [7:0] stat_trn_cpt_drop,
+  output reg [31:0] stat_trn_cpt_tx,
+  output reg [31:0] stat_trn_cpt_drop,
   output [1:0] stat_state,
 
   output reg timeout
@@ -92,10 +92,10 @@ begin
     4'hf // 1st BE : TODO > 1 DW
   };
   data[1] <= 64'b0;
-  stat_trn_cpt_tx <= 16'h0000;
-  stat_trn_cpt_drop <= 8'b0;
+  stat_trn_cpt_tx <= 32'b0;
+  stat_trn_cpt_drop <= 32'b0;
   // timeout_cpt <= 32'h00000000;
-  timeout_cpt <= 16'h0000;
+  timeout_cpt <= 16'b0;
   timeout <= 1'b0;
 end
 endtask

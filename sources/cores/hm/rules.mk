@@ -4,7 +4,8 @@ d               := $(dir)
 
 # Synthesis
 
-SRC_$(d)				:= $(wildcard $(d)/rtl/hm_*.v) $(d)/rtl/dummy_hm_memory.v
+SRC_$(d)				:= $(CORES_DIR)/psync/rtl/psync.v $(wildcard $(d)/rtl/hm_*.v) \
+	$(d)/rtl/dummy_hm_memory.v
 
 # Isim simulations
 # SIM							:= $(call SRC_2_BIN, $(d)/checker_memory)
@@ -13,11 +14,11 @@ SRC_$(d)				:= $(wildcard $(d)/rtl/hm_*.v) $(d)/rtl/dummy_hm_memory.v
 
 # Icarus simulations
 
-SIM 			      := $(call SRC_2_BIN, $(d)/hm_mr.sim)
-SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_hm_mr.v
-$(SIM)					: $(SRC_SIM_$(d))
-$(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/sim/rtl/
-SIMS						+= $(SIM)
+# SIM 			      := $(call SRC_2_BIN, $(d)/hm_mr.sim)
+# SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_hm_mr.v
+# $(SIM)					: $(SRC_SIM_$(d))
+# $(SIM)					: SIM_CFLAGS := -I$(d)/rtl -I$(CORES_DIR)/sim/rtl/
+# SIMS						+= $(SIM)
 
 SIM 			      := $(call SRC_2_BIN, $(d)/hm_top.sim)
 SRC_SIM_$(d)		:= $(SRC_$(d)) $(d)/rtl/sim_hm_top.v

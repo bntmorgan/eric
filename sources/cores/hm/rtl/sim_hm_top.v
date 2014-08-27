@@ -1,30 +1,42 @@
+`timescale 1ns/10ps
+
 module main();
 
 `include "sim.v"
+`include "sim_csr.v"
+`include "sim_wb.v"
 `include "sim_trn.v"
 
 // Inputs
-reg hm_start;
-reg [63:0] hm_page_addr;
+reg [63:0] hm_addr;
 
 // Outputs
-wire hm_end;
-wire hm_timeout;
+wire [63:0] hm_data;
 
 initial begin
-  hm_start <= 0;
-  hm_page_addr <= 0;
+  hm_addr <= 64'b0;
 end
 
 /**
  * Tested component
  */
 hm_top hm_top (
-  .en(1'b1),
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
-  .hm_start(hm_start),
-  .hm_page_addr(hm_page_addr),
+  .csr_a(csr_a),
+  .csr_we(csr_we),
+  .csr_di(csr_di),
+  .csr_do(csr_do),
+  .wb_adr_i(wb_adr_i),
+  .wb_dat_o(wb_dat_o),
+  .wb_dat_i(wb_dat_i),
+  .wb_sel_i(wb_sel_i),
+  .wb_stb_i(wb_stb_i),
+  .wb_cyc_i(wb_cyc_i),
+  .wb_ack_o(wb_ack_o),
+  .wb_we_i(wb_we_i),
+  .hm_addr(hm_addr),
+  .hm_data(hm_data),
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
   .trn_lnk_up_n(trn_lnk_up_n),
@@ -40,8 +52,6 @@ hm_top hm_top (
   .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
   .trn_rerrfwd_n(trn_rerrfwd_n),
   .trn_rbar_hit_n(trn_rbar_hit_n),
-  .hm_end(hm_end),
-  .hm_timeout(hm_timeout),
   .trn_td(trn_td),
   .trn_trem_n(trn_trem_n),
   .trn_tsof_n(trn_tsof_n),
@@ -55,17 +65,6 @@ hm_top hm_top (
   .trn_rnp_ok_n(trn_rnp_ok_n)
 );
 
-task mpu_hm_start;
-input [63:0] addr;
-input [11:0] offset;
-begin
-  hm_page_addr <= addr;
-  hm_start <= 1'b1;
-  waitclock();
-  hm_start <= 1'b0;
-end
-endtask
-
 integer i;
 initial begin
   for (i = 0; i < 2; i = i + 1)
@@ -78,37 +77,37 @@ initial begin
     $dumpvars(0,hm_top.gen_ram[1].m.mem[i]);
   end
   waitnclock(8);
+
+  // Write page address to read
+  csrwrite(`HM_CSR_ADDRESS_LOW, 32'hcacacaca);
+  csrwrite(`HM_CSR_ADDRESS_HIGH, 32'h00000000);
+  // Read it
+  csrread(`HM_CSR_ADDRESS_LOW);
+  csrread(`HM_CSR_ADDRESS_HIGH);
+
   // Link up the core
   trn_lnk_up_n <= 1'b0;
-  mpu_hm_start(64'h0000000000001000, 12'h0);
-  trn_tdst_rdy_n <= 1'b0;
-  waitntrnclk(8);
-  trn_tdst_rdy_n <= 1'b1;
-  waitnclock(40);
-  random_completion; 
-  waitnclock(40);
-  memory_read_completion;
-  waitnclock(40);
-  trn_tdst_rdy_n <= 1'b0;
-  waitntrnclk(8);
-  trn_tdst_rdy_n <= 1'b1;
-  memory_read_completion;
-  waitnclock(40);
-  trn_tdst_rdy_n <= 1'b0;
-  waitntrnclk(8);
-  trn_tdst_rdy_n <= 1'b1;
-  memory_read_completion;
-  waitnclock(40);
-  trn_tdst_rdy_n <= 1'b0;
-  waitntrnclk(8);
-  trn_tdst_rdy_n <= 1'b1;
-  memory_read_completion;
-  waitnclock(40);
 
-  // Read the same
-  mpu_hm_start(64'h0000000000001000, 12'h8);
-  waitnclock(40);
-  mpu_hm_start(64'h0000000000001000, 12'h10);
+  // Launch the a Host memory read
+  csrwrite(`HM_CSR_CTRL, 32'b11);
+
+  // Set the destination ready !
+  trn_tdst_rdy_n <= 1'b0;
+  waitntrnclk(8);
+  trn_tdst_rdy_n <= 1'b1;
+
+  // SHITTY data
+  waitntrnclk(8);
+  random_completion; 
+
+  // The memory read completion
+  waitntrnclk(8);
+  memory_read_completion;
+
+  // Read on the wishbone bus
+  waitntrnclk(8);
+  wbread(32'h4);
+
   waitnclock(40);
   $finish();
 end

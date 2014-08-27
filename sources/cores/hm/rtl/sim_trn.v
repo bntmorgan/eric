@@ -36,7 +36,7 @@ wire trn_rdst_rdy_n;
 wire trn_rnp_ok_n;
 wire [2:0] trn_fc_sel;
 
-always #1 trn_clk = !trn_clk;
+always #4 trn_clk = !trn_clk;
 
 initial begin
   trn_clk <= 0;
@@ -83,7 +83,7 @@ begin
   // Receive src ready
   trn_rsrc_rdy_n <= 1'b0;
   trn_rsof_n <= 1'b0;
-  trn_rd <= 64'hcacacacacacacaca;
+  trn_rd <= 64'h00cacacacacacaca;
   waittrnclk;
 
   trn_rsof_n <= 1'b1;

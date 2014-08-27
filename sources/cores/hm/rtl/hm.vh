@@ -1,3 +1,8 @@
+`define HM_CSR_CTRL           10'h000
+`define HM_CSR_STAT           10'h001
+`define HM_CSR_ADDRESS_LOW    10'h002
+`define HM_CSR_ADDRESS_HIGH   10'h003
+
 `define HM_TX_STATE_IDLE 1'b0
 `define HM_TX_STATE_SEND 1'b1
 

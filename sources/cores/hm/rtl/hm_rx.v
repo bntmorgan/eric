@@ -34,7 +34,7 @@ module hm_rx (
   input [6:0] trn_rbar_hit_n,
 
   // User statistics counters ans status
-  output reg [15:0] stat_trn_cpt_rx,
+  output reg [31:0] stat_trn_cpt_rx,
   output [1:0] stat_state,
 
   output reg timeout
@@ -110,7 +110,7 @@ begin
   offset_l <= 10'b0;
   offset_h <= 10'b0;
   state <= 2'b00;
-  stat_trn_cpt_rx <= 16'h0000;
+  stat_trn_cpt_rx <= 32'b0;
   // timeout_cpt <= 32'h00000000;
   timeout_cpt <= 16'h0000;
   rx_ended <= 1'b0;
