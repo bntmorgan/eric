@@ -1,4 +1,6 @@
-module mpu_top (
+module mpu_top #(
+  parameter csr_addr = 4'h0
+) (
   // System
   input sys_clk,
   input sys_rst,
@@ -45,7 +47,9 @@ initial begin
   mpu_clk <= 1'b0;
 end
 
-mpu_ctlif ctlif (
+mpu_ctlif #(
+  .csr_addr(csr_addr)
+) ctlif (
   .sys_clk(sys_clk),
   .sys_rst(sys_rst),
   .csr_a(csr_a),

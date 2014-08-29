@@ -8,7 +8,7 @@ SRC_$(d)				:= $(d)/rtl/mpu.v $(d)/rtl/mpu_top.v $(d)/rtl/mpu_counter.v \
 	$(d)/rtl/mpu_alu.v $(d)/rtl/mpu_decoder.v $(d)/rtl/mpu_execution.v \
 	$(d)/rtl/mpu_registers.v $(d)/rtl/mpu_memory.v $(d)/rtl/mpu_ctlif.v \
 	$(d)/rtl/mpu_mpu_to_ram.v $(d)/rtl/mpu_wb_to_ram.v \
-	$(d)/rtl/dummy_mpu_memory_8.v 
+	$(d)/rtl/dummy_mpu_memory_8.v $(CORES_DIR)/psync/rtl/psync.v
 
 # Simulation
 SIM 			      := $(call SRC_2_BIN, $(d)/mpu_top.sim)

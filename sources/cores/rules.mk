@@ -10,6 +10,9 @@ include	$(dir)/rules.mk
 
 dir	:= $(d)/hm
 include	$(dir)/rules.mk
+
+dir	:= $(d)/trn
+include	$(dir)/rules.mk
  
 # dir	:= $(d)/fml_ddr3
 # include	$(dir)/rules.mk

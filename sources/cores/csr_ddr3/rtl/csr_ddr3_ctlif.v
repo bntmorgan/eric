@@ -5,7 +5,7 @@
  * core
  */
 module csr_ddr3_ctlif #(
-	parameter csr_adr = 4'h0,
+	parameter csr_addr = 4'h0,
   // MIG IP CORE parameters
   parameter DQ_WIDTH = 64,
   parameter ADDR_WIDTH = 28,
@@ -67,7 +67,7 @@ reg [ADDR_WIDTH-1:0] addr;
 reg [2:0] state;
 
 /* CSR interface */
-wire csr_selected = csr_a[13:10] == csr_adr;
+wire csr_selected = csr_a[13:10] == csr_addr;
 
 parameter IDLE = 3'd0;
 parameter READ = 3'd1;

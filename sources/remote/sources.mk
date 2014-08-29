@@ -28,10 +28,14 @@ SRC_$(d) +=							\
 	$(CORES_DIR)/lm32/rtl/lm32_jtag.v			\
 	$(CORES_DIR)/lm32/rtl/jtag_cores.v			\
 	$(CORES_DIR)/lm32/rtl/jtag_tap_spartan6.v
+# PSYNC_SRC
+SRC_$(d) +=$(wildcard $(CORES_DIR)/psync/rtl/psync*.v)
+# TRN_SRC
+SRC_$(d) +=$(wildcard $(CORES_DIR)/trn/rtl/trn*.v)
 # HM_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/hm/rtl/hm*.v)
 # CHECKER_SRC
-SRC_$(d) +=$(wildcard $(CORES_DIR)/checker/rtl/checker*.v)
+# SRC_$(d) +=$(wildcard $(CORES_DIR)/checker/rtl/checker*.v)
 # MPU_SRC
 SRC_$(d) +=$(wildcard $(CORES_DIR)/mpu/rtl/mpu*.v)
 # FML_DRAM_SRC

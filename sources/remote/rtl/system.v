@@ -292,10 +292,11 @@ wire		cpuibus_ack,
 wire [31:0]	norflash_adr,
 		monitor_adr,
 		usb_adr,
-		checker_adr,
 		eth_adr,
 		brg_adr,
 		brg_adr_test,
+    mpu_adr,
+    hm_adr,
 		csrbrg_adr;
 
 wire [2:0]	brg_cti;
@@ -306,59 +307,66 @@ wire [31:0]	norflash_dat_r,
 		monitor_dat_w,
 		usb_dat_r,
 		usb_dat_w,
-		checker_dat_r,
-		checker_dat_w,
 		eth_dat_r,
 		eth_dat_w,
 		brg_dat_r,
 		brg_dat_r_test,
 		brg_dat_w,
 		brg_dat_w_test,
+		mpu_dat_r,
+		mpu_dat_w,
+		hm_dat_r,
+		hm_dat_w,
 		csrbrg_dat_r,
 		csrbrg_dat_w;
 
 wire [3:0]	norflash_sel,
 		monitor_sel,
 		usb_sel,
-		checker_sel,
 		eth_sel,
 		brg_sel,
+		mpu_sel,
+		hm_sel,
 		brg_sel_test;
 
 wire		norflash_we,
 		monitor_we,
 		usb_we,
-		checker_we,
 		eth_we,
 		brg_we,
 		brg_we_test,
+		mpu_we_test,
+		hm_we_test,
 		csrbrg_we;
 
 wire		norflash_cyc,
 		monitor_cyc,
 		usb_cyc,
-		checker_cyc,
 		eth_cyc,
 		brg_cyc,
 		brg_cyc_test,
+		mpu_cyc,
+		hm_cyc,
 		csrbrg_cyc;
 
 wire		norflash_stb,
 		monitor_stb,
 		usb_stb,
-		checker_stb,
 		eth_stb,
 		brg_stb,
 		brg_stb_test,
+		mpu_stb,
+		hm_stb,
 		csrbrg_stb;
 
 wire		norflash_ack,
 		monitor_ack,
 		usb_ack,
-		checker_ack,
 		eth_ack,
 		brg_ack,
 		brg_ack_test,
+		mpu_ack,
+		hm_ack,
 		csrbrg_ack;
 
 //------------------------------------------------------------------
@@ -374,8 +382,8 @@ wire		norflash_ack,
 // MSB (Bit 31) is ignored for slave address decoding
 conbus5x6 #(
 	.s0_addr(3'b000), // norflash
-	.s1_addr(3'b001), // debug
-	.s2_addr(3'b010), // USB
+	.s1_addr(3'b001), // MPU
+	.s2_addr(3'b010), // HM
 	.s3_addr(3'b011), // Ethernet
 	.s4_addr(2'b10),  // SDRAM
 	.s5_addr(2'b11)   // CSR
@@ -453,16 +461,25 @@ conbus5x6 #(
 	.s0_cyc_o(norflash_cyc),
 	.s0_stb_o(norflash_stb),
 	.s0_ack_i(norflash_ack),
-	.s1_dat_i(32'bx),
-	.s1_dat_o(),
-	.s1_adr_o(),
+  // Slave 1
+	.s1_dat_i(mpu_dat_r),
+	.s1_dat_o(mpu_dat_w),
+	.s1_adr_o(mpu_adr),
 	.s1_cti_o(),
-	.s1_sel_o(),
-	.s1_we_o(),
-	.s1_cyc_o(),
-	.s1_stb_o(),
-	.s1_ack_i(1'bx),
-// Slave 1 XXX test FML BRG 2
+	.s1_sel_o(mpu_sel),
+	.s1_we_o(mpu_we),
+	.s1_cyc_o(mpu_cyc),
+	.s1_stb_o(mpu_stb),
+	.s1_ack_i(mpu_ack),
+// 	.s1_dat_i(32'bx),
+// 	.s1_dat_o(),
+// 	.s1_adr_o(),
+// 	.s1_cti_o(),
+// 	.s1_sel_o(),
+// 	.s1_we_o(),
+// 	.s1_cyc_o(),
+// 	.s1_stb_o(),
+// 	.s1_ack_i(1'bx),
 // 	.s1_dat_i(monitor_dat_r),
 // 	.s1_dat_o(monitor_dat_w),
 // 	.s1_adr_o(monitor_adr),
@@ -482,6 +499,15 @@ conbus5x6 #(
 // 	.s1_stb_o(brg_stb_test),
 // 	.s1_ack_i(brg_ack_test),
 	// Slave 2
+	.s2_dat_i(hm_dat_r),
+	.s2_dat_o(hm_dat_w),
+	.s2_adr_o(hm_adr),
+	.s2_cti_o(),
+	.s2_sel_o(hm_sel),
+	.s2_we_o(hm_we),
+	.s2_cyc_o(hm_cyc),
+	.s2_stb_o(hm_stb),
+	.s2_ack_i(hm_ack),
 //	.s2_dat_i(32'bx),
 //	.s2_dat_o(),
 //	.s2_adr_o(),
@@ -491,15 +517,6 @@ conbus5x6 #(
 //	.s2_cyc_o(),
 //	.s2_stb_o(),
 //	.s2_ack_i(1'bx),
-	.s2_dat_i(checker_dat_r),
-	.s2_dat_o(checker_dat_w),
-	.s2_adr_o(checker_adr),
-	.s2_cti_o(),
-	.s2_sel_o(checker_sel),
-	.s2_we_o(checker_we),
-	.s2_cyc_o(checker_cyc),
-	.s2_stb_o(checker_stb),
-	.s2_ack_i(checker_ack),
 // 	.s2_dat_i(usb_dat_r),
 // 	.s2_dat_o(usb_dat_w),
 // 	.s2_adr_o(usb_adr),
@@ -564,7 +581,8 @@ wire [31:0]	csr_dr_uart,
 		csr_dr_ir,
 		csr_dr_usb,
 		csr_dr_csr_ddr3,
-		csr_dr_checker;
+		csr_dr_mpu,
+		csr_dr_hm;
 
 //------------------------------------------------------------------
 // FML master wires
@@ -729,7 +747,8 @@ csrbrg csrbrg(
 //		|csr_dr_ir
 		|csr_dr_usb
     |csr_dr_csr_ddr3
-		|csr_dr_checker
+    |csr_dr_mpu
+    // |csr_dr_hm
 	)
 );
 
@@ -793,7 +812,8 @@ wire ethernettx_irq;
 // wire midi_irq;
 // wire ir_irq;
 wire usb_irq;
-wire checker_irq;
+wire mpu_irq;
+wire hm_irq;
 
 wire [31:0] cpu_interrupt;
 assign cpu_interrupt = {16'd0,
@@ -807,8 +827,8 @@ assign cpu_interrupt = {16'd0,
 	1'b0 /* pfpu_irq */,
 	1'b0 /* ac97dmaw_irq */,
 	1'b0 /* ac97dmar_irq */,
-	1'b0, /* free */
-	checker_irq,
+	1'b0, // hm_irq, /* HM */
+	mpu_irq, /* MPU */
 	timer1_irq,
 	timer0_irq,
 	gpio_irq,
@@ -1697,31 +1717,49 @@ assign usbb_vm = 1'bz;
 `endif
 
 //------------------------------------------------------------------
-// Checker
+// TRN interface
 //------------------------------------------------------------------
 
-checker_top #(
-	.csr_addr(4'hf),
+wire trn_clk;
+wire trn_reset_n;
+wire trn_lnk_up_n;
+
+// Tx
+wire [5:0] trn_tbuf_av;
+wire trn_tcfg_req_n;
+wire trn_terr_drop_n;
+wire trn_tdst_rdy_n;
+
+// Rx
+wire [63:0] trn_rd;
+wire trn_rrem_n;
+wire trn_rsof_n;
+wire trn_reof_n;
+wire trn_rsrc_rdy_n;
+wire trn_rsrc_dsc_n;
+wire trn_rerrfwd_n;
+wire [6:0] trn_rbar_hit_n;
+
+// Shared Trn interface
+
+// Tx
+wire [63:0] trn_td;
+wire trn_trem_n;
+wire trn_tsof_n;
+wire trn_teof_n;
+wire trn_tsrc_rdy_n;
+wire trn_tsrc_dsc_n;
+wire trn_terrfwd_n;
+wire trn_tcfg_gnt_n;
+wire trn_tstr_n;
+
+// Rx
+wire trn_rdst_rdy_n;
+wire trn_rnp_ok_n;
+
+trn_top #(
   .PCIE_NUMBER_OF_LANES(PCIE_NUMBER_OF_LANES)
 ) ck (
-  .sys_clk(sys_clk),
-  .sys_rst(sys_rst),
-
-  .csr_a(csr_a),
-  .csr_we(csr_we),
-  .csr_di(csr_dw),
-  .csr_do(csr_dr_checker),
-  .irq(checker_irq),
-
-	.wb_dat_o(checker_dat_r),
-	.wb_dat_i(checker_dat_w),
-	.wb_adr_i(checker_adr),
-	.wb_sel_i(checker_sel),
-	.wb_we_i(checker_we),
-	.wb_cyc_i(checker_cyc),
-	.wb_stb_i(checker_stb),
-	.wb_ack_o(checker_ack),
-
   .pci_exp_txp(pci_exp_txp),
   .pci_exp_txn(pci_exp_txn),
   .pci_exp_rxp(pci_exp_rxp),
@@ -1729,7 +1767,125 @@ checker_top #(
 
   .pci_sys_clk_p(pci_sys_clk_p),
   .pci_sys_clk_n(pci_sys_clk_n),
-  .pci_sys_reset_n(pci_sys_reset_n)
+  .pci_sys_reset_n(pci_sys_reset_n),
+
+  .trn_clk(trn_clk),
+  .trn_reset_n(trn_reset_n),
+  .trn_lnk_up_n(trn_lnk_up_n),
+  .trn_tbuf_av(trn_tbuf_av),
+  .trn_tcfg_req_n(trn_tcfg_req_n),
+  .trn_terr_drop_n(trn_terr_drop_n),
+  .trn_tdst_rdy_n(trn_tdst_rdy_n),
+  .trn_rd(trn_rd),
+  .trn_rrem_n(trn_rrem_n),
+  .trn_rsof_n(trn_rsof_n),
+  .trn_reof_n(trn_reof_n),
+  .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
+  .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
+  .trn_rerrfwd_n(trn_rerrfwd_n),
+  .trn_rbar_hit_n(trn_rbar_hit_n),
+  .trn_td(trn_td),
+  .trn_trem_n(trn_trem_n),
+  .trn_tsof_n(trn_tsof_n),
+  .trn_teof_n(trn_teof_n),
+  .trn_tsrc_rdy_n(trn_tsrc_rdy_n),
+  .trn_tsrc_dsc_n(trn_tsrc_dsc_n),
+  .trn_terrfwd_n(trn_terrfwd_n),
+  .trn_tcfg_gnt_n(trn_tcfg_gnt_n),
+  .trn_tstr_n(trn_tstr_n),
+  .trn_rdst_rdy_n(trn_rdst_rdy_n),
+  .trn_rnp_ok_n(trn_rnp_ok_n)
+);
+
+//------------------------------------------------------------------
+// Host memory access
+//------------------------------------------------------------------
+
+wire [63:0] hm_addr;
+wire [63:0] hm_data;
+
+hm_top #(
+  .csr_addr(4'hd)
+) hm_top (
+  .sys_clk(sys_clk),
+  .sys_rst(sys_rst),
+
+  .csr_a(csr_a),
+  .csr_we(csr_we),
+  .csr_di(csr_dw),
+  .csr_do(csr_dr_hm),
+
+  .wb_adr_i(hm_adr),
+  .wb_dat_o(hm_dat_r),
+  .wb_dat_i(hm_dat_w),
+  .wb_sel_i(hm_sel),
+  .wb_stb_i(hm_stb),
+  .wb_cyc_i(hm_cyc),
+  .wb_ack_o(hm_ack),
+  .wb_we_i(hm_we),
+
+  .hm_addr(hm_addr),
+  .hm_data(hm_data),
+
+  .trn_clk(trn_clk),
+  .trn_reset_n(trn_reset_n),
+  .trn_lnk_up_n(trn_lnk_up_n),
+
+  .trn_tbuf_av(trn_tbuf_av),
+  .trn_tcfg_req_n(trn_tcfg_req_n),
+  .trn_terr_drop_n(trn_terr_drop_n),
+  .trn_tdst_rdy_n(trn_tdst_rdy_n),
+  .trn_rd(trn_rd),
+  .trn_rrem_n(trn_rrem_n),
+  .trn_rsof_n(trn_rsof_n),
+  .trn_reof_n(trn_reof_n),
+  .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
+  .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
+  .trn_rerrfwd_n(trn_rerrfwd_n),
+  .trn_rbar_hit_n(trn_rbar_hit_n),
+  .trn_td(trn_td),
+  .trn_trem_n(trn_trem_n),
+  .trn_tsof_n(trn_tsof_n),
+  .trn_teof_n(trn_teof_n),
+  .trn_tsrc_rdy_n(trn_tsrc_rdy_n),
+  .trn_tsrc_dsc_n(trn_tsrc_dsc_n),
+  .trn_terrfwd_n(trn_terrfwd_n),
+  .trn_tcfg_gnt_n(trn_tcfg_gnt_n),
+  .trn_tstr_n(trn_tstr_n),
+  .trn_rdst_rdy_n(trn_rdst_rdy_n),
+  .trn_rnp_ok_n(trn_rnp_ok_n),
+
+  .irq(hm_irq)
+);
+
+//------------------------------------------------------------------
+// MPU
+//------------------------------------------------------------------
+
+mpu_top #(
+  .csr_addr(4'hc)
+) mpu (
+  .sys_clk(sys_clk),
+  .sys_rst(sys_rst),
+
+  .csr_a(csr_a),
+  .csr_we(csr_we),
+  .csr_di(csr_dw),
+  .csr_do(csr_dr_mpu),
+
+  .hm_data(hm_data),
+  .hm_addr(hm_addr),
+
+  .wb_adr_i(mpu_adr),
+  .wb_dat_o(mpu_dat_r),
+  .wb_dat_i(mpu_dat_w),
+  .wb_sel_i(mpu_sel),
+  .wb_stb_i(mpu_stb),
+  .wb_cyc_i(mpu_cyc),
+  .wb_ack_o(mpu_ack),
+  .wb_we_i(mpu_we),
+
+  .irq(mpu_irq)
 );
 
 //
@@ -1914,7 +2070,7 @@ checker_top #(
 
 `ifdef ENABLE_SDRAM
 csr_ddr3_top #(
-  .csr_adr(4'hb),
+  .csr_addr(4'hb),
   .DQ_WIDTH(DQ_WIDTH),
   .ROW_WIDTH(ROW_WIDTH),
   .BANK_WIDTH(BANK_WIDTH),

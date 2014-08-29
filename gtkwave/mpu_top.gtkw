@@ -1,18 +1,17 @@
 [*]
 [*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
-[*] Fri Aug 22 14:59:55 2014
+[*] Thu Aug 28 14:09:08 2014
 [*]
 [dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/mpu/mpu_top.sim.vcd"
-[dumpfile_mtime] "Fri Aug 22 14:51:40 2014"
-[dumpfile_size] 85229
+[dumpfile_mtime] "Thu Aug 28 14:08:15 2014"
+[dumpfile_size] 90772
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/mpu_top.gtkw"
-[timestart] 0
+[timestart] 1168000
 [size] 1918 1179
-[pos] -1 -1
-*-17.901352 46000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1201
+*-17.901352 2334000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.mpu.
-[treeopen] main.mpu.mem.
 [treeopen] main.mpu.mem.gen_ram[0].
 [treeopen] main.mpu.mem.gen_ram[0].ram.
 [treeopen] main.mpu.mem.gen_ram[1].
@@ -47,6 +46,7 @@ main.csr_di[31:0]
 main.csr_do[31:0]
 @28
 main.csr_we
+main.mpu.ctlif.mpu_start
 @1000200
 -csr
 @800200
@@ -67,6 +67,20 @@ main.wb_ack_o
 @1000200
 -wishbone
 @800200
+-ctlif
+@28
+main.mpu.ctlif.event_end
+main.mpu.ctlif.event_error
+main.mpu.ctlif.event_user_irq
+@29
+main.mpu.ctlif.state[2:0]
+@28
+main.mpu.ctlif.end_r
+main.mpu.ctlif.error_r
+main.mpu.ctlif.user_irq_r
+@1000200
+-ctlif
+@800200
 -mpu
 @28
 main.mpu.mpu.en
@@ -84,9 +98,13 @@ main.mpu.mpu.decoder.error
 @22
 main.mpu.hm_addr[63:0]
 main.mpu.hm_data[63:0]
+main.mpu.mpu.user_data[63:0]
+@28
+main.mpu.mpu.user_irq
+main.mpu.ctlif.error
 @1000200
 -mpu
-@c00200
+@800200
 -regs
 @22
 main.mpu.mpu.registers.\regs[0][63:0]
@@ -121,11 +139,11 @@ main.mpu.mpu.registers.\regs[28][63:0]
 main.mpu.mpu.registers.\regs[29][63:0]
 main.mpu.mpu.registers.\regs[30][63:0]
 main.mpu.mpu.registers.\regs[31][63:0]
-@1401200
+@1000200
 -regs
-@800201
+@c00200
 -mem
-@23
+@22
 main.mpu.mem.gen_ram[0].ram.\mem[0][7:0]
 main.mpu.mem.gen_ram[1].ram.\mem[0][7:0]
 main.mpu.mem.gen_ram[2].ram.\mem[0][7:0]
@@ -190,7 +208,7 @@ main.mpu.mem.gen_ram[4].ram.\mem[7][7:0]
 main.mpu.mem.gen_ram[5].ram.\mem[7][7:0]
 main.mpu.mem.gen_ram[6].ram.\mem[7][7:0]
 main.mpu.mem.gen_ram[7].ram.\mem[7][7:0]
-@1000201
+@1401200
 -mem
 [pattern_trace] 1
 [pattern_trace] 0

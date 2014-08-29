@@ -48,6 +48,10 @@ reg [63:0] user_data_r;
  */
 reg [2:0] state;
 
+reg end_r;
+reg error_r;
+reg user_irq_r;
+
 /* IRQ Control */
 assign irq = (event_end & irq_en) | (event_error & irq_en) | (event_user_irq
   & irq_en);
@@ -84,15 +88,14 @@ always @(posedge sys_clk) begin
 			case (csr_a[9:0])
         `MPU_CSR_STAT: csr_do <= {29'b0, event_user_irq, event_error,
          event_end};
-        `MPU_CSR_CTRL: csr_do <= {29'b0, mpu_start, irq_en};
+        `MPU_CSR_CTRL: csr_do <= {30'b0, mpu_start, irq_en};
         `MPU_CSR_USER_DATA_LOW: csr_do <= user_data_r[31:0];
         `MPU_CSR_USER_DATA_HIGH: csr_do <= user_data_r[63:32];
 			endcase
 			if (csr_we) begin
 				case (csr_a[9:0])
           `MPU_CSR_STAT: begin 
-            if (state == `MPU_STATE_IDLE || state == `MPU_STATE_WAIT)
-            begin
+            if (state == `MPU_STATE_IDLE || state == `MPU_STATE_WAIT) begin
               /* write one to clear */
               if(csr_di[0])
                 event_end <= 1'b0;
@@ -113,33 +116,29 @@ always @(posedge sys_clk) begin
       end
     end
     // Get events
-    if (mpu__event_end) begin
+    if (end_r) begin
       event_end <= 1'b1;
       mpu_start <= 1'b0;
     end
-    if (mpu__event_user_irq) begin
+    if (user_irq_r) begin
       event_user_irq <= 1'b1;
     end
-    if (mpu__event_error) begin
+    if (error_r) begin
       event_error <= 1'b1;
       mpu_start <= 1'b0;
     end
   end
 end
 
-reg mpu__event_end;
-reg mpu__event_user_irq;
-reg mpu__event_error;
-
 task init_mpu;
 begin
   state <= `MPU_STATE_IDLE; 
   mpu_rst <= 1'b0;
   mpu_en <= 1'b0;
-  mpu__event_end <= 1'b0;
-  mpu__event_user_irq <= 1'b0;
-  mpu__event_error <= 1'b0;
   user_data_r <= 64'b0;
+  end_r <= 1'b0;
+  user_irq_r <= 1'b0;
+  error_r <= 1'b0;
 end
 endtask
 
@@ -148,9 +147,9 @@ always @(posedge mpu_clk) begin
   if (sys_rst) begin
     init_mpu;
   end else begin
-    mpu__event_end <= 1'b0;
-    mpu__event_user_irq <= 1'b0;
-    mpu__event_error <= 1'b0;
+    end_r <= 1'b0;
+    user_irq_r <= 1'b0;
+    error_r <= 1'b0;
     if (state == `MPU_STATE_IDLE) begin
       if (mpu_start == 1'b1) begin // IDLE -> RESET
         state <= `MPU_STATE_RESET;
@@ -166,16 +165,16 @@ always @(posedge mpu_clk) begin
         mpu_en <= 1'b0;
       end else if (error == 1'b1) begin // RUN -> IDLE
         state <= `MPU_STATE_IDLE;
-        mpu__event_error <= 1'b1;
+        error_r <= 1'b1;
         mpu_en <= 1'b0;
       end else if (user_irq == 1'b1 && user_data == 64'b0) begin
         state <= `MPU_STATE_IDLE; // RUN -> IDLE : IRQ data 0 !
-        mpu__event_end <= 1'b1;
+        end_r <= 1'b1;
         mpu_en <= 1'b0;
       end else if (user_irq == 1'b1) begin // RUN -> WAIT
         state <= `MPU_STATE_WAIT;
         user_data_r <= user_data;
-        mpu__event_user_irq <= 1'b1;
+        user_irq_r <= 1'b1;
         mpu_en <= 1'b0;
       end
     end else if (state == `MPU_STATE_WAIT) begin

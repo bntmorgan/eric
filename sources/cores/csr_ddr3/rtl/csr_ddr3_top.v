@@ -1,6 +1,6 @@
 module csr_ddr3_top #(
   // FML parameters
-	parameter csr_adr = 4'h0,
+	parameter csr_addr = 4'h0,
   // MIG IP CORE parameters
   parameter ECC_TEST = "OFF",
   parameter DQ_WIDTH = 64,
@@ -75,7 +75,7 @@ wire ui_clk;
 
 // FML Control interface
 csr_ddr3_ctlif #(
-  .csr_adr(csr_adr),
+  .csr_addr(csr_addr),
   .DQ_WIDTH(DQ_WIDTH),
   .ECC_TEST(ECC_TEST),
   .DATA_WIDTH(DATA_WIDTH),
