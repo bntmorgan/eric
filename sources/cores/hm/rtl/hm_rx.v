@@ -66,6 +66,24 @@ wire is_memory_completion = (fmt == 2'b10) && (type == 5'b01010);
 
 assign stat_state = state;
 
+task write_init_l;
+begin
+  mem_l_addr <= 10'b0;
+  mem_l_data <= 32'b0;
+  mem_l_we <= 1'b0;
+  offset_l <= 10'b0;
+end
+endtask
+
+task write_init_h;
+begin
+  mem_h_addr <= 10'b0;
+  mem_h_data <= 32'b0;
+  mem_h_we <= 1'b0;
+  offset_h <= 10'b0;
+end
+endtask
+
 task write_mem_l;
   input [32:0] data;
 begin
@@ -98,80 +116,45 @@ begin
 end
 endtask
 
-task init_a;
+task init;
 begin
   trn_rdst_rdy_n <= 1'b0; // !!!! We are everytime ready, ignoring requests !!!!
-  mem_l_addr <= 10'b0;
-  mem_l_data <= 32'b0;
-  mem_l_we <= 1'b0;
-  mem_h_addr <= 10'b0;
-  mem_h_data <= 32'b0;
-  mem_h_we <= 1'b0;
-  offset_l <= 10'b0;
-  offset_h <= 10'b0;
-  state <= 2'b00;
+  state <= `HM_RX_STATE_IDLE;
   stat_trn_cpt_rx <= 32'b0;
-  // timeout_cpt <= 32'h00000000;
   timeout_cpt <= 16'h0000;
   rx_ended <= 1'b0;
   timeout <= 1'b0;
   byte_count <= 12'b0;
   length <= 10'b0;
   tlp_dw <= 10'b0;
-end
-endtask
-
-task init_b;
-begin
-  rx_end <= 1'b0;
   rx_started <= 1'b0;
-  rx_ended_b <= 1'b0;
+  rx_end <= 1'b0;
+  write_init_l;
+  write_init_h;
 end
 endtask
-
 
 initial begin
-  init_a();
-  init_b();
-end
-
-// Bufferise the end, even if memory read is completed before the start
-always @(posedge trn_clk) begin
-  if (sys_rst == 1'b1 || trn_reset_n == 1'b0) begin
-    init_b();
-  end else begin
-    rx_end <= 1'b0;
-    if (rx_start == 1'b1) begin
-      rx_started <= 1'b1;
-    end 
-    if (rx_ended == 1'b1) begin
-      rx_ended_b <= 1'b1;
-    end 
-    if (rx_started == 1'b1 && rx_ended_b == 1'b1) begin
-      rx_end <= 1'b1;
-      rx_started <= 1'b0;
-      rx_ended_b <= 1'b0;
-    end else if (timeout == 1'b1) begin
-      rx_started <= 1'b0;
-      rx_ended_b <= 1'b0;
-    end
-  end
+  init();
 end
 
 // dw_l & dw_h are reversed because of the xilinx v6 trn interface endianess
 always @(posedge trn_clk) begin
-  if (sys_rst == 1'b1 || trn_reset_n == 1'b0) begin
-    init_a();
+  if (sys_rst == 1'b1 || trn_reset_n == 1'b0 || state == `HM_RX_STATE_RESET)
+  begin
+    init();
   end else begin
+    rx_end <= 1'b0;
+    // Record the rx_started event
+    if (rx_start) begin
+      rx_started <= 1'b1;
+    end
     if (state == `HM_RX_STATE_IDLE) begin
-      rx_ended <= 1'b0;
       no_write_mem_l();
       no_write_mem_h();
       // Memory read completion -> RECV
-      // XXX test
-      // if (0) begin
       if (trn_rsrc_rdy_n == 1'b0 && trn_rsof_n == 1'b0 && is_memory_completion
-         == 1'b1) begin
+          == 1'b1 && rx_started) begin
         state <= `HM_RX_STATE_RECV;
         // Contains the remaining bytes included the curent completion one
         byte_count <= trn_rd[11:0];
@@ -180,14 +163,8 @@ always @(posedge trn_clk) begin
       // Other request or completion -> IGN
       end else if (trn_rsrc_rdy_n == 1'b0 && trn_rsof_n == 1'b0) begin
         state <= `HM_RX_STATE_IGN;
-        // XXX TODO DEBUG
-        // write_mem_l(dw_h);
-        // write_mem_h(dw_l);
       end
     end else if (state == `HM_RX_STATE_IGN) begin
-      // XXX TODO DEBUG
-      // write_mem_l(dw_h);
-      // write_mem_h(dw_l);
       if (trn_rsrc_rdy_n == 1'b0 && trn_reof_n == 1'b0) begin
         // We wait again a memory read completion
         state <= `HM_RX_STATE_IDLE;
@@ -197,8 +174,13 @@ always @(posedge trn_clk) begin
       // Memory read completion is finished !!
       if (trn_rsrc_rdy_n == 1'b0 && trn_reof_n == 1'b0) begin
         state <= `HM_RX_STATE_IDLE;
+        // Is it the last memory completion TLP ?
         if (byte_count == length << 2) begin
-          rx_ended <= 1'b1;
+          rx_end <= 1'b1;
+          rx_started <= 1'b0;
+          write_init_l;
+          write_init_h;
+          state <= `HM_RX_STATE_RESET;
         end
         stat_trn_cpt_rx <= stat_trn_cpt_rx + 1'b1;
         if (offset_l ~^ offset_h) begin // a + b mod 2 == 0 ?
@@ -250,21 +232,17 @@ always @(posedge trn_clk) begin
     // Timeout
     if (rx_started == 1'b1) begin
       timeout_cpt <= timeout_cpt + 1'b1;
-      // if (timeout_cpt == 16'h000f) begin
-      // if (timeout_cpt == 32'hffffffff) begin
       if (timeout_cpt == 16'hffff) begin
-      // if (timeout_cpt == 16'hffff) begin
         state <= `HM_TX_STATE_IDLE;
         timeout <= 1'b1;
         timeout_cpt <= 16'h0000;
-        // timeout_cpt <= 32'h00000000;
+        rx_started <= 1'b0;
       end else begin
         timeout <= 1'b0;
       end
     end else begin
       timeout <= 1'b0;
       timeout_cpt <= 16'h0000;
-      // timeout_cpt <= 32'h00000000;
     end
   end
 end

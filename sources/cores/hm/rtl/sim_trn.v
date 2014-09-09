@@ -113,44 +113,63 @@ end
 endtask
 
 task memory_read_completion;
+  integer i;
+  integer j;
+  integer bytes;
 begin
-  // Receive src ready
-  trn_rsrc_rdy_n <= 1'b0;
-  trn_rsof_n <= 1'b0;
-  trn_rd <= {
-    3'b010, // fmt
-    5'b01010, // type
-    24'b0, // Ignored by rx
-    32'b0 // Ignored by rx
-  };
-  waittrnclk;
 
-  trn_rsof_n <= 1'b1;
-  trn_rd <= {
-    32'b0, // Ignored by rx
-    32'h11111111 // First dw
-  };
-  waittrnclk;
+  // We do it in 4 completions YO-LO
+  for (i = 0; i < 4; i = i + 1) begin
 
-  trn_rd <= 64'hcccccccccccccccc;
-  waittrnclk;
+    bytes = {12{13'h1000 - (11'h400 * i)}};
 
-  trn_rd <= 64'hcdcdcdcdcdcdcdcd;
-  waittrnclk;
+    // Receive src ready
+    trn_rsof_n <= 1'b0;
+    trn_rsrc_rdy_n <= 1'b0;
+    trn_reof_n <= 1'b1;
+    trn_rrem_n <= 1'b1;
+    trn_rd <= {
+      3'b010, // fmt
+      5'b01010, // type
+      14'b0, // Ignored by rx
+      10'h100, // This completion is containing 100 DW On the 400 total
+      20'b0, // Ignored by rx
+      bytes[11:0] // Remaning bytes including byte in this TLP
+    };
+    waittrnclk;
 
-  trn_rd <= 64'hcececececececece;
-  waittrnclk;
+    for (j = 1; j < 'h100; j = j + 2) begin // stops at 99
+      trn_rsof_n <= 1'b1;
+      trn_rsrc_rdy_n <= 1'b0;
+      trn_reof_n <= 1'b1;
+      trn_rrem_n <= 1'b1;
+      trn_rd <= {
+        j[31:0],
+        j[31:0]
+      };
+      waittrnclk;
+    end
 
-  trn_rd <= 64'hcfcfcfcfcfcfcfcf;
-  waittrnclk;
+    // The last DW
+    trn_rsof_n <= 1'b1;
+    trn_rsrc_rdy_n <= 1'b0;
+    trn_reof_n <= 1'b0;
+    trn_rrem_n <= 1'b1;
+    trn_rd <= {
+      32'hcafebabe,
+      32'h00000000
+    };
+    waittrnclk;
 
-  trn_rsrc_rdy_n <= 1'b0;
-  trn_reof_n <= 1'b0;
-  trn_rd <= 64'hacacacacacacacac;
-  waittrnclk;
+    // Ends everything properly
+    trn_rsof_n <= 1'b1;
+    trn_rsrc_rdy_n <= 1'b1;
+    trn_reof_n <= 1'b1;
+    trn_rrem_n <= 1'b1;
+    trn_rd <= 64'b0;
+    waittrnclk;
 
-  trn_rsrc_rdy_n <= 1'b1;
-  trn_reof_n <= 1'b1;
+  end
 end
 endtask
 

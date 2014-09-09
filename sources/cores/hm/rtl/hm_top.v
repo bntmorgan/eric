@@ -76,6 +76,7 @@ reg [63:0] address;
 
 // IRQs
 reg irq_en;
+// assign irq = 0;
 assign irq = (event_end & irq_en) | (event_tx_timeout & irq_en) |
   (event_rx_timeout & irq_en);
 
@@ -94,6 +95,9 @@ wire rx_end;
 task init_csr;
 begin
   hm_start <= 1'b0;
+  event_end <= 1'b0;
+  event_rx_timeout <= 1'b0;
+  event_tx_timeout <= 1'b0;
   event_end <= 1'b0;
   csr_do <= 32'd0; 
   irq_en <= 1'b0;
@@ -169,6 +173,10 @@ always @(posedge sys_clk) begin
         `HM_CSR_CTRL: csr_do <= {29'b0, hm_start, irq_en};
         `HM_CSR_ADDRESS_LOW: csr_do <= address[31:0];
         `HM_CSR_ADDRESS_HIGH: csr_do <= address[63:32];
+        `HM_CSR_CPT_RX: csr_do <= sys__stat_trn_cpt_rx;
+        `HM_CSR_CPT_TX: csr_do <= sys__stat_trn_cpt_tx;
+        `HM_CSR_STATE_RX: csr_do <= sys__state_rx;
+        `HM_CSR_STATE_TX: csr_do <= sys__state_tx;
 			endcase
 			if (csr_we) begin
 				case (csr_a[9:0])

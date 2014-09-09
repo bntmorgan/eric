@@ -748,7 +748,7 @@ csrbrg csrbrg(
 		|csr_dr_usb
     |csr_dr_csr_ddr3
     |csr_dr_mpu
-    // |csr_dr_hm
+    |csr_dr_hm
 	)
 );
 
@@ -827,7 +827,7 @@ assign cpu_interrupt = {16'd0,
 	1'b0 /* pfpu_irq */,
 	1'b0 /* ac97dmaw_irq */,
 	1'b0 /* ac97dmar_irq */,
-	1'b0, // hm_irq, /* HM */
+	hm_irq, /* HM */
 	mpu_irq, /* MPU */
 	timer1_irq,
 	timer0_irq,

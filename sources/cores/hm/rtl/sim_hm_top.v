@@ -88,6 +88,10 @@ initial begin
   // Link up the core
   trn_lnk_up_n <= 1'b0;
 
+  /**
+   * First hm_read
+   */
+
   // Launch the a Host memory read
   csrwrite(`HM_CSR_CTRL, 32'b11);
 
@@ -103,6 +107,36 @@ initial begin
   // The memory read completion
   waitntrnclk(8);
   memory_read_completion;
+
+  // Commit the events
+  csrwrite(`HM_CSR_STAT, 32'hffffffff);
+
+  /**
+   * First hm_read
+   */
+
+  // Launch the a Host memory read
+  csrwrite(`HM_CSR_CTRL, 32'b11);
+
+  // Set the destination ready !
+  trn_tdst_rdy_n <= 1'b0;
+  waitntrnclk(8);
+  trn_tdst_rdy_n <= 1'b1;
+
+  // SHITTY data
+  waitntrnclk(8);
+  random_completion; 
+
+  // The memory read completion
+  waitntrnclk(8);
+  memory_read_completion;
+
+  // Commit the events
+  csrwrite(`HM_CSR_STAT, 32'hffffffff);
+
+  /**
+   * Read page
+   */
 
   // Read on the wishbone bus
   waitntrnclk(8);

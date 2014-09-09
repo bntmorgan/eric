@@ -1,22 +1,22 @@
 [*]
 [*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
-[*] Wed Aug 27 09:19:40 2014
+[*] Tue Sep  9 15:47:51 2014
 [*]
 [dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/hm/hm_top.sim.vcd"
-[dumpfile_mtime] "Wed Aug 27 09:17:35 2014"
-[dumpfile_size] 34905
+[dumpfile_mtime] "Tue Sep  9 15:31:04 2014"
+[dumpfile_size] 564010
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/hm_top.gtkw"
 [timestart] 0
 [size] 1918 1179
 [pos] -1 -1
-*-18.195335 555000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-18.195335 4596000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
-[treeopen] main.hm_top.
+[treeopen] main.hm_top.rx.
 [sst_width] 224
 [signals_width] 335
 [sst_expanded] 1
 [sst_vpaned_height] 194
-@c00200
+@800200
 -csr
 @28
 main.hm_top.sys_clk
@@ -27,9 +27,11 @@ main.csr_di[31:0]
 main.csr_do[31:0]
 @28
 main.csr_we
-@1401200
+main.hm_top.irq
+main.hm_top.event_end
+@1000200
 -csr
-@800200
+@c00200
 -wishbone
 @28
 main.hm_top.wb_ack_o
@@ -47,7 +49,7 @@ main.hm_top.wb_sel_i[3:0]
 @28
 main.hm_top.wb_stb_i
 main.hm_top.wb_we_i
-@1000200
+@1401200
 -wishbone
 @800200
 -hm_top
@@ -139,6 +141,9 @@ main.hm_top.address[63:0]
 @28
 main.hm_top.trn__rx_timeout
 main.hm_top.trn__tx_timeout
+main.hm_top.event_end
+main.hm_top.event_rx_timeout
+main.hm_top.event_tx_timeout
 @1000200
 -hm_top
 @c00200
@@ -163,10 +168,32 @@ main.hm_top.tx.tx_end
 main.hm_top.tx.tx_start
 @1401200
 -hm_tx
+@22
+main.memory_read_completion.bytes[31:0]
 @800200
 -hm_rx
+@28
+main.hm_top.rx.trn_clk
 @22
+main.hm_top.rx.trn_rd[63:0]
+@c00022
 main.hm_top.rx.byte_count[11:0]
+@28
+(0)main.hm_top.rx.byte_count[11:0]
+(1)main.hm_top.rx.byte_count[11:0]
+(2)main.hm_top.rx.byte_count[11:0]
+(3)main.hm_top.rx.byte_count[11:0]
+(4)main.hm_top.rx.byte_count[11:0]
+(5)main.hm_top.rx.byte_count[11:0]
+(6)main.hm_top.rx.byte_count[11:0]
+(7)main.hm_top.rx.byte_count[11:0]
+(8)main.hm_top.rx.byte_count[11:0]
+(9)main.hm_top.rx.byte_count[11:0]
+(10)main.hm_top.rx.byte_count[11:0]
+(11)main.hm_top.rx.byte_count[11:0]
+@1401200
+-group_end
+@22
 main.hm_top.rx.dw_h[31:0]
 main.hm_top.rx.dw_l[31:0]
 @28
@@ -186,10 +213,10 @@ main.hm_top.rx.mem_l_we
 @22
 main.hm_top.rx.offset_h[9:0]
 main.hm_top.rx.offset_l[9:0]
-@28
+@29
 main.hm_top.rx.rx_end
+@28
 main.hm_top.rx.rx_ended
-main.hm_top.rx.rx_ended_b
 main.hm_top.rx.rx_start
 main.hm_top.rx.rx_started
 main.hm_top.rx.stat_state[1:0]
@@ -203,27 +230,25 @@ main.hm_top.rx.timeout
 main.hm_top.rx.timeout_cpt[15:0]
 main.hm_top.rx.tlp_dw[9:0]
 @28
-main.hm_top.rx.trn_clk
 main.hm_top.rx.trn_lnk_up_n
 @22
 main.hm_top.rx.trn_rbar_hit_n[6:0]
-@23
 main.hm_top.rx.trn_rd[63:0]
 @28
 main.hm_top.rx.trn_rdst_rdy_n
 main.hm_top.rx.trn_reof_n
+main.hm_top.rx.trn_rsrc_rdy_n
 main.hm_top.rx.trn_rerrfwd_n
 main.hm_top.rx.trn_reset_n
 main.hm_top.rx.trn_rnp_ok_n
 main.hm_top.rx.trn_rrem_n
 main.hm_top.rx.trn_rsof_n
 main.hm_top.rx.trn_rsrc_dsc_n
-main.hm_top.rx.trn_rsrc_rdy_n
 @22
 main.hm_top.rx.type[4:0]
 @1000200
 -hm_rx
-@c00200
+@800200
 -top_trn_interface
 @28
 main.hm_top.trn_lnk_up_n
@@ -257,7 +282,7 @@ main.hm_top.trn_tsof_n
 main.hm_top.trn_tsrc_dsc_n
 main.hm_top.trn_tsrc_rdy_n
 main.hm_top.trn_tstr_n
-@1401200
+@1000200
 -top_trn_interface
 @c00200
 -hm_top
