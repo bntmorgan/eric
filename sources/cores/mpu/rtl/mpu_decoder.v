@@ -125,6 +125,7 @@ assign isize[15:0] =
   (op == `MPU_OP_CMP) ? 16'h0005 :
   (op == `MPU_OP_LT) ? 16'h0004 :
   (op == `MPU_OP_ADD) ? 16'h0004 :
+  (op == `MPU_OP_HAMM) ? 16'h0004 :
   (op == `MPU_OP_INT) ? 16'h0002 :
   (op == `MPU_OP_MLOAD && opsize == 2'b11) ? 16'h0003 :
   (op == `MPU_OP_LOAD && opsize == 2'b00) ? 16'h0003 :

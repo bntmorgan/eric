@@ -86,12 +86,13 @@ assign w_idx = op_idx0;
 assign w_data = 
   (op_op == `MPU_OP_MLOAD) ? hm_data :
   (op_op == `MPU_OP_ADD) ? op_res :
+  (op_op == `MPU_OP_HAMM) ? op_res :
   op_o1;
 assign w_sel = 3'b000;
 assign w_r_sel = op_s0;
 assign w_size = op_size;
-assign we = (op_op == `MPU_OP_ADD || op_op == `MPU_OP_LOAD || op_op ==
-  `MPU_OP_MLOAD) ? 1'b1 : 1'b0;
+assign we = (op_op == `MPU_OP_HAMM || op_op == `MPU_OP_ADD || op_op ==
+  `MPU_OP_LOAD || op_op == `MPU_OP_MLOAD) ? 1'b1 : 1'b0;
 
 /**
  * ALU(minium)

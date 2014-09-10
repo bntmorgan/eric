@@ -32,6 +32,8 @@ wire op_mask;
 wire op_cmp;
 wire op_lt;
 wire [63:0] op_add;
+wire [63:0] x;
+wire [63:0] op_hamm;
 wire [5:0] rs0;
 wire [5:0] rs1;
 wire [5:0] rs2;
@@ -68,6 +70,7 @@ assign res =
   (op == `MPU_OP_CMP) ? op_cmp << lsres :
   (op == `MPU_OP_LT) ? op_lt << lsres :
   (op == `MPU_OP_ADD) ? op_add << lsres :
+  (op == `MPU_OP_HAMM) ? op_hamm << lsres :
   64'b0;
 
 /**
@@ -102,5 +105,16 @@ assign op_cmp = (_o0 & _o2) == (_o1 & _o2);
 assign op_lt =  _o0 < _o1;
 
 assign op_add = _o1 + _o2;
+
+assign x = _o1 ^ _o2;
+
+assign op_hamm = x[00]
+  + x[01] + x[02] + x[03] + x[04] + x[05] + x[06] + x[07] + x[08] + x[09]
+  + x[10] + x[11] + x[12] + x[13] + x[14] + x[15] + x[16] + x[17] + x[18]
+  + x[19] + x[20] + x[21] + x[22] + x[23] + x[24] + x[25] + x[26] + x[27]
+  + x[28] + x[29] + x[30] + x[31] + x[32] + x[33] + x[34] + x[35] + x[36]
+  + x[37] + x[38] + x[39] + x[40] + x[41] + x[42] + x[43] + x[44] + x[45]
+  + x[46] + x[47] + x[48] + x[49] + x[50] + x[51] + x[52] + x[53] + x[54]
+  + x[55] + x[56] + x[57] + x[58] + x[59] + x[60] + x[61] + x[62] + x[63] ;
 
 endmodule
