@@ -581,6 +581,7 @@ wire [31:0]	csr_dr_uart,
 		csr_dr_ir,
 		csr_dr_usb,
 		csr_dr_csr_ddr3,
+		csr_dr_trn,
 		csr_dr_mpu,
 		csr_dr_hm;
 
@@ -749,6 +750,7 @@ csrbrg csrbrg(
     |csr_dr_csr_ddr3
     |csr_dr_mpu
     |csr_dr_hm
+		|csr_dr_trn
 	)
 );
 
@@ -1758,8 +1760,17 @@ wire trn_rdst_rdy_n;
 wire trn_rnp_ok_n;
 
 trn_top #(
-  .PCIE_NUMBER_OF_LANES(PCIE_NUMBER_OF_LANES)
+  .PCIE_NUMBER_OF_LANES(PCIE_NUMBER_OF_LANES),
+  .csr_addr(4'h2)
 ) ck (
+  .sys_clk(sys_clk),
+  .sys_rst(sys_rst),
+
+  .csr_a(csr_a),
+  .csr_we(csr_we),
+  .csr_di(csr_dw),
+  .csr_do(csr_dr_trn),
+
   .pci_exp_txp(pci_exp_txp),
   .pci_exp_txn(pci_exp_txn),
   .pci_exp_rxp(pci_exp_rxp),
