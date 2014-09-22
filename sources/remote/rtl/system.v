@@ -1759,6 +1759,11 @@ wire trn_tstr_n;
 wire trn_rdst_rdy_n;
 wire trn_rnp_ok_n;
 
+// Requester ID sharing
+wire [7:0] cfg_bus_number;
+wire [4:0] cfg_device_number;
+wire [2:0] cfg_function_number;
+
 trn_top #(
   .PCIE_NUMBER_OF_LANES(PCIE_NUMBER_OF_LANES),
   .csr_addr(4'h2)
@@ -1805,7 +1810,11 @@ trn_top #(
   .trn_tcfg_gnt_n(trn_tcfg_gnt_n),
   .trn_tstr_n(trn_tstr_n),
   .trn_rdst_rdy_n(trn_rdst_rdy_n),
-  .trn_rnp_ok_n(trn_rnp_ok_n)
+  .trn_rnp_ok_n(trn_rnp_ok_n),
+
+  .cfg_bus_number(cfg_bus_number),
+  .cfg_device_number(cfg_device_number),
+  .cfg_function_number(cfg_function_number)
 );
 
 //------------------------------------------------------------------
@@ -1865,6 +1874,10 @@ hm_top #(
   .trn_tstr_n(trn_tstr_n),
   .trn_rdst_rdy_n(trn_rdst_rdy_n),
   .trn_rnp_ok_n(trn_rnp_ok_n),
+
+  .cfg_bus_number(cfg_bus_number),
+  .cfg_device_number(cfg_device_number),
+  .cfg_function_number(cfg_function_number),
 
   .irq(hm_irq)
 );

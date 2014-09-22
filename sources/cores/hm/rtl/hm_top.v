@@ -60,6 +60,11 @@ module hm_top #(
   output trn_rdst_rdy_n,
   output trn_rnp_ok_n,
 
+  // Requester ID sharing
+  input [7:0] cfg_bus_number,
+  input [4:0] cfg_device_number,
+  input [2:0] cfg_function_number,
+
   // IRQ
   output irq
 );

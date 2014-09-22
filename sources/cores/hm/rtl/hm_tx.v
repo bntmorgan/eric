@@ -35,8 +35,15 @@ module hm_tx (
   output reg [31:0] stat_trn_cpt_drop,
   output [1:0] stat_state,
 
+  // Requester ID sharing
+  input [7:0] cfg_bus_number,
+  input [4:0] cfg_device_number,
+  input [2:0] cfg_function_number,
+
   output reg timeout
 );
+
+wire [15:0] req_id = {cfg_bus_number, cfg_device_number, cfg_function_number};
 
 /**
  * Core input tie-offs
@@ -85,6 +92,7 @@ begin
     2'b0, // AT, Address type : 2'b0 Default Untranslated
     // 10'b100000000, // 256 dw requested
     10'b000000000, // 1024 dw requested
+    req_id, // Requester ID
     16'h1800, // Requester ID
     // 16'h0400, // Requester ID
     8'h38, // Tag

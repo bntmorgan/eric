@@ -59,16 +59,21 @@ module trn_top #(
 
   // Rx
   input trn_rdst_rdy_n,
-  input trn_rnp_ok_n
+  input trn_rnp_ok_n,
+
+  // Config interface
+  output [7:0] cfg_bus_number,
+  output [4:0] cfg_device_number,
+  output [2:0] cfg_function_number
 );
 
 /**
  * PCIE IP CORE instanciation
  */
 
-wire [7:0] cfg_bus_number;
-wire [4:0] cfg_device_number;
-wire [2:0] cfg_function_number;
+wire [7:0] _cfg_bus_number;
+wire [4:0] _cfg_device_number;
+wire [2:0] _cfg_function_number;
 wire [15:0] cfg_command;
 wire [15:0] cfg_dstatus;
 wire [15:0] cfg_dcommand;
@@ -176,6 +181,13 @@ FDCP #(
   .CLR (1'b0),
   .PRE (1'b0)
 );
+
+/**
+ * Requester ID Sharing
+ */
+assign cfg_bus_number = _cfg_bus_number;
+assign cfg_device_number = _cfg_device_number;
+assign cfg_function_number = _cfg_function_number;
 
 /**
  * Core input tie-offs
@@ -293,9 +305,9 @@ v6_pcie_v1_7 #(
   .cfg_to_turnoff_n(cfg_to_turnoff_n),
   .cfg_trn_pending_n(cfg_trn_pending_n),
   .cfg_pm_wake_n(cfg_pm_wake_n),
-  .cfg_bus_number(cfg_bus_number),
-  .cfg_device_number(cfg_device_number),
-  .cfg_function_number(cfg_function_number),
+  .cfg_bus_number(_cfg_bus_number),
+  .cfg_device_number(_cfg_device_number),
+  .cfg_function_number(_cfg_function_number),
   .cfg_status(cfg_status),
   .cfg_command(cfg_command),
   .cfg_dstatus(cfg_dstatus),
@@ -343,9 +355,9 @@ trn_ctlif #(
   .csr_do(csr_do),
   .trn_clk(trn_clk),
   .trn_lnk_up_n(trn_lnk_up_n),
-  .cfg_bus_number(cfg_bus_number),
-  .cfg_device_number(cfg_device_number),
-  .cfg_function_number(cfg_function_number),
+  .cfg_bus_number(_cfg_bus_number),
+  .cfg_device_number(_cfg_device_number),
+  .cfg_function_number(_cfg_function_number),
   .cfg_command(cfg_command),
   .cfg_dstatus(cfg_dstatus),
   .cfg_dcommand(cfg_dcommand),
