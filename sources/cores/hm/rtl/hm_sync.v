@@ -27,7 +27,10 @@ module hm_sync (
   output reg [31:0] sys__stat_trn_cpt_tx,
 
   input [31:0] trn__stat_trn_cpt_drop,
-  output reg [31:0] sys__stat_trn_cpt_drop
+  output reg [31:0] sys__stat_trn_cpt_drop,
+
+  input [1:0] trn__state,
+  output reg [1:0] sys__state
 );
 
 reg [31:0] trn__state_tx_r;
@@ -58,6 +61,12 @@ reg [31:0] trn__stat_trn_cpt_drop_r;
 always @(posedge sys_clk) begin 
 	trn__stat_trn_cpt_drop_r <= trn__stat_trn_cpt_drop;
 	sys__stat_trn_cpt_drop <= trn__stat_trn_cpt_drop_r;
+end
+
+reg [1:0] trn__state_r;
+always @(posedge sys_clk) begin 
+	trn__state_r <= trn__state;
+	sys__state <= trn__state_r;
 end
 
 psync ps_rx_timeout (

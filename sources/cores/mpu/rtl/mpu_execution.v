@@ -105,9 +105,11 @@ mpu_alu alu (
   .o0(op_o0),
   .o1(op_o1),
   .o2(op_o2),
+  .o3(op_o3),
   .s0(op_s0),
   .s1(op_s1),
   .s2(op_s2),
+  .s3(op_s3),
   .sres(op_sres),
   .res(op_res),
   .flags(op_flags)

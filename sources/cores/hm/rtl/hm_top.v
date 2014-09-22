@@ -120,9 +120,9 @@ assign m_web[0] = (mem_l_we == 1'b1) ? 4'b1111 : 4'b0000;
 assign m_web[1] = (mem_h_we == 1'b1) ? 4'b1111 : 4'b0000;
 assign m_addrb[0] = mem_l_addr;
 assign m_addrb[1] = mem_h_addr;
-assign hm_data [63:0] = {m_doa[0][31:0], m_doa[1][31:0]};
+assign hm_data [63:0] = {m_doa[1][31:0], m_doa[0][31:0]};
 
-// Rx / Tx engines sync
+// Synced wires
 
 wire [31:0] trn__stat_trn_cpt_tx;
 wire [31:0] sys__stat_trn_cpt_tx;
@@ -142,6 +142,8 @@ wire trn__rx_timeout;
 wire sys__rx_timeout;
 wire trn__trn_lnk_up_n = trn_lnk_up_n;
 wire sys__trn_lnk_up_n;
+wire [1:0] trn__state = state;
+wire [1:0] sys__state;
 
 task init_trn;
 begin
@@ -177,6 +179,7 @@ always @(posedge sys_clk) begin
         `HM_CSR_CPT_TX: csr_do <= sys__stat_trn_cpt_tx;
         `HM_CSR_STATE_RX: csr_do <= sys__state_rx;
         `HM_CSR_STATE_TX: csr_do <= sys__state_tx;
+        `HM_CSR_STATE: csr_do <= sys__state;
 			endcase
 			if (csr_we) begin
 				case (csr_a[9:0])
@@ -395,17 +398,17 @@ always @(*) begin
     // interface
     if (wb_adr_i[2] == 1'b0) begin
       wb_dat_o = {
-        m_doa[0][31:24],
-        m_doa[0][23:16],
+        m_doa[0][7:0],
         m_doa[0][15:8],
-        m_doa[0][7:0]
+        m_doa[0][23:16],
+        m_doa[0][31:24]
       };
     end else begin
       wb_dat_o = {
-        m_doa[1][31:24],
-        m_doa[1][23:16],
+        m_doa[1][7:0],
         m_doa[1][15:8],
-        m_doa[1][7:0]
+        m_doa[1][23:16],
+        m_doa[1][31:24]
       };
     end
   end
@@ -433,7 +436,9 @@ hm_sync sync (
   .trn__stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
   .sys__stat_trn_cpt_tx(sys__stat_trn_cpt_tx),
   .trn__stat_trn_cpt_drop(trn__stat_trn_cpt_drop),
-  .sys__stat_trn_cpt_drop(sys__stat_trn_cpt_drop)
+  .sys__stat_trn_cpt_drop(sys__stat_trn_cpt_drop),
+  .trn__state(trn__state),
+  .sys__state(sys__state)
 );
 
 endmodule

@@ -140,9 +140,13 @@ initial begin
 
   // Read on the wishbone bus
   waitntrnclk(8);
+  wbread(32'h0);
   wbread(32'h4);
+  wbread(32'h8);
+  wbread(32'hc);
 
   waitnclock(40);
+
   $finish();
 end
 

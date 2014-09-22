@@ -74,15 +74,11 @@ initial begin
   // Run MPU
   csrwrite(`MPU_CSR_CTRL, 32'b11);
 
-  waitnclock(40);
-  // Commit event
-  csrwrite(`MPU_CSR_STAT, 32'hffffffff);
-
   while (1) begin
     @(posedge irq) waitnclock(2);
     // Read end event
     csrread(`MPU_CSR_STAT);
-    if (csr_do[2] != 1'b1) begin // We stop on error or end
+    if (csr_do[0] || csr_do[1]) begin // We stop on error or end
       waitnclock(40);
       $finish;
     end

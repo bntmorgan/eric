@@ -6,6 +6,7 @@
 `define HM_CSR_CPT_TX         10'h005
 `define HM_CSR_STATE_RX       10'h006
 `define HM_CSR_STATE_TX       10'h007
+`define HM_CSR_STATE          10'h008
 
 `define HM_TX_STATE_IDLE 1'b0
 `define HM_TX_STATE_SEND 1'b1

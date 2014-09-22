@@ -87,7 +87,12 @@ endtask
 task write_mem_l;
   input [32:0] data;
 begin
-  mem_l_data <= data;
+  mem_l_data <= {
+    data[7:0],
+    data[15:8],
+    data[23:16],
+    data[31:24]
+  };
   mem_l_addr <= offset_l;
   mem_l_we <= 1'b1;
   offset_l <= offset_l + 1'b1;
@@ -97,7 +102,12 @@ endtask
 task write_mem_h;
   input [32:0] data;
 begin
-  mem_h_data <= data;
+  mem_h_data <= {
+    data[7:0],
+    data[15:8],
+    data[23:16],
+    data[31:24]
+  };
   mem_h_addr <= offset_h;
   mem_h_we <= 1'b1;
   offset_h <= offset_h + 1'b1;

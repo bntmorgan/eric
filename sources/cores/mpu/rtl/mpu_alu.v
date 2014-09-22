@@ -15,11 +15,13 @@ module mpu_alu (
   input [63:0] o0,
   input [63:0] o1,
   input [63:0] o2,
+  input [63:0] o3,
 
   // Operands
   input [2:0] s0,
   input [2:0] s1,
   input [2:0] s2,
+  input [2:0] s3,
   input [2:0] sres,
 
   // Results
@@ -37,12 +39,14 @@ wire [63:0] op_hamm;
 wire [5:0] rs0;
 wire [5:0] rs1;
 wire [5:0] rs2;
+wire [5:0] rs3;
 wire [5:0] lsres;
 wire [5:0] bsize;
 wire [63:0] hm;
 wire [63:0] _o0;
 wire [63:0] _o1;
 wire [63:0] _o2;
+wire [63:0] _o3;
 
 // Compute the size of the fields in bit
 assign bsize[5:0] = ((1 << size) << 3);
@@ -52,6 +56,7 @@ assign bsize[5:0] = ((1 << size) << 3);
 assign rs0[5:0] = (s0 * bsize); 
 assign rs1[5:0] = (s1 * bsize); 
 assign rs2[5:0] = (s2 * bsize); 
+assign rs3[5:0] = (s3 * bsize); 
 assign lsres[5:0] = (sres * bsize); 
 
 // Compute a mask for the high bits
@@ -62,6 +67,7 @@ assign hm[63:0] = ~(64'hffffffffffffffff << bsize);
 assign _o0[63:0] = (o0 >> rs0) & hm;
 assign _o1[63:0] = (o1 >> rs1) & hm;
 assign _o2[63:0] = (o2 >> rs2) & hm;
+assign _o3[63:0] = (o3 >> rs3) & hm;
 
 assign flags = 8'b0;
 
@@ -106,7 +112,7 @@ assign op_lt =  _o0 < _o1;
 
 assign op_add = _o1 + _o2;
 
-assign x = _o1 ^ _o2;
+assign x = (_o1 & _o3) ^ (_o2 & _o3);
 
 assign op_hamm = x[00]
   + x[01] + x[02] + x[03] + x[04] + x[05] + x[06] + x[07] + x[08] + x[09]

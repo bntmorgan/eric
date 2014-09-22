@@ -144,8 +144,8 @@ begin
       trn_reof_n <= 1'b1;
       trn_rrem_n <= 1'b1;
       trn_rd <= {
-        j[31:0],
-        j[31:0]
+        32'h55446677,
+        32'h11223344
       };
       waittrnclk;
     end
