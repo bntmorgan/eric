@@ -93,9 +93,10 @@ reg [1:0] state;
 reg tx_start;
 reg rx_start;
 reg hm_end;
+reg [15:0] timeout_cpt;
 
 wire tx_end;
-wire rx_end;
+wire rx_memory_read;
 
 task init_csr;
 begin
@@ -141,9 +142,11 @@ wire [31:0] trn__stat_trn_cpt_drop;
 wire [31:0] sys__stat_trn_cpt_drop;
 wire trn__hm_end = hm_end;
 wire sys__hm_end;
-wire trn__tx_timeout;
+reg tx_timeout;
+wire trn__tx_timeout = tx_timeout;
 wire sys__tx_timeout;
-wire trn__rx_timeout;
+reg rx_timeout;
+wire trn__rx_timeout = rx_timeout;
 wire sys__rx_timeout;
 wire trn__trn_lnk_up_n = trn_lnk_up_n;
 wire sys__trn_lnk_up_n;
@@ -156,6 +159,9 @@ begin
   tx_start <= 1'b0;
   rx_start <= 1'b0;
   hm_end <= 1'b0;
+  timeout_cpt <= 16'b0;
+  rx_timeout <= 1'b0;
+  tx_timeout <= 1'b0;
 end
 endtask
 
@@ -226,14 +232,14 @@ always @(posedge sys_clk) begin
 end
 
 // TRN state machine
-
 always @(posedge trn_clk) begin
   if (sys_rst | ~trn_reset_n) begin
     init_trn();
   end else begin
     tx_start <= 1'b0;
-    rx_start <= 1'b0;
     hm_end <= 1'b0;
+    rx_timeout <= 1'b0;
+    tx_timeout <= 1'b0;
     if (state == `HM_STATE_IDLE) begin
       if (hm_start == 1'b1) begin
         state <= `HM_STATE_SEND;
@@ -244,17 +250,32 @@ always @(posedge trn_clk) begin
         state <= `HM_STATE_IDLE;
       end else if (tx_end == 1'b1) begin
         state <= `HM_STATE_RECV;
-        rx_start <= 1'b1;
       end
     end else if (state == `HM_STATE_RECV) begin
       if (trn__rx_timeout == 1'b1) begin
         state <= `HM_STATE_IDLE;
-      end else if (rx_end == 1'b1) begin
+      end else if (rx_memory_read == 1'b1) begin
         state <= `HM_STATE_IDLE;
         hm_end <= 1'b1;
       end
     end else begin
       init_trn();
+    end
+    // Timeout
+    if (state == `HM_STATE_IDLE) begin
+      timeout_cpt <= 16'h0000;
+    end else begin
+      timeout_cpt <= timeout_cpt + 1'b1;
+      if (timeout_cpt == 16'hffff) begin
+        state <= `HM_STATE_IDLE;
+        if (state == `HM_STATE_SEND) begin
+          tx_timeout <= 1'b1;
+        end
+        if (state == `HM_STATE_RECV) begin
+          rx_timeout <= 1'b1;
+        end
+        timeout_cpt <= 16'h0000;
+      end
     end
   end
 end
@@ -274,8 +295,7 @@ end
 
 hm_rx rx (
   .sys_rst(sys_rst),
-  .rx_start(rx_start),
-  .rx_end(rx_end),
+  .rx_memory_read(rx_memory_read),
   .mem_l_addr(mem_l_addr),
   .mem_l_data(m_dib[0]),
   .mem_l_we(mem_l_we),
@@ -296,8 +316,7 @@ hm_rx rx (
   .trn_rnp_ok_n(trn_rnp_ok_n),
   .trn_rbar_hit_n(trn_rbar_hit_n),
   .stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
-  .stat_state(trn__state_rx),
-  .timeout(trn__rx_timeout)
+  .stat_state(trn__state_rx)
 );
 
 // Tx Engine
@@ -324,8 +343,7 @@ hm_tx tx (
   .trn_tstr_n(trn_tstr_n),
   .stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
   .stat_state(trn__state_tx),
-  .stat_trn_cpt_drop(trn__stat_trn_cpt_drop),
-  .timeout(trn__tx_timeout)
+  .stat_trn_cpt_drop(trn__stat_trn_cpt_drop)
 );
 
 // Memory

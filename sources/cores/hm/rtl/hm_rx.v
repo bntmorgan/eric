@@ -7,8 +7,7 @@
 module hm_rx (
   input sys_rst,
 
-  input rx_start,
-  output reg rx_end,
+  output reg rx_memory_read,
 
   output reg [9:0] mem_l_addr,
   output reg [31:0] mem_l_data,
@@ -35,9 +34,7 @@ module hm_rx (
 
   // User statistics counters ans status
   output reg [31:0] stat_trn_cpt_rx,
-  output [1:0] stat_state,
-
-  output reg timeout
+  output [1:0] stat_state
 );
 
 /**
@@ -48,9 +45,6 @@ assign trn_rnp_ok_n = 1'b0;
 reg [1:0] state;
 reg [9:0] offset_l;
 reg [9:0] offset_h;
-reg rx_started;
-reg rx_ended;
-reg rx_ended_b;
 // reg [31:0] timeout_cpt;
 reg [15:0] timeout_cpt;
 reg [11:0] byte_count; 
@@ -131,14 +125,10 @@ begin
   trn_rdst_rdy_n <= 1'b0; // !!!! We are everytime ready, ignoring requests !!!!
   state <= `HM_RX_STATE_IDLE;
   stat_trn_cpt_rx <= 32'b0;
-  timeout_cpt <= 16'h0000;
-  rx_ended <= 1'b0;
-  timeout <= 1'b0;
   byte_count <= 12'b0;
   length <= 10'b0;
   tlp_dw <= 10'b0;
-  rx_started <= 1'b0;
-  rx_end <= 1'b0;
+  rx_memory_read <= 1'b0;
   write_init_l;
   write_init_h;
 end
@@ -154,17 +144,13 @@ always @(posedge trn_clk) begin
   begin
     init();
   end else begin
-    rx_end <= 1'b0;
-    // Record the rx_started event
-    if (rx_start) begin
-      rx_started <= 1'b1;
-    end
+    rx_memory_read <= 1'b0;
     if (state == `HM_RX_STATE_IDLE) begin
       no_write_mem_l();
       no_write_mem_h();
       // Memory read completion -> RECV
       if (trn_rsrc_rdy_n == 1'b0 && trn_rsof_n == 1'b0 && is_memory_completion
-          == 1'b1 && rx_started) begin
+          == 1'b1) begin
         state <= `HM_RX_STATE_RECV;
         // Contains the remaining bytes included the curent completion one
         byte_count <= trn_rd[11:0];
@@ -186,8 +172,7 @@ always @(posedge trn_clk) begin
         state <= `HM_RX_STATE_IDLE;
         // Is it the last memory completion TLP ?
         if (byte_count == length << 2) begin
-          rx_end <= 1'b1;
-          rx_started <= 1'b0;
+          rx_memory_read <= 1'b1;
           write_init_l;
           write_init_h;
           state <= `HM_RX_STATE_RESET;
@@ -238,21 +223,6 @@ always @(posedge trn_clk) begin
     end else begin
       // Error
       state <= `HM_RX_STATE_IDLE;
-    end
-    // Timeout
-    if (rx_started == 1'b1) begin
-      timeout_cpt <= timeout_cpt + 1'b1;
-      if (timeout_cpt == 16'hffff) begin
-        state <= `HM_TX_STATE_IDLE;
-        timeout <= 1'b1;
-        timeout_cpt <= 16'h0000;
-        rx_started <= 1'b0;
-      end else begin
-        timeout <= 1'b0;
-      end
-    end else begin
-      timeout <= 1'b0;
-      timeout_cpt <= 16'h0000;
     end
   end
 end
