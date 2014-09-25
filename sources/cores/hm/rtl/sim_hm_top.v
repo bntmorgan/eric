@@ -62,7 +62,11 @@ hm_top hm_top (
   .trn_tcfg_gnt_n(trn_tcfg_gnt_n),
   .trn_tstr_n(trn_tstr_n),
   .trn_rdst_rdy_n(trn_rdst_rdy_n),
-  .trn_rnp_ok_n(trn_rnp_ok_n)
+  .trn_rnp_ok_n(trn_rnp_ok_n),
+
+  .cfg_bus_number(8'h18),
+  .cfg_device_number(5'b0),
+  .cfg_function_number(3'b0)
 );
 
 integer i;

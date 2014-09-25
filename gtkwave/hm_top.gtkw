@@ -1,17 +1,18 @@
 [*]
 [*] GTKWave Analyzer v3.3.59 (w)1999-2014 BSI
-[*] Tue Sep  9 15:47:51 2014
+[*] Thu Sep 25 11:44:47 2014
 [*]
 [dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/hm/hm_top.sim.vcd"
-[dumpfile_mtime] "Tue Sep  9 15:31:04 2014"
-[dumpfile_size] 564010
+[dumpfile_mtime] "Thu Sep 25 11:44:31 2014"
+[dumpfile_size] 334165
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/hm_top.gtkw"
 [timestart] 0
 [size] 1918 1179
 [pos] -1 -1
-*-18.195335 4596000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-18.195335 187000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
-[treeopen] main.hm_top.rx.
+[treeopen] main.hm_top.
+[treeopen] main.hm_top.conbus5.
 [sst_width] 224
 [signals_width] 335
 [sst_expanded] 1
@@ -51,7 +52,7 @@ main.hm_top.wb_stb_i
 main.hm_top.wb_we_i
 @1401200
 -wishbone
-@800200
+@c00200
 -hm_top
 @28
 main.hm_top.state[1:0]
@@ -135,7 +136,6 @@ main.hm_top.trn_clk
 main.hm_top.tx_end
 main.hm_top.tx_start
 main.hm_top.rx_start
-main.hm_top.rx_end
 @22
 main.hm_top.address[63:0]
 @28
@@ -144,9 +144,9 @@ main.hm_top.trn__tx_timeout
 main.hm_top.event_end
 main.hm_top.event_rx_timeout
 main.hm_top.event_tx_timeout
-@1000200
+@1401200
 -hm_top
-@c00200
+@800200
 -hm_tx
 @28
 main.hm_top.tx.cpt[1:0]
@@ -166,11 +166,14 @@ main.hm_top.tx.trn_tsof_n
 main.hm_top.tx.trn_tsrc_rdy_n
 main.hm_top.tx.tx_end
 main.hm_top.tx.tx_start
-@1401200
+@1000200
 -hm_tx
 @22
-main.memory_read_completion.bytes[31:0]
-@800200
+main.hm_top.tx.cfg_bus_number[7:0]
+main.hm_top.tx.cfg_device_number[4:0]
+@28
+main.hm_top.tx.cfg_function_number[2:0]
+@c00200
 -hm_rx
 @28
 main.hm_top.rx.trn_clk
@@ -213,21 +216,14 @@ main.hm_top.rx.mem_l_we
 @22
 main.hm_top.rx.offset_h[9:0]
 main.hm_top.rx.offset_l[9:0]
-@29
-main.hm_top.rx.rx_end
 @28
-main.hm_top.rx.rx_ended
-main.hm_top.rx.rx_start
-main.hm_top.rx.rx_started
 main.hm_top.rx.stat_state[1:0]
 @22
 main.hm_top.rx.stat_trn_cpt_rx[31:0]
 @28
 main.hm_top.rx.state[1:0]
 main.hm_top.rx.sys_rst
-main.hm_top.rx.timeout
 @22
-main.hm_top.rx.timeout_cpt[15:0]
 main.hm_top.rx.tlp_dw[9:0]
 @28
 main.hm_top.rx.trn_lnk_up_n
@@ -246,9 +242,9 @@ main.hm_top.rx.trn_rsof_n
 main.hm_top.rx.trn_rsrc_dsc_n
 @22
 main.hm_top.rx.type[4:0]
-@1000200
+@1401200
 -hm_rx
-@800200
+@c00200
 -top_trn_interface
 @28
 main.hm_top.trn_lnk_up_n
@@ -282,7 +278,7 @@ main.hm_top.trn_tsof_n
 main.hm_top.trn_tsrc_dsc_n
 main.hm_top.trn_tsrc_rdy_n
 main.hm_top.trn_tstr_n
-@1000200
+@1401200
 -top_trn_interface
 @c00200
 -hm_top
@@ -396,7 +392,6 @@ main.hm_top.trn_tstr_n
 main.hm_top.tx_end
 main.hm_top.tx_start
 main.hm_top.rx_start
-main.hm_top.rx_end
 @1401200
 -hm_top
 @c00200
@@ -517,5 +512,80 @@ main.hm_top.sync.trn__tx_timeout
 main.hm_top.sync.trn_clk
 @1401200
 -sync
+@800200
+-conbus
+@28
+main.hm_top.conbus5.gnt[2:0]
+@22
+main.hm_top.conbus5.i_bus_m[71:0]
+main.hm_top.conbus5.m0_trn_tbuf_av[5:0]
+@29
+main.hm_top.conbus5.m0_trn_tcfg_gnt_n
+@28
+main.hm_top.conbus5.m0_trn_tcfg_req_n
+@22
+main.hm_top.conbus5.m0_trn_td[63:0]
+@28
+main.hm_top.conbus5.m0_trn_tdst_rdy_n
+main.hm_top.conbus5.m0_trn_teof_n
+main.hm_top.conbus5.m0_trn_terr_drop_n
+main.hm_top.conbus5.m0_trn_terrfwd_n
+main.hm_top.conbus5.m0_trn_trem_n
+main.hm_top.conbus5.m0_trn_tsof_n
+main.hm_top.conbus5.m0_trn_tsrc_dsc_n
+main.hm_top.conbus5.m0_trn_tsrc_rdy_n
+main.hm_top.conbus5.m0_trn_tstr_n
+@22
+main.hm_top.conbus5.m1_trn_tbuf_av[5:0]
+@28
+main.hm_top.conbus5.m1_trn_tcfg_gnt_n
+main.hm_top.conbus5.m1_trn_tcfg_req_n
+@22
+main.hm_top.conbus5.m1_trn_td[63:0]
+@28
+main.hm_top.conbus5.m1_trn_tdst_rdy_n
+main.hm_top.conbus5.m1_trn_teof_n
+main.hm_top.conbus5.m1_trn_terr_drop_n
+main.hm_top.conbus5.m1_trn_terrfwd_n
+main.hm_top.conbus5.m1_trn_trem_n
+main.hm_top.conbus5.m1_trn_tsof_n
+main.hm_top.conbus5.m1_trn_tsrc_dsc_n
+main.hm_top.conbus5.m1_trn_tsrc_rdy_n
+main.hm_top.conbus5.m1_trn_tstr_n
+@22
+main.hm_top.conbus5.req[4:0]
+main.hm_top.conbus5.s_trn_tbuf_av[5:0]
+@28
+main.hm_top.conbus5.s_trn_tcfg_gnt_n
+main.hm_top.conbus5.s_trn_tcfg_req_n
+@22
+main.hm_top.conbus5.s_trn_td[63:0]
+@28
+main.hm_top.conbus5.s_trn_tdst_rdy_n
+main.hm_top.conbus5.s_trn_teof_n
+main.hm_top.conbus5.s_trn_terr_drop_n
+main.hm_top.conbus5.s_trn_terrfwd_n
+main.hm_top.conbus5.s_trn_trem_n
+main.hm_top.conbus5.s_trn_tsof_n
+main.hm_top.conbus5.s_trn_tsrc_dsc_n
+main.hm_top.conbus5.s_trn_tsrc_rdy_n
+main.hm_top.conbus5.s_trn_tstr_n
+main.hm_top.conbus5.trn_clk
+main.hm_top.conbus5.trn_rst
+@1000200
+-conbus
+@c00200
+-arb
+@28
+main.hm_top.conbus5.arb.gnt[2:0]
+main.hm_top.conbus5.arb.next_state[2:0]
+@22
+main.hm_top.conbus5.arb.req[4:0]
+@28
+main.hm_top.conbus5.arb.state[2:0]
+main.hm_top.conbus5.arb.trn_clk
+main.hm_top.conbus5.arb.trn_rst
+@1401200
+-arb
 [pattern_trace] 1
 [pattern_trace] 0

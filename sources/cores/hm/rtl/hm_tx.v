@@ -23,11 +23,9 @@ module hm_tx (
   output reg trn_tsrc_rdy_n,
   input trn_tdst_rdy_n,
   input [5:0] trn_tbuf_av,
-  input trn_tcfg_req_n,
   input trn_terr_drop_n,
   output trn_tsrc_dsc_n,
   output trn_terrfwd_n,
-  output trn_tcfg_gnt_n,
   output trn_tstr_n,
 
   // User statistics counters ans status
@@ -50,7 +48,6 @@ wire [15:0] req_id = {cfg_bus_number, cfg_device_number, cfg_function_number};
  */
 assign trn_tstr_n = 1'b0;
 assign trn_terrfwd_n = 1'b1;
-assign trn_tcfg_gnt_n = 1'b0;
 assign trn_tsrc_dsc_n = 1'b1;
 assign stat_state = state;
 

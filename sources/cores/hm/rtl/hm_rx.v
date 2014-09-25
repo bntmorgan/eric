@@ -26,10 +26,8 @@ module hm_rx (
   input trn_rsof_n,
   input trn_reof_n,
   input trn_rsrc_rdy_n,
-  output reg trn_rdst_rdy_n,
   input trn_rsrc_dsc_n,
   input trn_rerrfwd_n,
-  output trn_rnp_ok_n,
   input [6:0] trn_rbar_hit_n,
 
   // User statistics counters ans status
@@ -40,7 +38,6 @@ module hm_rx (
 /**
  * Core input tie-offs
  */
-assign trn_rnp_ok_n = 1'b0;
 
 reg [1:0] state;
 reg [9:0] offset_l;
@@ -122,7 +119,6 @@ endtask
 
 task init;
 begin
-  trn_rdst_rdy_n <= 1'b0; // !!!! We are everytime ready, ignoring requests !!!!
   state <= `HM_RX_STATE_IDLE;
   stat_trn_cpt_rx <= 32'b0;
   byte_count <= 12'b0;

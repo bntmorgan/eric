@@ -153,6 +153,29 @@ wire sys__trn_lnk_up_n;
 wire [1:0] trn__state = state;
 wire [1:0] sys__state;
 
+// TX TRN bus sharing
+
+// Ties off
+assign trn_tcfg_gnt_n = 1'b0;
+assign trn_rnp_ok_n = 1'b0;
+assign trn_rdst_rdy_n = 1'b0; // !!!! We are everytime ready !!!!
+
+// Masters
+
+wire [5:0] m0_trn_tbuf_av;
+wire m0_trn_tcfg_req_n;
+wire m0_trn_terr_drop_n;
+wire m0_trn_tdst_rdy_n;
+wire [63:0] m0_trn_td;
+wire m0_trn_trem_n;
+wire m0_trn_tsof_n;
+wire m0_trn_teof_n;
+wire m0_trn_tsrc_rdy_n;
+wire m0_trn_tsrc_dsc_n;
+wire m0_trn_terrfwd_n;
+wire m0_trn_tcfg_gnt_n;
+wire m0_trn_tstr_n;
+
 task init_trn;
 begin
   state <= `HM_STATE_IDLE;
@@ -310,10 +333,8 @@ hm_rx rx (
   .trn_rsof_n(trn_rsof_n),
   .trn_reof_n(trn_reof_n),
   .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
-  .trn_rdst_rdy_n(trn_rdst_rdy_n),
   .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
   .trn_rerrfwd_n(trn_rerrfwd_n),
-  .trn_rnp_ok_n(trn_rnp_ok_n),
   .trn_rbar_hit_n(trn_rbar_hit_n),
   .stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
   .stat_state(trn__state_rx)
@@ -328,19 +349,23 @@ hm_tx tx (
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
   .trn_lnk_up_n(trn_lnk_up_n),
-  .trn_td(trn_td),
-  .trn_tsof_n(trn_tsof_n),
-  .trn_trem_n(trn_trem_n),
-  .trn_teof_n(trn_teof_n),
-  .trn_tsrc_rdy_n(trn_tsrc_rdy_n),
-  .trn_tdst_rdy_n(trn_tdst_rdy_n),
-  .trn_tbuf_av(trn_tbuf_av),
-  .trn_tcfg_req_n(trn_tcfg_req_n),
-  .trn_terr_drop_n(trn_terr_drop_n),
-  .trn_tsrc_dsc_n(trn_tsrc_dsc_n),
-  .trn_terrfwd_n(trn_terrfwd_n),
-  .trn_tcfg_gnt_n(trn_tcfg_gnt_n),
-  .trn_tstr_n(trn_tstr_n),
+
+  .trn_tbuf_av(m0_trn_tbuf_av),
+  .trn_terr_drop_n(m0_trn_terr_drop_n),
+  .trn_tdst_rdy_n(m0_trn_tdst_rdy_n),
+  .trn_td(m0_trn_td),
+  .trn_trem_n(m0_trn_trem_n),
+  .trn_tsof_n(m0_trn_tsof_n),
+  .trn_teof_n(m0_trn_teof_n),
+  .trn_tsrc_rdy_n(m0_trn_tsrc_rdy_n),
+  .trn_tsrc_dsc_n(m0_trn_tsrc_dsc_n),
+  .trn_terrfwd_n(m0_trn_terrfwd_n),
+  .trn_tstr_n(m0_trn_tstr_n),
+
+  .cfg_bus_number(cfg_bus_number),
+  .cfg_device_number(cfg_device_number),
+  .cfg_function_number(cfg_function_number),
+
   .stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
   .stat_state(trn__state_tx),
   .stat_trn_cpt_drop(trn__stat_trn_cpt_drop)
@@ -436,6 +461,90 @@ always @(*) begin
     end
   end
 end
+
+// TRN Conbus
+hm_conbus5 conbus5(
+  .trn_clk(trn_clk),
+  .trn_rst(sys_rst | ~trn_reset_n),
+	
+	// Master 0 Interface
+  .m0_trn_tbuf_av(m0_trn_tbuf_av),
+  .m0_trn_terr_drop_n(m0_trn_terr_drop_n),
+  .m0_trn_tdst_rdy_n(m0_trn_tdst_rdy_n),
+  .m0_trn_td(m0_trn_td),
+  .m0_trn_trem_n(m0_trn_trem_n),
+  .m0_trn_tsof_n(m0_trn_tsof_n),
+  .m0_trn_teof_n(m0_trn_teof_n),
+  .m0_trn_tsrc_rdy_n(m0_trn_tsrc_rdy_n),
+  .m0_trn_tsrc_dsc_n(m0_trn_tsrc_dsc_n),
+  .m0_trn_terrfwd_n(m0_trn_terrfwd_n),
+  .m0_trn_tstr_n(m0_trn_tstr_n),
+	
+	// Master 1 Interface
+  .m1_trn_tbuf_av(),
+  .m1_trn_terr_drop_n(),
+  .m1_trn_tdst_rdy_n(),
+  .m1_trn_td(64'bx),
+  .m1_trn_trem_n(1'bx),
+  .m1_trn_tsof_n(1'bx),
+  .m1_trn_teof_n(1'bx),
+  .m1_trn_tsrc_rdy_n(1'b0),
+  .m1_trn_tsrc_dsc_n(1'bx),
+  .m1_trn_terrfwd_n(1'bx),
+  .m1_trn_tstr_n(1'bx),
+	
+	// Master 2 Interface
+  .m2_trn_tbuf_av(),
+  .m2_trn_terr_drop_n(),
+  .m2_trn_tdst_rdy_n(),
+  .m2_trn_td(64'bx),
+  .m2_trn_trem_n(1'bx),
+  .m2_trn_tsof_n(1'bx),
+  .m2_trn_teof_n(1'bx),
+  .m2_trn_tsrc_rdy_n(1'b0),
+  .m2_trn_tsrc_dsc_n(1'bx),
+  .m2_trn_terrfwd_n(1'bx),
+  .m2_trn_tstr_n(1'bx),
+	
+	// Master 3 Interface
+  .m3_trn_tbuf_av(),
+  .m3_trn_terr_drop_n(),
+  .m3_trn_tdst_rdy_n(),
+  .m3_trn_td(64'bx),
+  .m3_trn_trem_n(1'bx),
+  .m3_trn_tsof_n(1'bx),
+  .m3_trn_teof_n(1'bx),
+  .m3_trn_tsrc_rdy_n(1'b0),
+  .m3_trn_tsrc_dsc_n(1'bx),
+  .m3_trn_terrfwd_n(1'bx),
+  .m3_trn_tstr_n(1'bx),
+	
+	// Master 4 Interface
+  .m4_trn_tbuf_av(),
+  .m4_trn_terr_drop_n(),
+  .m4_trn_tdst_rdy_n(),
+  .m4_trn_td(64'bx),
+  .m4_trn_trem_n(1'bx),
+  .m4_trn_tsof_n(1'bx),
+  .m4_trn_teof_n(1'bx),
+  .m4_trn_tsrc_rdy_n(1'b0),
+  .m4_trn_tsrc_dsc_n(1'bx),
+  .m4_trn_terrfwd_n(1'bx),
+  .m4_trn_tstr_n(1'bx),
+
+  // Slave Interface
+  .s_trn_tbuf_av(trn_tbuf_av),
+  .s_trn_terr_drop_n(trn_terr_drop_n),
+  .s_trn_tdst_rdy_n(trn_tdst_rdy_n),
+  .s_trn_td(trn_td),
+  .s_trn_trem_n(trn_trem_n),
+  .s_trn_tsof_n(trn_tsof_n),
+  .s_trn_teof_n(trn_teof_n),
+  .s_trn_tsrc_rdy_n(trn_tsrc_rdy_n),
+  .s_trn_tsrc_dsc_n(trn_tsrc_dsc_n),
+  .s_trn_terrfwd_n(trn_terrfwd_n),
+  .s_trn_tstr_n(trn_tstr_n)
+);
 
 // Sync
 
