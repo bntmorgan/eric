@@ -22,7 +22,7 @@ task init;
     DOB <= 32'b0;
     for (d = 0; d < 4096; d = d + 1) begin
       // mem[d][7:0] = 8'b0;
-      mem[d][7:0] = d;
+      mem[d][7:0] = d / 4;
     end
   end
 endtask

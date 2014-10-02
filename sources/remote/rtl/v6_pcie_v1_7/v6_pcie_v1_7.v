@@ -63,7 +63,8 @@
 module v6_pcie_v1_7 # ( 
   parameter        ALLOW_X8_GEN2 = "FALSE",
   parameter        BAR0 = 32'hFFFFFF80,
-  parameter        BAR1 = 32'h00000000,
+  parameter        BAR1 = 32'hFFFFFF80,
+  // parameter        BAR1 = 32'h00000000,
   parameter        BAR2 = 32'hFFFFFF80,
   parameter        BAR3 = 32'h00000000,
   parameter        BAR4 = 32'h00000000,
@@ -80,7 +81,8 @@ module v6_pcie_v1_7 # (
   parameter        DEV_CAP_EXT_TAG_SUPPORTED = "FALSE",
   parameter        DEV_CAP_MAX_PAYLOAD_SUPPORTED = 3,
   parameter        DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT = 0,
-  parameter        DEVICE_ID = 16'hCACA,
+  parameter        DEVICE_ID = 16'hE51C,
+  // parameter        DEVICE_ID = 16'h1502,
 
   parameter        DISABLE_LANE_REVERSAL = "TRUE",
   parameter        DISABLE_SCRAMBLING = "FALSE",
@@ -90,7 +92,8 @@ module v6_pcie_v1_7 # (
 
   parameter        ENABLE_MSG_ROUTE = 11'h00000000000,
   parameter        ENABLE_RX_TD_ECRC_TRIM = "FALSE",
-  parameter        EXPANSION_ROM = 32'h00000000,
+  parameter        EXPANSION_ROM = 32'hFFFFF001,
+  // parameter        EXPANSION_ROM = 32'h00000000,
   parameter        EXT_CFG_CAP_PTR = 6'h3F,
   parameter        EXT_CFG_XP_CAP_PTR = 10'h3FF,
   parameter        HEADER_TYPE = 8'h00,
@@ -164,6 +167,8 @@ module v6_pcie_v1_7 # (
   parameter        SPARE_BIT0 = 0,
   parameter        SUBSYSTEM_ID = 16'hCACA,
   parameter        SUBSYSTEM_VENDOR_ID = 16'hCACA,
+//  parameter        SUBSYSTEM_ID = 16'h103c,
+//  parameter        SUBSYSTEM_VENDOR_ID = 16'h1815,
 
   parameter        TL_RX_RAM_RADDR_LATENCY = 0,
   parameter        TL_RX_RAM_RDATA_LATENCY = 2,
@@ -188,7 +193,8 @@ module v6_pcie_v1_7 # (
   parameter        VC0_TOTAL_CREDITS_PH = 32,
   parameter        VC0_TX_LASTPACKET = 30,
 
-  parameter        VENDOR_ID = 16'h8086,
+  parameter        VENDOR_ID = 16'h1AA5,
+  // parameter        VENDOR_ID = 16'h8086,
   parameter        VSEC_BASE_PTR = 12'h0,
   parameter        VSEC_CAP_NEXTPTR = 12'h000,
   parameter        VSEC_CAP_ON = "FALSE",

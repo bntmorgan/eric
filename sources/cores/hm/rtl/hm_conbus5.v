@@ -11,6 +11,7 @@ module hm_conbus5 (
   output [5:0] m0_trn_tbuf_av,
   output m0_trn_terr_drop_n,
   output m0_trn_tdst_rdy_n,
+  input m0_trn_cyc_n,
   input [63:0] m0_trn_td,
   input m0_trn_trem_n,
   input m0_trn_tsof_n,
@@ -24,6 +25,7 @@ module hm_conbus5 (
   output [5:0] m1_trn_tbuf_av,
   output m1_trn_terr_drop_n,
   output m1_trn_tdst_rdy_n,
+  input m1_trn_cyc_n,
   input [63:0] m1_trn_td,
   input m1_trn_trem_n,
   input m1_trn_tsof_n,
@@ -37,6 +39,7 @@ module hm_conbus5 (
   output [5:0] m2_trn_tbuf_av,
   output m2_trn_terr_drop_n,
   output m2_trn_tdst_rdy_n,
+  input m2_trn_cyc_n,
   input [63:0] m2_trn_td,
   input m2_trn_trem_n,
   input m2_trn_tsof_n,
@@ -50,6 +53,7 @@ module hm_conbus5 (
   output [5:0] m3_trn_tbuf_av,
   output m3_trn_terr_drop_n,
   output m3_trn_tdst_rdy_n,
+  input m3_trn_cyc_n,
   input [63:0] m3_trn_td,
   input m3_trn_trem_n,
   input m3_trn_tsof_n,
@@ -63,6 +67,7 @@ module hm_conbus5 (
   output [5:0] m4_trn_tbuf_av,
   output m4_trn_terr_drop_n,
   output m4_trn_tdst_rdy_n,
+  input m4_trn_cyc_n,
   input [63:0] m4_trn_td,
   input m4_trn_trem_n,
   input m4_trn_tsof_n,
@@ -95,27 +100,27 @@ reg [mbusw_ls -1:0] i_bus_m;	// internal shared bus, master data and control to 
 // master 0
 assign m0_trn_tbuf_av = s_trn_tbuf_av;
 assign m0_trn_terr_drop_n = s_trn_terr_drop_n;
-assign m0_trn_tdst_rdy_n = s_trn_tdst_rdy_n & (gnt == 3'd0);
+assign m0_trn_tdst_rdy_n = s_trn_tdst_rdy_n | ~(gnt == 3'd0);
 
 // master 1
 assign m1_trn_tbuf_av = s_trn_tbuf_av;
 assign m1_trn_terr_drop_n = s_trn_terr_drop_n;
-assign m1_trn_tdst_rdy_n = s_trn_tdst_rdy_n & (gnt == 3'd1);
+assign m1_trn_tdst_rdy_n = s_trn_tdst_rdy_n | ~(gnt == 3'd1);
 
 // master 2
 assign m2_trn_tbuf_av = s_trn_tbuf_av;
 assign m2_trn_terr_drop_n = s_trn_terr_drop_n;
-assign m2_trn_tdst_rdy_n = s_trn_tdst_rdy_n & (gnt == 3'd2);
+assign m2_trn_tdst_rdy_n = s_trn_tdst_rdy_n | ~(gnt == 3'd2);
 
 // master 3
 assign m3_trn_tbuf_av = s_trn_tbuf_av;
 assign m3_trn_terr_drop_n = s_trn_terr_drop_n;
-assign m3_trn_tdst_rdy_n = s_trn_tdst_rdy_n & (gnt == 3'd3);
+assign m3_trn_tdst_rdy_n = s_trn_tdst_rdy_n | ~(gnt == 3'd3);
 
 // master 4
 assign m4_trn_tbuf_av = s_trn_tbuf_av;
 assign m4_trn_terr_drop_n = s_trn_terr_drop_n;
-assign m4_trn_tdst_rdy_n = s_trn_tdst_rdy_n & (gnt == 3'd4);
+assign m4_trn_tdst_rdy_n = s_trn_tdst_rdy_n | ~(gnt == 3'd4);
 
 // slave 0
 assign {s_trn_td, s_trn_trem_n, s_trn_tsof_n, s_trn_teof_n, s_trn_tsrc_rdy_n,
@@ -136,8 +141,8 @@ always @(*) begin
 	endcase
 end
 
-wire [4:0] req = {~m0_trn_tsrc_rdy_n, ~m1_trn_tsrc_rdy_n, ~m2_trn_tsrc_rdy_n,
-  ~m3_trn_tsrc_rdy_n, ~m4_trn_tsrc_rdy_n};
+wire [4:0] req = {~m4_trn_cyc_n, ~m3_trn_cyc_n, ~m2_trn_cyc_n, ~m1_trn_cyc_n,
+  ~m0_trn_cyc_n};
 
 hm_arb5 arb(
 	.trn_clk(trn_clk),

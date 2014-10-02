@@ -16,6 +16,7 @@ module hm_tx (
   input trn_clk,
   input trn_reset_n,
   input trn_lnk_up_n,
+  output reg trn_cyc_n,
   output reg [63:0] trn_td,
   output reg trn_tsof_n,
   output reg trn_trem_n,
@@ -65,6 +66,7 @@ begin
   state <= `HM_TX_STATE_IDLE;
   tx_end <= 1'b0;
   cpt <= 2'b0;
+  trn_cyc_n <= 1'b1;
   trn_td <= 64'b0;
   trn_tsof_n <= 1'b1;
   trn_trem_n <= 1'b1;
@@ -125,6 +127,7 @@ always @(posedge trn_clk) begin
       timeout_cpt <= 16'h0000;
       if (tx_start) begin
         state <= `HM_TX_STATE_SEND;
+        trn_cyc_n <= 1'b0;
         if (is_lower_4_gb) begin
           data[1][63:32] <= hm_addr[31:0];
           data[0][63:61] <= 3'b000; // fmt[2:0] = 3'b000 : 3DW header no data
@@ -138,6 +141,7 @@ always @(posedge trn_clk) begin
         state <= `HM_TX_STATE_IDLE;
         tx_end <= 1'b1;
         cpt <= 2'b0;
+        trn_cyc_n <= 1'b1;
         trn_tsrc_rdy_n <= 1'b1;
         trn_teof_n <= 1'b1;
         trn_trem_n <= 1'b1;

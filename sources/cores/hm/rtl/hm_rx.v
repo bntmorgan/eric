@@ -10,11 +10,11 @@ module hm_rx (
   output reg rx_memory_read,
 
   output reg [9:0] mem_l_addr,
-  output reg [31:0] mem_l_data,
+  output reg [31:0] mem_l_data_o,
   output reg mem_l_we,
 
   output reg [9:0] mem_h_addr,
-  output reg [31:0] mem_h_data,
+  output reg [31:0] mem_h_data_o,
   output reg mem_h_we,
 
   // Trn receive interface
@@ -60,7 +60,7 @@ assign stat_state = state;
 task write_init_l;
 begin
   mem_l_addr <= 10'b0;
-  mem_l_data <= 32'b0;
+  mem_l_data_o <= 32'b0;
   mem_l_we <= 1'b0;
   offset_l <= 10'b0;
 end
@@ -69,16 +69,16 @@ endtask
 task write_init_h;
 begin
   mem_h_addr <= 10'b0;
-  mem_h_data <= 32'b0;
+  mem_h_data_o <= 32'b0;
   mem_h_we <= 1'b0;
   offset_h <= 10'b0;
 end
 endtask
 
 task write_mem_l;
-  input [32:0] data;
+  input [31:0] data;
 begin
-  mem_l_data <= {
+  mem_l_data_o <= {
     data[7:0],
     data[15:8],
     data[23:16],
@@ -91,9 +91,9 @@ end
 endtask
 
 task write_mem_h;
-  input [32:0] data;
+  input [31:0] data;
 begin
-  mem_h_data <= {
+  mem_h_data_o <= {
     data[7:0],
     data[15:8],
     data[23:16],

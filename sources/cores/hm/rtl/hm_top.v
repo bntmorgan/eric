@@ -111,22 +111,58 @@ begin
 end
 endtask
 
-// Memory
+wire [3:0] wb_sel_i_le = {
+  wb_sel_i[0],
+  wb_sel_i[1],
+  wb_sel_i[2],
+  wb_sel_i[3]
+};
 
-wire [9:0] mem_l_addr;
-wire [9:0] mem_h_addr;
-wire mem_l_we;
-wire mem_h_we;
-wire [31:0] m_doa [1:0];
-wire [9:0] m_addra [1:0];
-wire [31:0] m_dib [1:0];
-wire [9:0] m_addrb [1:0];
-wire [3:0] m_web [1:0];
-assign m_web[0] = (mem_l_we == 1'b1) ? 4'b1111 : 4'b0000;
-assign m_web[1] = (mem_h_we == 1'b1) ? 4'b1111 : 4'b0000;
-assign m_addrb[0] = mem_l_addr;
-assign m_addrb[1] = mem_h_addr;
-assign hm_data [63:0] = {m_doa[1][31:0], m_doa[0][31:0]};
+// Memory READ
+
+wire [9:0] read_mem_l_addr;
+wire [9:0] read_mem_h_addr;
+wire read_mem_l_we;
+wire read_mem_h_we;
+wire [31:0] read_m_doa [1:0];
+wire [31:0] read_m_dia [1:0];
+wire [9:0] read_m_addra [1:0];
+wire [3:0] read_m_wea [1:0];
+wire [31:0] read_m_dib [1:0];
+wire [9:0] read_m_addrb [1:0];
+wire [3:0] read_m_web [1:0];
+
+// Memory Expansion ROM
+
+wire [9:0] exp_mem_l_addr;
+wire [9:0] exp_mem_h_addr;
+wire [31:0] exp_m_doa [1:0];
+wire [31:0] exp_m_dia [1:0];
+wire [9:0] exp_m_addra [1:0];
+wire [3:0] exp_m_wea [1:0];
+wire [31:0] exp_m_dob [1:0];
+wire [9:0] exp_m_addrb [1:0];
+assign exp_m_addrb[0] = exp_mem_l_addr;
+assign exp_m_addrb[1] = exp_mem_h_addr;
+
+// Memory BAR
+
+wire [9:0] bar_mem_l_addr;
+wire [9:0] bar_mem_h_addr;
+wire [3:0] bar_mem_l_we;
+wire [3:0] bar_mem_h_we;
+wire [31:0] bar_m_doa [1:0];
+wire [31:0] bar_m_dia [1:0];
+wire [9:0] bar_m_addra [1:0];
+wire [3:0] bar_m_wea [1:0];
+wire [31:0] bar_m_dob [1:0];
+wire [31:0] bar_m_dib [1:0];
+wire [9:0] bar_m_addrb [1:0];
+wire [3:0] bar_m_web [1:0];
+assign bar_m_addrb[0] = bar_mem_l_addr;
+assign bar_m_addrb[1] = bar_mem_h_addr;
+assign bar_m_web[0] = bar_mem_l_we;
+assign bar_m_web[1] = bar_mem_h_we;
 
 // Synced wires
 
@@ -166,6 +202,7 @@ wire [5:0] m0_trn_tbuf_av;
 wire m0_trn_tcfg_req_n;
 wire m0_trn_terr_drop_n;
 wire m0_trn_tdst_rdy_n;
+wire m0_trn_cyc_n;
 wire [63:0] m0_trn_td;
 wire m0_trn_trem_n;
 wire m0_trn_tsof_n;
@@ -175,6 +212,36 @@ wire m0_trn_tsrc_dsc_n;
 wire m0_trn_terrfwd_n;
 wire m0_trn_tcfg_gnt_n;
 wire m0_trn_tstr_n;
+
+wire [5:0] m1_trn_tbuf_av;
+wire m1_trn_tcfg_req_n;
+wire m1_trn_terr_drop_n;
+wire m1_trn_tdst_rdy_n;
+wire m1_trn_cyc_n;
+wire [63:0] m1_trn_td;
+wire m1_trn_trem_n;
+wire m1_trn_tsof_n;
+wire m1_trn_teof_n;
+wire m1_trn_tsrc_rdy_n;
+wire m1_trn_tsrc_dsc_n;
+wire m1_trn_terrfwd_n;
+wire m1_trn_tcfg_gnt_n;
+wire m1_trn_tstr_n;
+
+wire [5:0] m2_trn_tbuf_av;
+wire m2_trn_tcfg_req_n;
+wire m2_trn_terr_drop_n;
+wire m2_trn_tdst_rdy_n;
+wire m2_trn_cyc_n;
+wire [63:0] m2_trn_td;
+wire m2_trn_trem_n;
+wire m2_trn_tsof_n;
+wire m2_trn_teof_n;
+wire m2_trn_tsrc_rdy_n;
+wire m2_trn_tsrc_dsc_n;
+wire m2_trn_terrfwd_n;
+wire m2_trn_tcfg_gnt_n;
+wire m2_trn_tstr_n;
 
 task init_trn;
 begin
@@ -303,28 +370,16 @@ always @(posedge trn_clk) begin
   end
 end
 
-initial wb_ack_o <= 1'b0;
-always @(posedge sys_clk) begin
-	if(sys_rst)
-		wb_ack_o <= 1'b0;
-	else begin
-		wb_ack_o <= 1'b0;
-		if(wb_en & ~wb_ack_o)
-			wb_ack_o <= 1'b1;
-	end
-end
-
 // Rx Engine
-
 hm_rx rx (
   .sys_rst(sys_rst),
   .rx_memory_read(rx_memory_read),
-  .mem_l_addr(mem_l_addr),
-  .mem_l_data(m_dib[0]),
-  .mem_l_we(mem_l_we),
-  .mem_h_addr(mem_h_addr),
-  .mem_h_data(m_dib[1]),
-  .mem_h_we(mem_h_we),
+  .mem_l_addr(read_mem_l_addr),
+  .mem_l_data_o(read_m_dib[0]),
+  .mem_l_we(read_mem_l_we),
+  .mem_h_addr(read_mem_h_addr),
+  .mem_h_data_o(read_m_dib[1]),
+  .mem_h_we(read_mem_h_we),
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
   .trn_lnk_up_n(trn_lnk_up_n),
@@ -353,6 +408,7 @@ hm_tx tx (
   .trn_tbuf_av(m0_trn_tbuf_av),
   .trn_terr_drop_n(m0_trn_terr_drop_n),
   .trn_tdst_rdy_n(m0_trn_tdst_rdy_n),
+  .trn_cyc_n(m0_trn_cyc_n),
   .trn_td(m0_trn_td),
   .trn_trem_n(m0_trn_trem_n),
   .trn_tsof_n(m0_trn_tsof_n),
@@ -371,96 +427,89 @@ hm_tx tx (
   .stat_trn_cpt_drop(trn__stat_trn_cpt_drop)
 );
 
-// Memory
+hm_exp exp (
+  .sys_rst(sys_rst),
 
-assign m_addra[0] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
-assign m_addra[1] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
+  .trn_clk(trn_clk),
+  .trn_reset_n(trn_reset_n),
+  .trn_lnk_up_n(trn_lnk_up_n),
 
-`ifndef SIMULATION
-genvar ram_index;
-generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1) 
-begin: gen_ram
-	RAMB36 #(
-		.WRITE_WIDTH_A(36),
-		.READ_WIDTH_A(36),
-		.WRITE_WIDTH_B(36),
-		.READ_WIDTH_B(36),
-		.DOA_REG(0),
-		.DOB_REG(0),
-		.SIM_MODE("SAFE"),
-		.INIT_A(9'h000),
-		.INIT_B(9'h000),
-		.WRITE_MODE_A("WRITE_FIRST"),
-		.WRITE_MODE_B("WRITE_FIRST")
-	) ram (
-		.DIA(32'b0),
-		.DIPA(4'h0),
-		.DOA(m_doa[ram_index]),
-		.ADDRA({1'b0, m_addra[ram_index], 5'b0}), 
-		.WEA(4'b0),
-		.ENA(1'b1),
-		.CLKA(sys_clk),
-		
-		.DIB(m_dib[ram_index]),
-		.DIPB(4'h0),
-		.DOB(),
-		.ADDRB({1'b0, m_addrb[ram_index][9:0], 5'b0}), 
-		.WEB(m_web[ram_index]),
-		.ENB(1'b1),
-		.CLKB(trn_clk),
+  .mem_l_addr(exp_mem_l_addr),
+  .mem_l_data_i(exp_m_dob[0]),
 
-		.REGCEA(1'b0),
-		.REGCEB(1'b0),
-		
-		.SSRA(1'b0),
-		.SSRB(1'b0)
-	);
-end
-endgenerate
-`else
-genvar ram_index;
-generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1) 
-begin: gen_ram
-  hm_memory_32 m (
-		.DIA(32'b0),
-		.DOA(m_doa[ram_index]),
-		.ADDRA({1'b0, m_addra[ram_index], 5'b0}), 
-		.WEA(4'b0),
-		.CLKA(sys_clk),
-		
-		.DIB(m_dib[ram_index]),
-		.DOB(),
-		.ADDRB({1'b0, m_addrb[ram_index][9:0], 5'b0}), 
-		.WEB(m_web[ram_index]),
-		.CLKB(trn_clk)
-  );
-end
-endgenerate
-`endif//SIMULATION
+  .mem_h_addr(exp_mem_h_addr),
+  .mem_h_data_i(exp_m_dob[1]),
 
-always @(*) begin
-  if (sys_rst == 1'b1) begin
-	  wb_dat_o = 32'b0;
-  end else begin
-    // TODO No endianess convertion in debug mode, TLP are big endian in trn
-    // interface
-    if (wb_adr_i[2] == 1'b0) begin
-      wb_dat_o = {
-        m_doa[0][7:0],
-        m_doa[0][15:8],
-        m_doa[0][23:16],
-        m_doa[0][31:24]
-      };
-    end else begin
-      wb_dat_o = {
-        m_doa[1][7:0],
-        m_doa[1][15:8],
-        m_doa[1][23:16],
-        m_doa[1][31:24]
-      };
-    end
-  end
-end
+  .trn_tbuf_av(m1_trn_tbuf_av),
+  .trn_terr_drop_n(m1_trn_terr_drop_n),
+  .trn_tdst_rdy_n(m1_trn_tdst_rdy_n),
+  .trn_cyc_n(m1_trn_cyc_n),
+  .trn_td(m1_trn_td),
+  .trn_trem_n(m1_trn_trem_n),
+  .trn_tsof_n(m1_trn_tsof_n),
+  .trn_teof_n(m1_trn_teof_n),
+  .trn_tsrc_rdy_n(m1_trn_tsrc_rdy_n),
+  .trn_tsrc_dsc_n(m1_trn_tsrc_dsc_n),
+  .trn_terrfwd_n(m1_trn_terrfwd_n),
+  .trn_tstr_n(m1_trn_tstr_n),
+
+  .trn_rd(trn_rd),
+  .trn_rrem_n(trn_rrem_n),
+  .trn_rsof_n(trn_rsof_n),
+  .trn_reof_n(trn_reof_n),
+  .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
+  .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
+  .trn_rerrfwd_n(trn_rerrfwd_n),
+  .trn_rbar_hit_n(trn_rbar_hit_n),
+
+  .cfg_bus_number(cfg_bus_number),
+  .cfg_device_number(cfg_device_number),
+  .cfg_function_number(cfg_function_number)
+);
+
+hm_bar bar (
+  .sys_rst(sys_rst),
+
+  .trn_clk(trn_clk),
+  .trn_reset_n(trn_reset_n),
+  .trn_lnk_up_n(trn_lnk_up_n),
+
+  .mem_l_addr(bar_mem_l_addr),
+  .mem_l_data_i(bar_m_dob[0]),
+  .mem_l_we(bar_mem_l_we),
+  .mem_l_data_o(bar_m_dib[0]),
+
+  .mem_h_addr(bar_mem_h_addr),
+  .mem_h_data_i(bar_m_dob[1]),
+  .mem_h_we(bar_mem_h_we),
+  .mem_h_data_o(bar_m_dib[1]),
+
+  .trn_tbuf_av(m2_trn_tbuf_av),
+  .trn_terr_drop_n(m2_trn_terr_drop_n),
+  .trn_tdst_rdy_n(m2_trn_tdst_rdy_n),
+  .trn_cyc_n(m2_trn_cyc_n),
+  .trn_td(m2_trn_td),
+  .trn_trem_n(m2_trn_trem_n),
+  .trn_tsof_n(m2_trn_tsof_n),
+  .trn_teof_n(m2_trn_teof_n),
+  .trn_tsrc_rdy_n(m2_trn_tsrc_rdy_n),
+  .trn_tsrc_dsc_n(m2_trn_tsrc_dsc_n),
+  .trn_terrfwd_n(m2_trn_terrfwd_n),
+  .trn_tstr_n(m2_trn_tstr_n),
+
+  .trn_rd(trn_rd),
+  .trn_rrem_n(trn_rrem_n),
+  .trn_rsof_n(trn_rsof_n),
+  .trn_reof_n(trn_reof_n),
+  .trn_rsrc_rdy_n(trn_rsrc_rdy_n),
+  .trn_rsrc_dsc_n(trn_rsrc_dsc_n),
+  .trn_rerrfwd_n(trn_rerrfwd_n),
+  .trn_rbar_hit_n(trn_rbar_hit_n),
+
+  .cfg_bus_number(cfg_bus_number),
+  .cfg_device_number(cfg_device_number),
+  .cfg_function_number(cfg_function_number)
+);
 
 // TRN Conbus
 hm_conbus5 conbus5(
@@ -471,6 +520,7 @@ hm_conbus5 conbus5(
   .m0_trn_tbuf_av(m0_trn_tbuf_av),
   .m0_trn_terr_drop_n(m0_trn_terr_drop_n),
   .m0_trn_tdst_rdy_n(m0_trn_tdst_rdy_n),
+  .m0_trn_cyc_n(m0_trn_cyc_n),
   .m0_trn_td(m0_trn_td),
   .m0_trn_trem_n(m0_trn_trem_n),
   .m0_trn_tsof_n(m0_trn_tsof_n),
@@ -480,41 +530,44 @@ hm_conbus5 conbus5(
   .m0_trn_terrfwd_n(m0_trn_terrfwd_n),
   .m0_trn_tstr_n(m0_trn_tstr_n),
 	
-	// Master 1 Interface
-  .m1_trn_tbuf_av(),
-  .m1_trn_terr_drop_n(),
-  .m1_trn_tdst_rdy_n(),
-  .m1_trn_td(64'bx),
-  .m1_trn_trem_n(1'bx),
-  .m1_trn_tsof_n(1'bx),
-  .m1_trn_teof_n(1'bx),
-  .m1_trn_tsrc_rdy_n(1'b0),
-  .m1_trn_tsrc_dsc_n(1'bx),
-  .m1_trn_terrfwd_n(1'bx),
-  .m1_trn_tstr_n(1'bx),
-	
-	// Master 2 Interface
-  .m2_trn_tbuf_av(),
-  .m2_trn_terr_drop_n(),
-  .m2_trn_tdst_rdy_n(),
-  .m2_trn_td(64'bx),
-  .m2_trn_trem_n(1'bx),
-  .m2_trn_tsof_n(1'bx),
-  .m2_trn_teof_n(1'bx),
-  .m2_trn_tsrc_rdy_n(1'b0),
-  .m2_trn_tsrc_dsc_n(1'bx),
-  .m2_trn_terrfwd_n(1'bx),
-  .m2_trn_tstr_n(1'bx),
+  // Master 1 Interface
+  .m1_trn_tbuf_av(m1_trn_tbuf_av),
+  .m1_trn_terr_drop_n(m1_trn_terr_drop_n),
+  .m1_trn_tdst_rdy_n(m1_trn_tdst_rdy_n),
+  .m1_trn_cyc_n(m1_trn_cyc_n),
+  .m1_trn_td(m1_trn_td),
+  .m1_trn_trem_n(m1_trn_trem_n),
+  .m1_trn_tsof_n(m1_trn_tsof_n),
+  .m1_trn_teof_n(m1_trn_teof_n),
+  .m1_trn_tsrc_rdy_n(m1_trn_tsrc_rdy_n),
+  .m1_trn_tsrc_dsc_n(m1_trn_tsrc_dsc_n),
+  .m1_trn_terrfwd_n(m1_trn_terrfwd_n),
+  .m1_trn_tstr_n(m1_trn_tstr_n),
+  
+  // Master 2 Interface
+  .m2_trn_tbuf_av(m2_trn_tbuf_av),
+  .m2_trn_terr_drop_n(m2_trn_terr_drop_n),
+  .m2_trn_tdst_rdy_n(m2_trn_tdst_rdy_n),
+  .m2_trn_cyc_n(m2_trn_cyc_n),
+  .m2_trn_td(m2_trn_td),
+  .m2_trn_trem_n(m2_trn_trem_n),
+  .m2_trn_tsof_n(m2_trn_tsof_n),
+  .m2_trn_teof_n(m2_trn_teof_n),
+  .m2_trn_tsrc_rdy_n(m2_trn_tsrc_rdy_n),
+  .m2_trn_tsrc_dsc_n(m2_trn_tsrc_dsc_n),
+  .m2_trn_terrfwd_n(m2_trn_terrfwd_n),
+  .m2_trn_tstr_n(m2_trn_tstr_n),
 	
 	// Master 3 Interface
   .m3_trn_tbuf_av(),
   .m3_trn_terr_drop_n(),
   .m3_trn_tdst_rdy_n(),
+  .m3_trn_cyc_n(1'b1),
   .m3_trn_td(64'bx),
   .m3_trn_trem_n(1'bx),
   .m3_trn_tsof_n(1'bx),
   .m3_trn_teof_n(1'bx),
-  .m3_trn_tsrc_rdy_n(1'b0),
+  .m3_trn_tsrc_rdy_n(1'bx),
   .m3_trn_tsrc_dsc_n(1'bx),
   .m3_trn_terrfwd_n(1'bx),
   .m3_trn_tstr_n(1'bx),
@@ -523,11 +576,12 @@ hm_conbus5 conbus5(
   .m4_trn_tbuf_av(),
   .m4_trn_terr_drop_n(),
   .m4_trn_tdst_rdy_n(),
+  .m4_trn_cyc_n(1'b1),
   .m4_trn_td(64'bx),
   .m4_trn_trem_n(1'bx),
   .m4_trn_tsof_n(1'bx),
   .m4_trn_teof_n(1'bx),
-  .m4_trn_tsrc_rdy_n(1'b0),
+  .m4_trn_tsrc_rdy_n(1'bx),
   .m4_trn_tsrc_dsc_n(1'bx),
   .m4_trn_terrfwd_n(1'bx),
   .m4_trn_tstr_n(1'bx),
@@ -572,5 +626,306 @@ hm_sync sync (
   .trn__state(trn__state),
   .sys__state(sys__state)
 );
+
+// Memory HM read
+
+assign read_m_web[0] = (read_mem_l_we == 1'b1) ? 4'b1111 : 4'b0000;
+assign read_m_web[1] = (read_mem_h_we == 1'b1) ? 4'b1111 : 4'b0000;
+assign read_m_addrb[0] = read_mem_l_addr;
+assign read_m_addrb[1] = read_mem_h_addr;
+assign hm_data [63:0] = {read_m_doa[1][31:0], read_m_doa[0][31:0]};
+
+assign read_m_addra[0] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
+assign read_m_addra[1] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
+
+assign read_m_dia[0] = {
+  wb_dat_i[7:0],
+  wb_dat_i[15:8],
+  wb_dat_i[23:16],
+  wb_dat_i[31:24]
+};
+assign read_m_dia[1] = {
+  wb_dat_i[7:0],
+  wb_dat_i[15:8],
+  wb_dat_i[23:16],
+  wb_dat_i[31:24]
+};
+
+assign read_m_wea[0] = (wb_en & wb_we_i & ~wb_adr_i[2] & ~wb_adr_i[13] &
+  ~wb_adr_i[12]) ? wb_sel_i_le : 4'b0000;
+assign read_m_wea[1] = (wb_en & wb_we_i & wb_adr_i[2] & ~wb_adr_i[13] &
+  ~wb_adr_i[12]) ? wb_sel_i_le : 4'b0000;
+
+// Memory HM Expansion ROM
+
+assign exp_m_addra[0] = wb_adr_i[11:3];
+assign exp_m_addra[1] = wb_adr_i[11:3];
+
+assign exp_m_dia[0] = {
+  wb_dat_i[7:0],
+  wb_dat_i[15:8],
+  wb_dat_i[23:16],
+  wb_dat_i[31:24]
+};
+assign exp_m_dia[1] = {
+  wb_dat_i[7:0],
+  wb_dat_i[15:8],
+  wb_dat_i[23:16],
+  wb_dat_i[31:24]
+};
+
+assign exp_m_wea[0] = (wb_en & wb_we_i & ~wb_adr_i[2] & ~wb_adr_i[13] &
+  wb_adr_i[12]) ? wb_sel_i_le : 4'b0000;
+assign exp_m_wea[1] = (wb_en & wb_we_i & wb_adr_i[2] & ~wb_adr_i[13] &
+  wb_adr_i[12]) ? wb_sel_i_le : 4'b0000;
+
+// Memory BAR
+
+assign bar_m_addra[0] = wb_adr_i[11:3];
+assign bar_m_addra[1] = wb_adr_i[11:3];
+
+assign bar_m_dia[0] = {
+  wb_dat_i[7:0],
+  wb_dat_i[15:8],
+  wb_dat_i[23:16],
+  wb_dat_i[31:24]
+};
+assign bar_m_dia[1] = {
+  wb_dat_i[7:0],
+  wb_dat_i[15:8],
+  wb_dat_i[23:16],
+  wb_dat_i[31:24]
+};
+
+assign bar_m_wea[0] = (wb_en & wb_we_i & ~wb_adr_i[2] & wb_adr_i[13] &
+  ~wb_adr_i[12]) ? wb_sel_i_le : 4'b0000;
+assign bar_m_wea[1] = (wb_en & wb_we_i & wb_adr_i[2] & wb_adr_i[13] &
+  ~wb_adr_i[12]) ? wb_sel_i_le : 4'b0000;
+
+// Memory HM read / Memory HM Expansion ROM / Memory BAR
+`ifndef SIMULATION
+genvar ram_index;
+generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1) 
+begin: gen_ram
+	RAMB36 #(
+		.WRITE_WIDTH_A(36),
+		.READ_WIDTH_A(36),
+		.WRITE_WIDTH_B(36),
+		.READ_WIDTH_B(36),
+		.DOA_REG(0),
+		.DOB_REG(0),
+		.SIM_MODE("SAFE"),
+		.INIT_A(9'h000),
+		.INIT_B(9'h000),
+		.WRITE_MODE_A("WRITE_FIRST"),
+		.WRITE_MODE_B("WRITE_FIRST")
+	) read_ram (
+		.DIA(read_m_dia[ram_index]),
+		.DIPA(4'h0),
+		.DOA(read_m_doa[ram_index]),
+		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}), 
+		.WEA(read_m_wea[ram_index]),
+		.ENA(1'b1),
+		.CLKA(sys_clk),
+		
+		.DIB(read_m_dib[ram_index]),
+		.DIPB(4'h0),
+		.DOB(),
+		.ADDRB({1'b0, read_m_addrb[ram_index][9:0], 5'b0}), 
+		.WEB(read_m_web[ram_index]),
+		.ENB(1'b1),
+		.CLKB(trn_clk),
+
+		.REGCEA(1'b0),
+		.REGCEB(1'b0),
+		
+		.SSRA(1'b0),
+		.SSRB(1'b0)
+	);
+	RAMB36 #(
+		.WRITE_WIDTH_A(36),
+		.READ_WIDTH_A(36),
+		.WRITE_WIDTH_B(36),
+		.READ_WIDTH_B(36),
+		.DOA_REG(0),
+		.DOB_REG(0),
+		.SIM_MODE("SAFE"),
+		.INIT_A(9'h000),
+		.INIT_B(9'h000),
+		.WRITE_MODE_A("WRITE_FIRST"),
+		.WRITE_MODE_B("WRITE_FIRST")
+	) exp_ram (
+		.DIA(exp_m_dia[ram_index]),
+		.DIPA(4'h0),
+		.DOA(exp_m_doa[ram_index]),
+		.ADDRA({1'b0, exp_m_addra[ram_index], 5'b0}), 
+		.WEA(exp_m_wea[ram_index]),
+		.ENA(1'b1),
+		.CLKA(sys_clk),
+		
+		.DIB(32'b0),
+		.DIPB(4'h0),
+		.DOB(exp_m_dob[ram_index]),
+		.ADDRB({1'b0, exp_m_addrb[ram_index][9:0], 5'b0}), 
+		.WEB(4'h0),
+		.ENB(1'b1),
+		.CLKB(trn_clk),
+
+		.REGCEA(1'b0),
+		.REGCEB(1'b0),
+		
+		.SSRA(1'b0),
+		.SSRB(1'b0)
+	);
+	RAMB36 #(
+		.WRITE_WIDTH_A(36),
+		.READ_WIDTH_A(36),
+		.WRITE_WIDTH_B(36),
+		.READ_WIDTH_B(36),
+		.DOA_REG(0),
+		.DOB_REG(0),
+		.SIM_MODE("SAFE"),
+		.INIT_A(9'h000),
+		.INIT_B(9'h000),
+		.WRITE_MODE_A("WRITE_FIRST"),
+		.WRITE_MODE_B("WRITE_FIRST")
+	) bar_ram (
+		.DIA(bar_m_dia[ram_index]),
+		.DIPA(4'h0),
+		.DOA(bar_m_doa[ram_index]),
+		.ADDRA({1'b0, bar_m_addra[ram_index], 5'b0}), 
+		.WEA(bar_m_wea[ram_index]),
+		.ENA(1'b1),
+		.CLKA(sys_clk),
+		
+		.DIB(bar_m_dib[ram_index]),
+		.DIPB(4'h0),
+		.DOB(bar_m_dob[ram_index]),
+		.ADDRB({1'b0, bar_m_addrb[ram_index][9:0], 5'b0}), 
+		.WEB(bar_m_web[ram_index]),
+		.ENB(1'b1),
+		.CLKB(trn_clk),
+
+		.REGCEA(1'b0),
+		.REGCEB(1'b0),
+		
+		.SSRA(1'b0),
+		.SSRB(1'b0)
+	);
+end
+endgenerate
+`else
+genvar ram_index;
+generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1) 
+begin: gen_ram
+  hm_memory_32 read_m (
+		.DIA(read_m_dia[ram_index]),
+		.DOA(read_m_doa[ram_index]),
+		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}), 
+		.WEA(read_m_wea[ram_index]),
+		.CLKA(sys_clk),
+		
+		.DIB(read_m_dib[ram_index]),
+		.DOB(),
+		.ADDRB({1'b0, read_m_addrb[ram_index][9:0], 5'b0}), 
+    .WEB(read_m_web[ram_index]),
+		.CLKB(trn_clk)
+  );
+  hm_memory_32 exp_m (
+		.DIA(exp_m_dia[ram_index]),
+		.DOA(exp_m_doa[ram_index]),
+		.ADDRA({1'b0, exp_m_addra[ram_index], 5'b0}), 
+		.WEA(exp_m_wea[ram_index]),
+		.CLKA(sys_clk),
+		
+		.DIB(32'b0),
+		.DOB(exp_m_dob[ram_index]),
+		.ADDRB({1'b0, exp_m_addrb[ram_index][9:0], 5'b0}), 
+    .WEB(4'h0),
+		.CLKB(trn_clk)
+  );
+  hm_memory_32 bar_m (
+		.DIA(bar_m_dia[ram_index]),
+		.DOA(bar_m_doa[ram_index]),
+		.ADDRA({1'b0, bar_m_addra[ram_index], 5'b0}), 
+		.WEA(bar_m_wea[ram_index]),
+		.CLKA(sys_clk),
+		
+		.DIB(bar_m_dib[ram_index]),
+		.DOB(bar_m_dob[ram_index]),
+		.ADDRB({1'b0, bar_m_addrb[ram_index][9:0], 5'b0}), 
+    .WEB(bar_m_web[ram_index]),
+		.CLKB(trn_clk)
+  );
+end
+endgenerate
+`endif//SIMULATION
+
+always @(*) begin
+  if (sys_rst == 1'b1) begin
+	  wb_dat_o = 32'b0;
+  end else begin
+    if (~wb_adr_i[13] & ~wb_adr_i[12]) begin
+      if (~wb_adr_i[2]) begin
+        wb_dat_o = {
+          read_m_doa[0][7:0],
+          read_m_doa[0][15:8],
+          read_m_doa[0][23:16],
+          read_m_doa[0][31:24]
+        };
+      end else begin
+        wb_dat_o = {
+          read_m_doa[1][7:0],
+          read_m_doa[1][15:8],
+          read_m_doa[1][23:16],
+          read_m_doa[1][31:24]
+        };
+      end
+    end else if (~wb_adr_i[13] & wb_adr_i[12]) begin
+      if (~wb_adr_i[2]) begin
+        wb_dat_o = {
+          exp_m_doa[0][7:0],
+          exp_m_doa[0][15:8],
+          exp_m_doa[0][23:16],
+          exp_m_doa[0][31:24]
+        };
+      end else begin
+        wb_dat_o = {
+          exp_m_doa[1][7:0],
+          exp_m_doa[1][15:8],
+          exp_m_doa[1][23:16],
+          exp_m_doa[1][31:24]
+        };
+      end
+    end else begin
+      if (~wb_adr_i[2]) begin
+        wb_dat_o = {
+          bar_m_doa[0][7:0],
+          bar_m_doa[0][15:8],
+          bar_m_doa[0][23:16],
+          bar_m_doa[0][31:24]
+        };
+      end else begin
+        wb_dat_o = {
+          bar_m_doa[1][7:0],
+          bar_m_doa[1][15:8],
+          bar_m_doa[1][23:16],
+          bar_m_doa[1][31:24]
+        };
+      end
+    end
+  end
+end
+
+initial wb_ack_o <= 1'b0;
+always @(posedge sys_clk) begin
+	if(sys_rst)
+		wb_ack_o <= 1'b0;
+	else begin
+		wb_ack_o <= 1'b0;
+		if(wb_en & ~wb_ack_o)
+			wb_ack_o <= 1'b1;
+	end
+end
 
 endmodule
