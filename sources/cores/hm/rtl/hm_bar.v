@@ -11,6 +11,9 @@ module hm_bar (
   input trn_reset_n,
   input trn_lnk_up_n,
 
+  // Write bar event
+  output reg write_bar,
+
   output reg [9:0] mem_l_addr,
   output [3:0] mem_l_we,
   input [31:0] mem_l_data_i,
@@ -228,6 +231,7 @@ begin
   ep <= 0;
   attr <= 0;
   start_dw <= 0;
+  write_bar <= 0;
 end
 endtask
 
@@ -332,6 +336,8 @@ always @(posedge trn_clk) begin
     // By default we do not write any dw
     write_mem_l_no;
     write_mem_h_no;
+    // By default no write bar event
+    write_bar <= 1'b0;
     if (state == `HM_MR_STATE_IDLE) begin
       // Memory read bar hit !
       if (~trn_rsrc_rdy_n & is_memory_read_request & ~trn_rsof_n
@@ -436,6 +442,8 @@ always @(posedge trn_clk) begin
           write_init_h(trn_rd[43:35], 32'b0, 4'b0);
         end
         if (~trn_reof_n) begin
+          // Notify everyone
+          write_bar <= 1'b1;
           state <= `HM_MR_STATE_IDLE;
         end else begin
           state <= `HM_MR_STATE_RECV;
@@ -445,6 +453,8 @@ always @(posedge trn_clk) begin
       if (~trn_rsrc_rdy_n) begin
         // End of reception go to idle
         if (~trn_reof_n) begin
+          // Notify everyone
+          write_bar <= 1'b1;
           state <= `HM_MR_STATE_IDLE;
           if (~trn_rrem_n) begin
             write_mem_h(dw_h_i_le, 4'b1111);

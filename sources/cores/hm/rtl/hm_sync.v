@@ -11,6 +11,12 @@ module hm_sync (
   input trn__hm_end,
   output sys__hm_end,
 
+  input trn__write_bar,
+  output sys__write_bar,
+
+  input trn__read_exp,
+  output sys__read_exp,
+
   input trn__trn_lnk_up_n,
   output sys__trn_lnk_up_n,
 
@@ -88,6 +94,20 @@ psync ps_hm_end (
 	.i(trn__hm_end),
 	.clk2(sys_clk),
 	.o(sys__hm_end)
+);
+
+psync ps_write_bar (
+	.clk1(trn_clk),
+	.i(trn__write_bar),
+	.clk2(sys_clk),
+	.o(sys__write_bar)
+);
+
+psync ps_read_exp (
+	.clk1(trn_clk),
+	.i(trn__read_exp),
+	.clk2(sys_clk),
+	.o(sys__read_exp)
 );
 
 psync ps_trn_lnk_up_n (

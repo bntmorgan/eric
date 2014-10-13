@@ -11,6 +11,8 @@ module hm_exp (
   input trn_reset_n,
   input trn_lnk_up_n,
 
+  output reg read_exp,
+
   output reg [9:0] mem_l_addr,
   input [31:0] mem_l_data_i,
 
@@ -74,6 +76,7 @@ reg [2:0] tc;
 reg td;
 reg ep;
 reg [1:0] attr;
+reg last_byte_read;
 
 reg [06:0] lower_addr;
 // reg [11:0] byte_count; 
@@ -196,6 +199,8 @@ begin
   ep <= 0;
   attr <= 0;
   start_dw <= 0;
+  read_exp <= 0;
+  last_byte_read <= 0;
 end
 endtask
 
@@ -235,6 +240,7 @@ always @(posedge trn_clk) begin
   if (sys_rst || trn_lnk_up_n) begin
     init();
   end else begin
+    read_exp <= 1'b0;
     if (state == `HM_MR_STATE_IDLE) begin
       // Memory read bar hit !
       if (~trn_rsrc_rdy_n & is_memory_read_request & ~trn_rsof_n &
@@ -262,10 +268,17 @@ always @(posedge trn_clk) begin
         end else begin
           read_init_h(trn_rd[43:35]);
         end
+        // Is last byte included in this mem read : used to know when host as
+        // finished to read exp rom
+        last_byte_read <= (trn_rd[43:34] + length) >= 10'h3ff;
       end
     end else if (state == `HM_MR_STATE_SEND) begin
       // End of transmission go to idle
       if (dw_sent >= real_length) begin
+        // Notify everyone
+        if (last_byte_read) begin
+          read_exp <= 1'b1;
+        end
         state <= `HM_MR_STATE_IDLE;
         qw_sent <= 11'b0;
         dw_sent <= 11'b0;

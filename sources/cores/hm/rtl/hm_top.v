@@ -77,13 +77,15 @@ reg event_end;
 reg event_error;
 reg event_tx_timeout;
 reg event_rx_timeout;
+reg event_read_exp;
+reg event_write_bar;
 reg [63:0] address;
 
 // IRQs
 reg irq_en;
 // assign irq = 0;
-assign irq = (event_end & irq_en) | (event_tx_timeout & irq_en) |
-  (event_rx_timeout & irq_en);
+assign irq = irq_en & (event_end | event_tx_timeout | event_rx_timeout |
+    event_read_exp | event_write_bar);
 
 wire wb_en = wb_cyc_i & wb_stb_i;
 
@@ -105,6 +107,8 @@ begin
   event_rx_timeout <= 1'b0;
   event_tx_timeout <= 1'b0;
   event_end <= 1'b0;
+  event_read_exp <= 1'b0;
+  event_write_bar <= 1'b0;
   csr_do <= 32'd0; 
   irq_en <= 1'b0;
   address <= 64'b0;
@@ -178,6 +182,12 @@ wire [31:0] trn__stat_trn_cpt_drop;
 wire [31:0] sys__stat_trn_cpt_drop;
 wire trn__hm_end = hm_end;
 wire sys__hm_end;
+wire read_exp;
+wire trn__read_exp = read_exp;
+wire sys__read_exp;
+wire write_bar;
+wire trn__write_bar = write_bar;
+wire sys__write_bar;
 reg tx_timeout;
 wire trn__tx_timeout = tx_timeout;
 wire sys__tx_timeout;
@@ -271,8 +281,8 @@ always @(posedge sys_clk) begin
     hm_start <= 1'b0;
 		if (csr_selected) begin
 			case (csr_a[9:0])
-        `HM_CSR_STAT: csr_do <= {29'b0, event_rx_timeout, event_tx_timeout,
-          event_end};
+        `HM_CSR_STAT: csr_do <= {27'b0, event_write_bar, event_read_exp,
+          event_rx_timeout, event_tx_timeout, event_end};
         `HM_CSR_CTRL: csr_do <= {29'b0, hm_start, irq_en};
         `HM_CSR_ADDRESS_LOW: csr_do <= address[31:0];
         `HM_CSR_ADDRESS_HIGH: csr_do <= address[63:32];
@@ -294,6 +304,10 @@ always @(posedge sys_clk) begin
                 event_tx_timeout <= 1'b0;
               if(csr_di[2])
                 event_rx_timeout <= 1'b0;
+              if(csr_di[3])
+                event_read_exp <= 1'b0;
+              if(csr_di[4])
+                event_write_bar <= 1'b0;
             end
           end
           `HM_CSR_CTRL: begin
@@ -317,6 +331,12 @@ always @(posedge sys_clk) begin
     end
     if (sys__tx_timeout) begin
       event_tx_timeout <= 1'b1;
+    end
+    if (sys__read_exp) begin
+      event_read_exp <= 1'b1;
+    end
+    if (sys__write_bar) begin
+      event_write_bar <= 1'b1;
     end
   end
 end
@@ -434,6 +454,8 @@ hm_exp exp (
   .trn_reset_n(trn_reset_n),
   .trn_lnk_up_n(trn_lnk_up_n),
 
+  .read_exp(read_exp),
+
   .mem_l_addr(exp_mem_l_addr),
   .mem_l_data_i(exp_m_dob[0]),
 
@@ -473,6 +495,8 @@ hm_bar bar (
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
   .trn_lnk_up_n(trn_lnk_up_n),
+
+  .write_bar(write_bar),
 
   .mem_l_addr(bar_mem_l_addr),
   .mem_l_data_i(bar_m_dob[0]),
@@ -611,6 +635,10 @@ hm_sync sync (
   .sys__tx_timeout(sys__tx_timeout),
   .trn__hm_end(trn__hm_end),
   .sys__hm_end(sys__hm_end),
+  .trn__write_bar(trn__write_bar),
+  .sys__write_bar(sys__write_bar),
+  .trn__read_exp(trn__read_exp),
+  .sys__read_exp(sys__read_exp),
   .trn__trn_lnk_up_n(trn__trn_lnk_up_n),
   .sys__trn_lnk_up_n(sys__trn_lnk_up_n),
   .trn__state_rx(trn__state_rx),
