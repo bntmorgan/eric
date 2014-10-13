@@ -84,13 +84,14 @@ simulations: $(SIMS)
 %.routed.ncd: %.ncd 
 	@mkdir -p $(dir $@)
 	@echo [RTE] $@ \> $@.out
-	@cd $(dir $@) && par -ol high -w $(realpath $^) $(abspath $@) &> $(abspath \
-		$@).out
+	@cd $(dir $@) && par -mt 4 -ol high -w $(realpath $^) $(abspath $@) &> \
+		$(abspath $@).out
 
 %.ncd: %.ngd
 	@mkdir -p $(dir $@)
 	@echo [NCD] $@ \> $@.out
-	@cd $(dir $@) && map -ol high -t 20 -w $(realpath $^) &> $(abspath $@).out
+	@cd $(dir $@) && map -mt 4 -ol high -t 20 -w $(realpath $^) &> $(abspath \
+		$@).out
 
 %.ngd: %.ucf %.ngc
 	@mkdir -p $(dir $@)
