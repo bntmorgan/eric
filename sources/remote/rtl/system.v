@@ -1045,8 +1045,8 @@ sysctl #(
 	.ninputs(32),
 	.noutputs(4),
 	.clk_freq(`CLOCK_FREQUENCY),
-	.systemid(32'h13004D31), /* 1.3.0 final (0) on M1 */
-	.fpga_family("virtex5")
+	.systemid(32'he51ce51c), /* 1.3.0 final (0) on M1 */
+	.fpga_family("virtex6")
 ) sysctl (
 	.sys_clk(sys_clk),
 	.sys_rst(sys_rst),
