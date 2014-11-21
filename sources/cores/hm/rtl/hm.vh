@@ -1,12 +1,15 @@
-`define HM_CSR_CTRL           10'h000
-`define HM_CSR_STAT           10'h001
-`define HM_CSR_ADDRESS_LOW    10'h002
-`define HM_CSR_ADDRESS_HIGH   10'h003
-`define HM_CSR_CPT_RX         10'h004
-`define HM_CSR_CPT_TX         10'h005
-`define HM_CSR_STATE_RX       10'h006
-`define HM_CSR_STATE_TX       10'h007
-`define HM_CSR_STATE          10'h008
+`define HM_CSR_CTRL                10'h000
+`define HM_CSR_STAT                10'h001
+`define HM_CSR_ADDRESS_LOW         10'h002
+`define HM_CSR_ADDRESS_HIGH        10'h003
+`define HM_CSR_CPT_RX              10'h004
+`define HM_CSR_CPT_TX              10'h005
+`define HM_CSR_STATE_RX            10'h006
+`define HM_CSR_STATE_TX            10'h007
+`define HM_CSR_STATE               10'h008
+`define HM_CSR_BAR_BITMAP          10'h009
+`define HM_CSR_WRITE_BAR_NUMBER    10'h00a
+// `define HM_CSR_WRITE_BAR_DELAY     10'h00b
 
 `define HM_TX_STATE_IDLE 1'b0
 `define HM_TX_STATE_SEND 1'b1

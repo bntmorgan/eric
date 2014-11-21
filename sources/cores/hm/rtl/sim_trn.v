@@ -234,7 +234,7 @@ begin
   trn_rsof_n <= 1'b1;
   trn_reof_n <= 1'b0;
   trn_rd <= {
-    address, // Address
+    {address[31:2], 2'b0}, // Address
     32'h00000000 // First dw
   };
  	while(trn_teof_n) begin
@@ -273,7 +273,7 @@ begin
   trn_rsof_n <= 1'b1;
   trn_reof_n <= 1'b0;
   trn_rd <= {
-    address, // Address
+    {address[31:2], 2'b0}, // Address
     data // First dw
   };
   waittrnclk;

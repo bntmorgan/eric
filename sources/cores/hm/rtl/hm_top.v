@@ -89,6 +89,13 @@ assign irq = irq_en & (event_end | event_tx_timeout | event_rx_timeout |
 
 wire wb_en = wb_cyc_i & wb_stb_i;
 
+// Bar bitmaps
+reg [31:0] bar_bitmap;
+// 
+// // Read tom write bar specific timer
+// reg [31:0] write_bar_delay;
+// reg [32:0] write_bar_delay_cpt;
+
 // Trn
 
 reg [1:0] state;
@@ -112,6 +119,9 @@ begin
   csr_do <= 32'd0; 
   irq_en <= 1'b0;
   address <= 64'b0;
+  bar_bitmap <= 32'b0;
+//   write_bar_delay <= 32'b0;
+//   write_bar_delay_cpt <= 32'b0;
 end
 endtask
 
@@ -188,6 +198,10 @@ wire sys__read_exp;
 wire write_bar;
 wire trn__write_bar = write_bar;
 wire sys__write_bar;
+wire [31:0] trn__bar_bitmap;
+wire [31:0] sys__bar_bitmap = bar_bitmap;
+wire [4:0] trn__write_bar_number;
+wire [4:0] sys__write_bar_number;
 reg tx_timeout;
 wire trn__tx_timeout = tx_timeout;
 wire sys__tx_timeout;
@@ -291,7 +305,10 @@ always @(posedge sys_clk) begin
         `HM_CSR_STATE_RX: csr_do <= sys__state_rx;
         `HM_CSR_STATE_TX: csr_do <= sys__state_tx;
         `HM_CSR_STATE: csr_do <= sys__state;
-			endcase
+        `HM_CSR_BAR_BITMAP: csr_do <= bar_bitmap;
+        `HM_CSR_WRITE_BAR_NUMBER: csr_do <= {27'b0, sys__write_bar_number};
+//         `HM_CSR_WRITE_BAR_DELAY: csr_do <= write_bar_delay;
+      endcase
 			if (csr_we) begin
 				case (csr_a[9:0])
           `HM_CSR_STAT: begin 
@@ -318,7 +335,8 @@ always @(posedge sys_clk) begin
             hm_start <= csr_di[1];
           end
           `HM_CSR_ADDRESS_LOW: address[31:0] <= csr_di;
-          `HM_CSR_ADDRESS_HIGH: address[61:32] <= csr_di;
+          `HM_CSR_ADDRESS_HIGH: address[63:32] <= csr_di;
+          `HM_CSR_BAR_BITMAP: bar_bitmap <= csr_di;
         endcase
       end
     end
@@ -340,6 +358,23 @@ always @(posedge sys_clk) begin
     end
   end
 end
+
+// // Write bar delay state machine
+// always @(posedge sys_clk) begin
+//   if (sys__read_exp) begin
+//     write_bar_delay <= 32'b0;
+//     write_bar_delay_cpt <= 32'b0;
+//   end else if (event_write_bar) begin
+//     // we count only when event_write_bar is not asserted to give time to CPU to
+//     // read it
+//   end else begin
+//     if (write_bar_delay_cpt == CLOCK_FREQUENCY / 1e6) begin
+//       write_bar_delay <= write_bar_delay + 2'b01;
+//       write_bar_delay_cpt <= 32'b0;
+//     end
+//     write_bar_delay_cpt <= write_bar_delay_cpt + 2'b01;
+//   end
+// end
 
 // TRN state machine
 always @(posedge trn_clk) begin
@@ -497,6 +532,8 @@ hm_bar bar (
   .trn_lnk_up_n(trn_lnk_up_n),
 
   .write_bar(write_bar),
+  .write_bar_number(trn__write_bar_number),
+  .bar_bitmap(trn__bar_bitmap),
 
   .mem_l_addr(bar_mem_l_addr),
   .mem_l_data_i(bar_m_dob[0]),
@@ -637,6 +674,10 @@ hm_sync sync (
   .sys__hm_end(sys__hm_end),
   .trn__write_bar(trn__write_bar),
   .sys__write_bar(sys__write_bar),
+  .trn__write_bar_number(trn__write_bar_number),
+  .sys__write_bar_number(sys__write_bar_number),
+  .trn__bar_bitmap(trn__bar_bitmap),
+  .sys__bar_bitmap(sys__bar_bitmap),
   .trn__read_exp(trn__read_exp),
   .sys__read_exp(sys__read_exp),
   .trn__trn_lnk_up_n(trn__trn_lnk_up_n),

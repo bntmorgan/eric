@@ -72,7 +72,7 @@ simulations: $(SIMS)
 %.load: %.bit
 	@echo [LOD] $<
 	@./impact.sh $(dir $<)impact.batch $(realpath $<) && cd $(dir $<) && impact \
-		-batch impact.batch > impact.batch.out
+		-batch impact.batch &> impact.batch.out
 
 %.bit: %.routed.ncd %.ncd %.ngd %.ngc %.ucf %.prj %.xst
 	@mkdir -p $(dir $@)

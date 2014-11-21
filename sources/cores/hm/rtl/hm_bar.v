@@ -11,8 +11,11 @@ module hm_bar (
   input trn_reset_n,
   input trn_lnk_up_n,
 
+  input [31:0] bar_bitmap,
+
   // Write bar event
   output reg write_bar,
+  output reg [4:0] write_bar_number, 
 
   output reg [9:0] mem_l_addr,
   output [3:0] mem_l_we,
@@ -73,7 +76,7 @@ wire is_memory_read_request = trn_rd[63:56] == {3'b000, 5'b00000};
 wire is_memory_write_request = trn_rd[63:56] == {3'b010, 5'b00000};
 wire [15:0] pci_c_id = {cfg_bus_number, cfg_device_number, cfg_function_number};
 reg [15:0] pci_r_id;
-reg [29:0] req_addr;
+reg [31:0] req_addr;
 reg [3:0] ldw;
 reg [3:0] fdw;
 reg [9:0] length;
@@ -232,6 +235,7 @@ begin
   attr <= 0;
   start_dw <= 0;
   write_bar <= 0;
+  write_bar_number <= 0;
 end
 endtask
 
@@ -432,18 +436,25 @@ always @(posedge trn_clk) begin
         end
       end
     end else if (state == `HM_MR_STATE_WRITE_ADDRESS) begin
-      if (~trn_rsrc_rdy_n & ~trn_reof_n) begin
+      if (~trn_rsrc_rdy_n) begin
         req_addr <= {trn_rd[63:34], 2'b00};
         start_dw <= trn_rd[34];
         write_init_l(trn_rd[43:35], dw_l_i_le, fdw_le);
+        // if ((bar_bitmap >> trn_rd[38:34]) & (trn_rd[43:39] == 5'b0)) begin
+        if (trn_rd[38:34] == 5'h7) begin
+          write_bar_number <= trn_rd[38:34];
+        end
         if (~trn_rd[34]) begin
           write_init_h(trn_rd[43:35] - 1, 32'b0, 4'b0);
         end else begin
           write_init_h(trn_rd[43:35], 32'b0, 4'b0);
         end
         if (~trn_reof_n) begin
-          // Notify everyone
-          write_bar <= 1'b1;
+          // Notify everyone if bar matching the bitmap
+          // if ((bar_bitmap >> trn_rd[38:34]) & (trn_rd[43:39] == 5'b0)) begin
+          if (trn_rd[38:34] == 5'h7) begin
+            write_bar <= 1'b1;
+          end
           state <= `HM_MR_STATE_IDLE;
         end else begin
           state <= `HM_MR_STATE_RECV;
@@ -453,8 +464,11 @@ always @(posedge trn_clk) begin
       if (~trn_rsrc_rdy_n) begin
         // End of reception go to idle
         if (~trn_reof_n) begin
-          // Notify everyone
-          write_bar <= 1'b1;
+          // Notify everyone if bar matching the bitmap
+          // if ((bar_bitmap >> req_addr[6:2]) & (trn_rd[11:7] == 5'b0)) begin
+          if (req_addr[6:2] == 5'h7) begin
+            write_bar <= 1'b1;
+          end
           state <= `HM_MR_STATE_IDLE;
           if (~trn_rrem_n) begin
             write_mem_h(dw_h_i_le, 4'b1111);

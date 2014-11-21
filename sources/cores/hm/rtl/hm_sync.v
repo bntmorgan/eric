@@ -35,17 +35,23 @@ module hm_sync (
   input [31:0] trn__stat_trn_cpt_drop,
   output reg [31:0] sys__stat_trn_cpt_drop,
 
+  input [4:0] trn__write_bar_number,
+  output reg [4:0] sys__write_bar_number,
+
+  output reg [31:0] trn__bar_bitmap,
+  input [31:0] sys__bar_bitmap,
+
   input [1:0] trn__state,
   output reg [1:0] sys__state
 );
 
-reg [31:0] trn__state_tx_r;
+reg [1:0] trn__state_tx_r;
 always @(posedge sys_clk) begin 
 	trn__state_tx_r <= trn__state_tx;
 	sys__state_tx <= trn__state_tx_r;
 end
 
-reg [31:0] trn__state_rx_r;
+reg [1:0] trn__state_rx_r;
 always @(posedge sys_clk) begin 
 	trn__state_rx_r <= trn__state_rx;
 	sys__state_rx <= trn__state_rx_r;
@@ -73,6 +79,18 @@ reg [1:0] trn__state_r;
 always @(posedge sys_clk) begin 
 	trn__state_r <= trn__state;
 	sys__state <= trn__state_r;
+end
+
+reg [4:0] trn__write_bar_number_r;
+always @(posedge sys_clk) begin 
+	trn__write_bar_number_r <= trn__write_bar_number;
+	sys__write_bar_number <= trn__write_bar_number_r;
+end
+
+reg [31:0] sys__bar_bitmap_r;
+always @(posedge trn_clk) begin 
+	sys__bar_bitmap_r <= sys__bar_bitmap;
+	trn__bar_bitmap <= sys__bar_bitmap_r;
 end
 
 psync ps_rx_timeout (

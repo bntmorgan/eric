@@ -92,7 +92,7 @@ begin
     // 10'b100000000, // 256 dw requested
     10'b000000000, // 1024 dw requested
     req_id, // Requester ID
-    16'h1800, // Requester ID
+    // 16'h1800, // Requester ID
     // 16'h0400, // Requester ID
     8'h38, // Tag
     4'hf, // Last BE : TODO > 1 DW

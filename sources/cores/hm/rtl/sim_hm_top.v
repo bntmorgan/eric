@@ -91,6 +91,9 @@ initial begin
    * Wishbone page read
    */
 
+  csrwrite(`HM_CSR_BAR_BITMAP, 32'hffffffff);
+  csrwrite(`HM_CSR_CTRL, 32'h00000001);
+
   // Read on the wishbone bus
   waitntrnclk(8);
 
@@ -114,49 +117,49 @@ initial begin
    */
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000000, 32'hcacacaca, 7'b1111110);
+  memory_write_request_1b(32'hf0403000, 32'hcacacaca, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000001, 32'hcacacaca, 7'b1111110);
+  memory_write_request_1b(32'hf0403001, 32'hcacacaca, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000002, 32'hcacacaca, 7'b1111110);
+  memory_write_request_1b(32'hf0403002, 32'hcacacaca, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000003, 32'hcacacaca, 7'b1111110);
+  memory_write_request_1b(32'hf0403003, 32'hcacacaca, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000004, 32'hacc0acc0, 7'b1111110);
+  memory_write_request_1b(32'hf0403004, 32'hacc0acc0, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000005, 32'hacc0acc0, 7'b1111110);
+  memory_write_request_1b(32'hf0403005, 32'hacc0acc0, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000006, 32'hacc0acc0, 7'b1111110);
+  memory_write_request_1b(32'hf0403006, 32'hacc0acc0, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_write_request_1b(32'hf0000007, 32'hacc0acc0, 7'b1111110);
+  memory_write_request_1b(32'hf0403007, 32'hacc0acc0, 7'b1111110);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(20);
@@ -166,48 +169,48 @@ initial begin
    */
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000000, 7'b1111101);
+  memory_read_request_1b(32'hf0403000, 7'b1111101);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000001, 7'b1111101);
+  memory_read_request_1b(32'hf0403001, 7'b1111101);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000002, 7'b1111101);
+  memory_read_request_1b(32'hf0403002, 7'b1111101);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'h00000003, 7'b1111101);
+  memory_read_request_1b(32'hf0403003, 7'b1111101);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000004, 7'b1111101);
-  trn_tdst_rdy_n <= 1'b1;
-
-  waitntrnclk(10);
-
-  trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000005, 7'b1111101);
+  memory_read_request_1b(32'hf0403004, 7'b1111101);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000006, 7'b1111101);
+  memory_read_request_1b(32'hf0403005, 7'b1111101);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'h00000007, 7'b1111101);
+  memory_read_request_1b(32'hf0403006, 7'b1111101);
+  trn_tdst_rdy_n <= 1'b1;
+
+  waitntrnclk(10);
+
+  trn_tdst_rdy_n <= 1'b0;
+  memory_read_request_1b(32'hf0403007, 7'b1111101);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(20);
@@ -215,50 +218,57 @@ initial begin
   /**
    * MMIO read Expansion ROM
    */
+  csrwrite(`HM_CSR_STAT, 32'hffffffff);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000000, 7'b0111111);
+  memory_read_request_1b(32'hf0400000, 7'b0111111);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000001, 7'b0111111);
+  memory_read_request_1b(32'hf0400001, 7'b0111111);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000002, 7'b0111111);
+  memory_read_request_1b(32'hf0400002, 7'b0111111);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'h00000003, 7'b0111111);
+  memory_read_request_1b(32'hf0400003, 7'b0111111);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000004, 7'b0111111);
-  trn_tdst_rdy_n <= 1'b1;
-
-  waitntrnclk(10);
-
-  trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000005, 7'b0111111);
+  memory_read_request_1b(32'hf0400004, 7'b0111111);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'hf0000006, 7'b0111111);
+  memory_read_request_1b(32'hf0400005, 7'b0111111);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(10);
 
   trn_tdst_rdy_n <= 1'b0;
-  memory_read_request_1b(32'h00000007, 7'b0111111);
+  memory_read_request_1b(32'hf0400006, 7'b0111111);
+  trn_tdst_rdy_n <= 1'b1;
+
+  waitntrnclk(10);
+
+  trn_tdst_rdy_n <= 1'b0;
+  memory_read_request_1b(32'hf0400007, 7'b0111111);
+  trn_tdst_rdy_n <= 1'b1;
+
+  waitntrnclk(20);
+
+  trn_tdst_rdy_n <= 1'b0;
+  memory_read_request_1b(32'hf0400ffc, 7'b0111111);
   trn_tdst_rdy_n <= 1'b1;
 
   waitntrnclk(20);

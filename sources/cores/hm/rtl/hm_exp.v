@@ -67,7 +67,7 @@ wire [63:0] completion [2:0];
 wire is_memory_read_request = trn_rd[63:56] == {3'b0, 5'b00000};
 wire [15:0] pci_c_id = {cfg_bus_number, cfg_device_number, cfg_function_number};
 reg [15:0] pci_r_id;
-reg [29:0] req_addr;
+reg [31:0] req_addr;
 reg [3:0] ldw;
 reg [3:0] fdw;
 reg [9:0] length;
@@ -270,7 +270,7 @@ always @(posedge trn_clk) begin
         end
         // Is last byte included in this mem read : used to know when host as
         // finished to read exp rom
-        last_byte_read <= (trn_rd[43:34] + length) >= 10'h3ff;
+        last_byte_read <= (trn_rd[43:34] + length) == 11'h400;
       end
     end else if (state == `HM_MR_STATE_SEND) begin
       // End of transmission go to idle
