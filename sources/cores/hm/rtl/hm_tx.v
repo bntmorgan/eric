@@ -85,12 +85,14 @@ begin
     3'b001, // fmt[2:0] = 3'b001 : 4DW header no data
     5'b00000, // type[4:0] = 5'b00000 : Memory read request
 
-    8'b0, // Unspecified
+    8'b0, // Unspecified : TC0
 
-    4'b0, // Unspecified
+    2'b0, // Unspecified : reserved
+    2'b01, // Attribute : No snoop !!
     2'b0, // AT, Address type : 2'b0 Default Untranslated
     // 10'b100000000, // 256 dw requested
-    10'b000000000, // 1024 dw requested
+    // 10'b000000000, // 1024 dw requested
+    10'b100000, // 32 dw requested XXX Max Payload Size for our root complex
     req_id, // Requester ID
     // 16'h1800, // Requester ID
     // 16'h0400, // Requester ID
