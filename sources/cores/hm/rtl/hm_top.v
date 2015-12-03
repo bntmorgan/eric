@@ -21,13 +21,13 @@ module hm_top #(
 	input wb_cyc_i,
 	output reg wb_ack_o,
 	input wb_we_i,
-  
+
   // Host memory bus
   input [63:0] hm_addr,
   output [63:0] hm_data,
 
   // Trn interface
-  
+
   // Common
   input trn_clk,
   input trn_reset_n,
@@ -187,10 +187,10 @@ wire [31:0] trn__stat_trn_cpt_tx;
 wire [31:0] sys__stat_trn_cpt_tx;
 wire [31:0] trn__stat_trn_cpt_rx;
 wire [31:0] sys__stat_trn_cpt_rx;
-wire [1:0] trn__state_rx; 
-wire [1:0] sys__state_rx; 
-wire [1:0] trn__state_tx; 
-wire [1:0] sys__state_tx; 
+wire [2:0] trn__state_rx;
+wire [2:0] sys__state_rx;
+wire [1:0] trn__state_tx;
+wire [1:0] sys__state_tx;
 wire [31:0] trn__stat_trn_cpt_drop;
 wire [31:0] sys__stat_trn_cpt_drop;
 wire trn__hm_end = hm_end;
@@ -667,7 +667,7 @@ hm_conbus5 conbus5(
   .m1_trn_tsrc_dsc_n(m1_trn_tsrc_dsc_n),
   .m1_trn_terrfwd_n(m1_trn_terrfwd_n),
   .m1_trn_tstr_n(m1_trn_tstr_n),
-  
+
   // Master 2 Interface
   .m2_trn_tbuf_av(m2_trn_tbuf_av),
   .m2_trn_terr_drop_n(m2_trn_terr_drop_n),
@@ -839,7 +839,7 @@ assign bar_m_wea[1] = (wb_en & wb_we_i & wb_adr_i[2] & wb_adr_i[13] &
 // Memory HM read / Memory HM Expansion ROM / Memory BAR
 `ifndef SIMULATION
 genvar ram_index;
-generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1) 
+generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1)
 begin: gen_ram
 	RAMB36 #(
 		.WRITE_WIDTH_A(36),
@@ -857,7 +857,7 @@ begin: gen_ram
 		.DIA(read_m_dia[ram_index]),
 		.DIPA(4'h0),
 		.DOA(read_m_doa[ram_index]),
-		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}), 
+		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}),
 		.WEA(read_m_wea[ram_index]),
 		.ENA(1'b1),
 		.CLKA(sys_clk),
@@ -865,7 +865,7 @@ begin: gen_ram
 		.DIB(read_m_dib[ram_index]),
 		.DIPB(4'h0),
 		.DOB(),
-		.ADDRB({1'b0, read_m_addrb[ram_index][9:0], 5'b0}), 
+		.ADDRB({1'b0, read_m_addrb[ram_index][9:0], 5'b0}),
 		.WEB(read_m_web[ram_index]),
 		.ENB(1'b1),
 		.CLKB(trn_clk),
@@ -892,7 +892,7 @@ begin: gen_ram
 		.DIA(exp_m_dia[ram_index]),
 		.DIPA(4'h0),
 		.DOA(exp_m_doa[ram_index]),
-		.ADDRA({1'b0, exp_m_addra[ram_index], 5'b0}), 
+		.ADDRA({1'b0, exp_m_addra[ram_index], 5'b0}),
 		.WEA(exp_m_wea[ram_index]),
 		.ENA(1'b1),
 		.CLKA(sys_clk),
@@ -900,7 +900,7 @@ begin: gen_ram
 		.DIB(32'b0),
 		.DIPB(4'h0),
 		.DOB(exp_m_dob[ram_index]),
-		.ADDRB({1'b0, exp_m_addrb[ram_index][9:0], 5'b0}), 
+		.ADDRB({1'b0, exp_m_addrb[ram_index][9:0], 5'b0}),
 		.WEB(4'h0),
 		.ENB(1'b1),
 		.CLKB(trn_clk),
@@ -927,7 +927,7 @@ begin: gen_ram
 		.DIA(bar_m_dia[ram_index]),
 		.DIPA(4'h0),
 		.DOA(bar_m_doa[ram_index]),
-		.ADDRA({1'b0, bar_m_addra[ram_index], 5'b0}), 
+		.ADDRA({1'b0, bar_m_addra[ram_index], 5'b0}),
 		.WEA(bar_m_wea[ram_index]),
 		.ENA(1'b1),
 		.CLKA(sys_clk),
@@ -935,7 +935,7 @@ begin: gen_ram
 		.DIB(bar_m_dib[ram_index]),
 		.DIPB(4'h0),
 		.DOB(bar_m_dob[ram_index]),
-		.ADDRB({1'b0, bar_m_addrb[ram_index][9:0], 5'b0}), 
+		.ADDRB({1'b0, bar_m_addrb[ram_index][9:0], 5'b0}),
 		.WEB(bar_m_web[ram_index]),
 		.ENB(1'b1),
 		.CLKB(trn_clk),
@@ -950,44 +950,44 @@ end
 endgenerate
 `else
 genvar ram_index;
-generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1) 
+generate for (ram_index=0; ram_index < 2; ram_index=ram_index+1)
 begin: gen_ram
   hm_memory_32 read_m (
 		.DIA(read_m_dia[ram_index]),
 		.DOA(read_m_doa[ram_index]),
-		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}), 
+		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}),
 		.WEA(read_m_wea[ram_index]),
 		.CLKA(sys_clk),
 		
 		.DIB(read_m_dib[ram_index]),
 		.DOB(),
-		.ADDRB({1'b0, read_m_addrb[ram_index][9:0], 5'b0}), 
+		.ADDRB({1'b0, read_m_addrb[ram_index][9:0], 5'b0}),
     .WEB(read_m_web[ram_index]),
 		.CLKB(trn_clk)
   );
   hm_memory_32 exp_m (
 		.DIA(exp_m_dia[ram_index]),
 		.DOA(exp_m_doa[ram_index]),
-		.ADDRA({1'b0, exp_m_addra[ram_index], 5'b0}), 
+		.ADDRA({1'b0, exp_m_addra[ram_index], 5'b0}),
 		.WEA(exp_m_wea[ram_index]),
 		.CLKA(sys_clk),
 		
 		.DIB(32'b0),
 		.DOB(exp_m_dob[ram_index]),
-		.ADDRB({1'b0, exp_m_addrb[ram_index][9:0], 5'b0}), 
+		.ADDRB({1'b0, exp_m_addrb[ram_index][9:0], 5'b0}),
     .WEB(4'h0),
 		.CLKB(trn_clk)
   );
   hm_memory_32 bar_m (
 		.DIA(bar_m_dia[ram_index]),
 		.DOA(bar_m_doa[ram_index]),
-		.ADDRA({1'b0, bar_m_addra[ram_index], 5'b0}), 
+		.ADDRA({1'b0, bar_m_addra[ram_index], 5'b0}),
 		.WEA(bar_m_wea[ram_index]),
 		.CLKA(sys_clk),
 		
 		.DIB(bar_m_dib[ram_index]),
 		.DOB(bar_m_dob[ram_index]),
-		.ADDRB({1'b0, bar_m_addrb[ram_index][9:0], 5'b0}), 
+		.ADDRB({1'b0, bar_m_addrb[ram_index][9:0], 5'b0}),
     .WEB(bar_m_web[ram_index]),
 		.CLKB(trn_clk)
   );

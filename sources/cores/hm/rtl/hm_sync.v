@@ -23,8 +23,8 @@ module hm_sync (
   input trn__trn_lnk_up_n,
   output sys__trn_lnk_up_n,
 
-  input [1:0] trn__state_rx,
-  output reg [1:0] sys__state_rx, 
+  input [2:0] trn__state_rx,
+  output reg [2:0] sys__state_rx, 
 
   input [1:0] trn__state_tx,
   output reg [1:0] sys__state_tx,
@@ -54,7 +54,7 @@ always @(posedge sys_clk) begin
 	sys__state_tx <= trn__state_tx_r;
 end
 
-reg [1:0] trn__state_rx_r;
+reg [2:0] trn__state_rx_r;
 always @(posedge sys_clk) begin 
 	trn__state_rx_r <= trn__state_rx;
 	sys__state_rx <= trn__state_rx_r;

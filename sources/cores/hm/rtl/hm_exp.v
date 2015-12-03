@@ -20,7 +20,7 @@ module hm_exp (
   input [31:0] mem_h_data_i,
 
   // Trn transmit interface
-  output reg trn_cyc_n, 
+  output reg trn_cyc_n,
   output reg [63:0] trn_td,
   output reg trn_tsof_n,
   output reg trn_trem_n,
@@ -71,7 +71,7 @@ reg [31:0] req_addr;
 reg [3:0] ldw;
 reg [3:0] fdw;
 reg [9:0] length;
-reg [7:0] tag; 
+reg [7:0] tag;
 reg [2:0] tc;
 reg td;
 reg ep;
@@ -79,7 +79,7 @@ reg [1:0] attr;
 reg last_byte_read;
 
 reg [06:0] lower_addr;
-// reg [11:0] byte_count; 
+// reg [11:0] byte_count;
 
 reg [10:0] qw_sent;
 reg [10:0] dw_sent;
@@ -131,7 +131,7 @@ assign completion[2][63:0] = {
   dw_l // data sent
 };
 
-wire [2:0] nb_ldw = 
+wire [2:0] nb_ldw =
     (real_length == 11'h001)    ? 12'h000 :
     (ldw[3] & ldw[0])           ? 12'h004 :
     (~ldw[3] & ldw[2] & ldw[0]) ? 12'h004 :
@@ -145,7 +145,7 @@ wire [2:0] nb_ldw =
     (ldw == 4'b1000)            ? 12'h001 :
                                   12'h001 ;
 
-wire [2:0] nb_fdw = 
+wire [2:0] nb_fdw =
     (fdw[3] & fdw[0])           ? 12'h004 :
     (~fdw[3] & fdw[2] & fdw[0]) ? 12'h004 :
     (fdw[3] & fdw[1] & ~fdw[0]) ? 12'h004 :
@@ -157,7 +157,7 @@ wire [2:0] nb_fdw =
     (fdw == 4'b0100)            ? 12'h001 :
     (fdw == 4'b1000)            ? 12'h001 :
                                   12'h001 ;
-  
+
 wire [10:0] real_length = (length == 0) ? 11'h400 : length;
 
 wire [12:0] byte_count = (((real_length - 2 >= real_length) ? 0 : real_length
@@ -251,9 +251,9 @@ always @(posedge trn_clk) begin
         ldw <= trn_rd[7:4];
         length <= trn_rd[41:32];
         tag <= trn_rd[15:08];
-        tc <= trn_rd[54:52];  
+        tc <= trn_rd[54:52];
         td <= trn_rd[47];
-        ep <= trn_rd[46]; 
+        ep <= trn_rd[46];
         attr <= trn_rd[45:44];
       end
     end else if (state == `HM_MR_STATE_READ_ADDRESS) begin

@@ -30,20 +30,21 @@ module hm_rx (
   input trn_rerrfwd_n,
   input [6:0] trn_rbar_hit_n,
 
+  // Debug signals
+  input sys_dgb_mode,
+
   // User statistics counters ans status
   output reg [31:0] stat_trn_cpt_rx,
-  output [1:0] stat_state
+  output [2:0] stat_state
 );
 
 /**
  * Core input tie-offs
  */
 
-reg [1:0] state;
+reg [2:0] state;
 reg [9:0] offset_l;
 reg [9:0] offset_h;
-// reg [31:0] timeout_cpt;
-reg [15:0] timeout_cpt;
 reg [11:0] byte_count; 
 reg [9:0] length; 
 reg [9:0] tlp_dw;

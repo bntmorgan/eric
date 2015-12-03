@@ -37,9 +37,7 @@ module hm_tx (
   // Requester ID sharing
   input [7:0] cfg_bus_number,
   input [4:0] cfg_device_number,
-  input [2:0] cfg_function_number,
-
-  output reg timeout
+  input [2:0] cfg_function_number
 );
 
 wire [15:0] req_id = {cfg_bus_number, cfg_device_number, cfg_function_number};
@@ -55,11 +53,7 @@ assign stat_state = state;
 reg state;
 reg [1:0] cpt;
 reg [63:0] data [1:0];
-
-// reg [31:0] timeout_cpt;
-reg [15:0] timeout_cpt;
-
-assign stat_state = state;
+reg [31:0] timeout_cpt;
 
 task init;
 begin
@@ -149,7 +143,7 @@ always @(posedge trn_clk) begin
         trn_trem_n <= 1'b1;
         trn_td <= 64'b0;
         stat_trn_cpt_tx <= stat_trn_cpt_tx + 1'b1;
-      end else begin 
+      end else begin
         trn_tsrc_rdy_n <= 1'b0;
         if (trn_tdst_rdy_n == 1'b0) begin 
           // Start of frame

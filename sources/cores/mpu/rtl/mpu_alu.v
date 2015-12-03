@@ -41,7 +41,7 @@ wire [5:0] rs1;
 wire [5:0] rs2;
 wire [5:0] rs3;
 wire [5:0] lsres;
-wire [5:0] bsize;
+wire [6:0] bsize;
 wire [63:0] hm;
 wire [63:0] _o0;
 wire [63:0] _o1;
@@ -49,7 +49,7 @@ wire [63:0] _o2;
 wire [63:0] _o3;
 
 // Compute the size of the fields in bit
-assign bsize[5:0] = ((1 << size) << 3);
+assign bsize[6:0] = ((1 << size) << 3);
 
 // Right shifts function of the size a the sel
 // rsX = sel * bsize
