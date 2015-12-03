@@ -144,9 +144,13 @@ always @(posedge trn_clk) begin
     if (state == `HM_RX_STATE_IDLE) begin
       no_write_mem_l();
       no_write_mem_h();
-      // Memory read completion -> RECV
-      if (trn_rsrc_rdy_n == 1'b0 && trn_rsof_n == 1'b0 && is_memory_completion
-          == 1'b1) begin
+      if (sys_dgb_mode == 1'b1 && trn_rsrc_rdy_n == 1'b0 &&
+          trn_rsof_n == 1'b0) begin // Debug mode !
+        state <= `HM_RX_STATE_DBG;
+        write_mem_l(dw_h);
+        write_mem_h(dw_l);
+      end else if (trn_rsrc_rdy_n == 1'b0 && trn_rsof_n == 1'b0 &&
+          is_memory_completion == 1'b1) begin // Memory read completion -> RECV
         state <= `HM_RX_STATE_RECV;
         // Contains the remaining bytes included the curent completion one
         byte_count <= trn_rd[11:0];
@@ -155,6 +159,21 @@ always @(posedge trn_clk) begin
       // Other request or completion -> IGN
       end else if (trn_rsrc_rdy_n == 1'b0 && trn_rsof_n == 1'b0) begin
         state <= `HM_RX_STATE_IGN;
+      end
+    end else if (state == `HM_RX_STATE_DBG) begin
+      // TLP is finished !!
+      if (trn_rsrc_rdy_n == 1'b0 && trn_reof_n == 1'b0) begin
+        state <= `HM_RX_STATE_IDLE;
+        stat_trn_cpt_rx <= stat_trn_cpt_rx + 1'b1;
+        write_mem_l(dw_h);
+        write_mem_h(dw_l);
+      end else if (trn_rsrc_rdy_n == 1'b0) begin
+        write_mem_l(dw_h);
+        write_mem_h(dw_l);
+      // No memory write
+      end else begin
+        no_write_mem_l();
+        no_write_mem_h();
       end
     end else if (state == `HM_RX_STATE_IGN) begin
       if (trn_rsrc_rdy_n == 1'b0 && trn_reof_n == 1'b0) begin

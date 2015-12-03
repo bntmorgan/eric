@@ -83,6 +83,7 @@ reg event_read_exp;
 reg event_write_bar;
 reg [63:0] address;
 reg [31:0] data;
+reg debug;
 
 // IRQs
 reg irq_en;
@@ -123,6 +124,7 @@ begin
   address <= 64'b0;
   data <= 32'b0;
   bar_bitmap <= 32'b0;
+  debug <= 1'b0;
 end
 endtask
 
@@ -318,7 +320,7 @@ always @(posedge sys_clk) begin
 			case (csr_a[9:0])
         `HM_CSR_STAT: csr_do <= {26'b0, event_wr_timeout, event_write_bar,
           event_read_exp, event_rx_timeout, event_tx_timeout, event_end};
-        `HM_CSR_CTRL: csr_do <= {29'b0, hm_start_write, hm_start_read,
+        `HM_CSR_CTRL: csr_do <= {28'b0, debug, hm_start_write, hm_start_read,
           irq_en};
         `HM_CSR_ADDRESS_LOW: csr_do <= address[31:0];
         `HM_CSR_ADDRESS_HIGH: csr_do <= address[63:32];
@@ -473,7 +475,8 @@ hm_rx rx (
   .trn_rerrfwd_n(trn_rerrfwd_n),
   .trn_rbar_hit_n(trn_rbar_hit_n),
   .stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
-  .stat_state(trn__state_rx)
+  .stat_state(trn__state_rx),
+  .sys_dgb_mode(debug) // Catch all the TLPs in rx
 );
 
 // Tx Engine

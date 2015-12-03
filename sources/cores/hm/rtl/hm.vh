@@ -9,15 +9,16 @@
 `define HM_CSR_STATE               10'h008
 `define HM_CSR_BAR_BITMAP          10'h009
 `define HM_CSR_WRITE_BAR_NUMBER    10'h00a
-// `define HM_CSR_WRITE_BAR_DELAY     10'h00b
+`define HM_CSR_DATA                10'h00b
 
 `define HM_TX_STATE_IDLE 1'b0
 `define HM_TX_STATE_SEND 1'b1
 
-`define HM_RX_STATE_IDLE  2'b00
-`define HM_RX_STATE_RESET 2'b01
-`define HM_RX_STATE_IGN   2'b10
-`define HM_RX_STATE_RECV  2'b11
+`define HM_RX_STATE_IDLE  3'b000
+`define HM_RX_STATE_RESET 3'b001
+`define HM_RX_STATE_IGN   3'b010
+`define HM_RX_STATE_RECV  3'b011
+`define HM_RX_STATE_DBG   3'b100
 
 `define HM_STATE_IDLE 2'b00
 `define HM_STATE_READ_PAGE 2'b01
