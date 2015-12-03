@@ -59,19 +59,18 @@
 
 `timescale 1ns/1ns
 
-(* CORE_GENERATION_INFO = "v6_pcie_v1_7,v6_pcie_v1_7,{LINK_CAP_MAX_LINK_SPEED=1,LINK_CAP_MAX_LINK_WIDTH=01,PCIE_CAP_DEVICE_PORT_TYPE=0000,DEV_CAP_MAX_PAYLOAD_SUPPORTED=3,USER_CLK_FREQ=2,REF_CLK_FREQ=0,MSI_CAP_ON=TRUE,MSI_CAP_MULTIMSGCAP=0,MSI_CAP_MULTIMSG_EXTENSION=0,MSIX_CAP_ON=FALSE,TL_TX_RAM_RADDR_LATENCY=0,TL_TX_RAM_RDATA_LATENCY=2,TL_RX_RAM_RADDR_LATENCY=0,TL_RX_RAM_RDATA_LATENCY=2,TL_RX_RAM_WRITE_LATENCY=0,VC0_TX_LASTPACKET=30,VC0_RX_RAM_LIMIT=FFF,VC0_TOTAL_CREDITS_PH=32,VC0_TOTAL_CREDITS_PD=616,VC0_TOTAL_CREDITS_NPH=12,VC0_TOTAL_CREDITS_CH=36,VC0_TOTAL_CREDITS_CD=616,VC0_CPL_INFINITE=TRUE,DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT=0,DEV_CAP_EXT_TAG_SUPPORTED=FALSE,LINK_STATUS_SLOT_CLOCK_CONFIG=FALSE,ENABLE_RX_TD_ECRC_TRIM=FALSE,DISABLE_LANE_REVERSAL=TRUE,DISABLE_SCRAMBLING=FALSE,DSN_CAP_ON=TRUE,PIPE_PIPELINE_STAGES=0,REVISION_ID=00,VC_CAP_ON=FALSE}" *)
+(* CORE_GENERATION_INFO = "v6_pcie_v1_7,v6_pcie_v1_7,{LINK_CAP_MAX_LINK_SPEED=1,LINK_CAP_MAX_LINK_WIDTH=04,PCIE_CAP_DEVICE_PORT_TYPE=0000,DEV_CAP_MAX_PAYLOAD_SUPPORTED=0,USER_CLK_FREQ=2,REF_CLK_FREQ=0,MSI_CAP_ON=TRUE,MSI_CAP_MULTIMSGCAP=0,MSI_CAP_MULTIMSG_EXTENSION=0,MSIX_CAP_ON=FALSE,TL_TX_RAM_RADDR_LATENCY=0,TL_TX_RAM_RDATA_LATENCY=2,TL_RX_RAM_RADDR_LATENCY=0,TL_RX_RAM_RDATA_LATENCY=2,TL_RX_RAM_WRITE_LATENCY=0,VC0_TX_LASTPACKET=31,VC0_RX_RAM_LIMIT=3FF,VC0_TOTAL_CREDITS_PH=32,VC0_TOTAL_CREDITS_PD=32,VC0_TOTAL_CREDITS_NPH=12,VC0_TOTAL_CREDITS_CH=36,VC0_TOTAL_CREDITS_CD=378,VC0_CPL_INFINITE=TRUE,DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT=0,DEV_CAP_EXT_TAG_SUPPORTED=FALSE,LINK_STATUS_SLOT_CLOCK_CONFIG=FALSE,ENABLE_RX_TD_ECRC_TRIM=FALSE,DISABLE_LANE_REVERSAL=TRUE,DISABLE_SCRAMBLING=FALSE,DSN_CAP_ON=TRUE,PIPE_PIPELINE_STAGES=0,REVISION_ID=00,VC_CAP_ON=TRUE}" *)
 module v6_pcie_v1_7 # ( 
   parameter        ALLOW_X8_GEN2 = "FALSE",
   parameter        BAR0 = 32'hFFFFFF80,
-  parameter        BAR1 = 32'hFFFFFF80,
-  // parameter        BAR1 = 32'h00000000,
+  parameter        BAR1 = 32'h00000000,
   parameter        BAR2 = 32'hFFFFFF80,
   parameter        BAR3 = 32'h00000000,
   parameter        BAR4 = 32'h00000000,
   parameter        BAR5 = 32'h00000000,
 
   parameter        CARDBUS_CIS_POINTER = 32'h00000000,
-  parameter        CLASS_CODE = 24'h020000,
+  parameter        CLASS_CODE = 24'h050000,
   parameter        CMD_INTX_IMPLEMENTED = "TRUE",
   parameter        CPL_TIMEOUT_DISABLE_SUPPORTED = "FALSE",
   parameter        CPL_TIMEOUT_RANGES_SUPPORTED = 4'h2,
@@ -79,21 +78,19 @@ module v6_pcie_v1_7 # (
   parameter        DEV_CAP_ENDPOINT_L0S_LATENCY = 0,
   parameter        DEV_CAP_ENDPOINT_L1_LATENCY = 7,
   parameter        DEV_CAP_EXT_TAG_SUPPORTED = "FALSE",
-  parameter        DEV_CAP_MAX_PAYLOAD_SUPPORTED = 3,
+  parameter        DEV_CAP_MAX_PAYLOAD_SUPPORTED = 0,
   parameter        DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT = 0,
   parameter        DEVICE_ID = 16'hE51C,
-  // parameter        DEVICE_ID = 16'h1502,
 
   parameter        DISABLE_LANE_REVERSAL = "TRUE",
   parameter        DISABLE_SCRAMBLING = "FALSE",
   parameter        DSN_BASE_PTR = 12'h100,
-  parameter        DSN_CAP_NEXTPTR = 12'h000,
+  parameter        DSN_CAP_NEXTPTR = 12'h10C,
   parameter        DSN_CAP_ON = "TRUE",
 
   parameter        ENABLE_MSG_ROUTE = 11'h00000000000,
   parameter        ENABLE_RX_TD_ECRC_TRIM = "FALSE",
   parameter        EXPANSION_ROM = 32'hFFFFF001,
-  // parameter        EXPANSION_ROM = 32'h00000000,
   parameter        EXT_CFG_CAP_PTR = 6'h3F,
   parameter        EXT_CFG_XP_CAP_PTR = 10'h3FF,
   parameter        HEADER_TYPE = 8'h00,
@@ -102,7 +99,7 @@ module v6_pcie_v1_7 # (
   parameter        LINK_CAP_DLL_LINK_ACTIVE_REPORTING_CAP = "FALSE",
   parameter        LINK_CAP_LINK_BANDWIDTH_NOTIFICATION_CAP = "FALSE",
   parameter        LINK_CAP_MAX_LINK_SPEED = 4'h1,
-  parameter        LINK_CAP_MAX_LINK_WIDTH = 6'h01,
+  parameter        LINK_CAP_MAX_LINK_WIDTH = 6'h04,
   parameter        LINK_CAP_SURPRISE_DOWN_ERROR_CAPABLE = "FALSE",
 
   parameter        LINK_CTRL2_DEEMPHASIS = "FALSE",
@@ -117,7 +114,7 @@ module v6_pcie_v1_7 # (
   parameter        LL_REPLAY_TIMEOUT_EN = "TRUE",
   parameter        LL_REPLAY_TIMEOUT_FUNC = 1,
 
-  parameter        LTSSM_MAX_LINK_WIDTH = 6'h01,
+  parameter        LTSSM_MAX_LINK_WIDTH = 6'h04,
   parameter        MSI_CAP_MULTIMSGCAP = 0,
   parameter        MSI_CAP_MULTIMSG_EXTENSION = 0,
   parameter        MSI_CAP_ON = "TRUE",
@@ -165,10 +162,8 @@ module v6_pcie_v1_7 # (
   parameter        REF_CLK_FREQ = 0,                        // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
   parameter        REVISION_ID = 8'h00,
   parameter        SPARE_BIT0 = 0,
-  parameter        SUBSYSTEM_ID = 16'hCACA,
-  parameter        SUBSYSTEM_VENDOR_ID = 16'hCACA,
-//  parameter        SUBSYSTEM_ID = 16'h103c,
-//  parameter        SUBSYSTEM_VENDOR_ID = 16'h1815,
+  parameter        SUBSYSTEM_ID = 16'h0007,
+  parameter        SUBSYSTEM_VENDOR_ID = 16'h10EE,
 
   parameter        TL_RX_RAM_RADDR_LATENCY = 0,
   parameter        TL_RX_RAM_RDATA_LATENCY = 2,
@@ -179,22 +174,21 @@ module v6_pcie_v1_7 # (
 
   parameter        UPCONFIG_CAPABLE = "TRUE",
   parameter        USER_CLK_FREQ = 2,
-  parameter        VC_BASE_PTR = 12'h0,
+  parameter        VC_BASE_PTR = 12'h10C,
   parameter        VC_CAP_NEXTPTR = 12'h000,
-  parameter        VC_CAP_ON = "FALSE",
+  parameter        VC_CAP_ON = "TRUE",
   parameter        VC_CAP_REJECT_SNOOP_TRANSACTIONS = "FALSE",
 
   parameter        VC0_CPL_INFINITE = "TRUE",
-  parameter        VC0_RX_RAM_LIMIT = 13'hFFF,
-  parameter        VC0_TOTAL_CREDITS_CD = 616,
+  parameter        VC0_RX_RAM_LIMIT = 13'h3FF,
+  parameter        VC0_TOTAL_CREDITS_CD = 378,
   parameter        VC0_TOTAL_CREDITS_CH = 36,
   parameter        VC0_TOTAL_CREDITS_NPH = 12,
-  parameter        VC0_TOTAL_CREDITS_PD = 616,
+  parameter        VC0_TOTAL_CREDITS_PD = 32,
   parameter        VC0_TOTAL_CREDITS_PH = 32,
-  parameter        VC0_TX_LASTPACKET = 30,
+  parameter        VC0_TX_LASTPACKET = 31,
 
   parameter        VENDOR_ID = 16'h1AA5,
-  // parameter        VENDOR_ID = 16'h8086,
   parameter        VSEC_BASE_PTR = 12'h0,
   parameter        VSEC_CAP_NEXTPTR = 12'h000,
   parameter        VSEC_CAP_ON = "FALSE",
