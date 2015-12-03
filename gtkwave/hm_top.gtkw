@@ -1,15 +1,15 @@
 [*]
-[*] GTKWave Analyzer v3.3.62 (w)1999-2014 BSI
-[*] Thu Nov 20 15:57:34 2014
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Tue Dec  1 14:47:35 2015
 [*]
 [dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/hm/hm_top.sim.vcd"
-[dumpfile_mtime] "Thu Nov 20 15:55:11 2014"
-[dumpfile_size] 468715
+[dumpfile_mtime] "Tue Dec  1 14:47:14 2015"
+[dumpfile_size] 459687
 [savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/hm_top.gtkw"
-[timestart] 2703000
+[timestart] 12206000
 [size] 1918 1179
 [pos] -1 -1
-*-19.195335 3470000 388000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-18.195335 12882000 388000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.hm_top.
 [sst_width] 271
@@ -31,7 +31,7 @@ main.hm_top.irq
 main.hm_top.event_end
 @1401200
 -csr
-@800200
+@c00200
 -wishbone
 @28
 main.hm_top.wb_ack_o
@@ -49,9 +49,9 @@ main.hm_top.wb_sel_i[3:0]
 @28
 main.hm_top.wb_stb_i
 main.hm_top.wb_we_i
-@1000200
+@1401200
 -wishbone
-@800200
+@c00200
 -hm_top
 @28
 main.hm_top.event_end
@@ -65,7 +65,6 @@ main.hm_top.irq
 main.hm_top.bar_bitmap[31:0]
 @28
 main.hm_top.state[1:0]
-main.hm_top.hm_start
 main.hm_top.hm_end
 main.hm_top.trn__hm_end
 main.hm_top.sys__hm_end
@@ -144,7 +143,6 @@ main.hm_top.hm_data[63:0]
 main.hm_top.trn_clk
 main.hm_top.tx_end
 main.hm_top.tx_start
-main.hm_top.rx_start
 @22
 main.hm_top.address[63:0]
 @28
@@ -153,7 +151,7 @@ main.hm_top.trn__tx_timeout
 main.hm_top.event_end
 main.hm_top.event_rx_timeout
 main.hm_top.event_tx_timeout
-@1000200
+@1401200
 -hm_top
 @22
 main.hm_top.\exp_m_doa[0][31:0]
@@ -209,12 +207,8 @@ main.hm_top.rx.mem_l_we
 @22
 main.hm_top.rx.offset_h[9:0]
 main.hm_top.rx.offset_l[9:0]
-@28
-main.hm_top.rx.stat_state[1:0]
-@22
 main.hm_top.rx.stat_trn_cpt_rx[31:0]
 @28
-main.hm_top.rx.state[1:0]
 main.hm_top.rx.sys_rst
 @22
 main.hm_top.rx.tlp_dw[9:0]
@@ -255,6 +249,8 @@ main.hm_top.tx.trn_tsof_n
 main.hm_top.tx.trn_tsrc_rdy_n
 main.hm_top.tx.tx_end
 main.hm_top.tx.tx_start
+@22
+main.hm_top.tx.trn_td[63:0]
 @1401200
 -hm_tx
 @c00200
@@ -268,7 +264,6 @@ main.hm_top.sync.sys__stat_trn_cpt_drop[31:0]
 main.hm_top.sync.sys__stat_trn_cpt_rx[31:0]
 main.hm_top.sync.sys__stat_trn_cpt_tx[31:0]
 @28
-main.hm_top.sync.sys__state_rx[1:0]
 main.hm_top.sync.sys__state_tx[1:0]
 main.hm_top.sync.sys__trn_lnk_up_n
 main.hm_top.sync.sys__tx_timeout
@@ -282,48 +277,41 @@ main.hm_top.sync.trn__stat_trn_cpt_rx_r[31:0]
 main.hm_top.sync.trn__stat_trn_cpt_tx[31:0]
 main.hm_top.sync.trn__stat_trn_cpt_tx_r[31:0]
 @28
-main.hm_top.sync.trn__state_rx[1:0]
-@22
-main.hm_top.sync.trn__state_rx_r[31:0]
-@28
 main.hm_top.sync.trn__state_tx[1:0]
-@22
-main.hm_top.sync.trn__state_tx_r[31:0]
-@28
 main.hm_top.sync.trn__trn_lnk_up_n
 main.hm_top.sync.trn__tx_timeout
 main.hm_top.sync.trn_clk
 @1401200
 -sync
-@800201
+@c00200
 -exp
-@29
+@28
 main.hm_top.exp.read_exp
-@23
+@22
 main.hm_top.exp.length[9:0]
-@29
+@28
 main.hm_top.exp.last_byte_read
-@23
+@22
 main.hm_top.exp.req_addr[31:0]
-@29
+@28
 main.hm_top.exp.attr[1:0]
-@23
+@22
 main.hm_top.exp.byte_count[12:0]
 main.hm_top.exp.cfg_bus_number[7:0]
 main.hm_top.exp.cfg_device_number[4:0]
-@29
+@28
 main.hm_top.exp.cfg_function_number[2:0]
-@23
+@22
 main.hm_top.exp.dw_h[31:0]
 main.hm_top.exp.dw_l[31:0]
 main.hm_top.exp.dw_sent[10:0]
-@29
+@28
 main.hm_top.exp.ep
-@23
+@22
 main.hm_top.exp.fdw[3:0]
-@29
+@28
 main.hm_top.exp.is_memory_read_request
-@23
+@22
 main.hm_top.exp.ldw[3:0]
 main.hm_top.exp.lower_addr[6:0]
 main.hm_top.exp.mem_h_addr[9:0]
@@ -332,32 +320,32 @@ main.hm_top.exp.mem_h_data_i_be[31:0]
 main.hm_top.exp.mem_l_addr[9:0]
 main.hm_top.exp.mem_l_data_i[31:0]
 main.hm_top.exp.mem_l_data_i_be[31:0]
-@29
+@28
 main.hm_top.exp.nb_fdw[2:0]
 main.hm_top.exp.nb_ldw[2:0]
-@23
+@22
 main.hm_top.exp.pci_c_id[15:0]
 main.hm_top.exp.pci_r_id[15:0]
 main.hm_top.exp.qw_sent[10:0]
 main.hm_top.exp.real_length[10:0]
-@29
+@28
 main.hm_top.exp.start_dw
-@23
+@22
 main.hm_top.exp.stat_trn_cpt_tx[15:0]
-@29
+@28
 main.hm_top.exp.state[1:0]
 main.hm_top.exp.sys_rst
-@23
+@22
 main.hm_top.exp.tag[7:0]
-@29
+@28
 main.hm_top.exp.tc[2:0]
 main.hm_top.exp.td
 main.hm_top.exp.trn_clk
 main.hm_top.exp.trn_lnk_up_n
 main.hm_top.exp.trn_rbar_hit_n[6:0]
-@23
+@22
 main.hm_top.exp.trn_rd[63:0]
-@29
+@28
 main.hm_top.exp.trn_reof_n
 main.hm_top.exp.trn_rerrfwd_n
 main.hm_top.exp.trn_reset_n
@@ -365,10 +353,10 @@ main.hm_top.exp.trn_rrem_n
 main.hm_top.exp.trn_rsof_n
 main.hm_top.exp.trn_rsrc_dsc_n
 main.hm_top.exp.trn_rsrc_rdy_n
-@23
+@22
 main.hm_top.exp.trn_tbuf_av[5:0]
 main.hm_top.exp.trn_td[63:0]
-@29
+@28
 main.hm_top.exp.trn_tdst_rdy_n
 main.hm_top.exp.trn_teof_n
 main.hm_top.exp.trn_terr_drop_n
@@ -378,7 +366,7 @@ main.hm_top.exp.trn_tsof_n
 main.hm_top.exp.trn_tsrc_dsc_n
 main.hm_top.exp.trn_tsrc_rdy_n
 main.hm_top.exp.trn_tstr_n
-@1000201
+@1401200
 -exp
 @c00200
 -bar
@@ -740,5 +728,29 @@ main.hm_top.sync.trn__bar_bitmap[31:0]
 main.hm_top.sync.sys__bar_bitmap[31:0]
 @1000200
 -sync
+@800200
+-hm_wr
+@28
+main.hm_top.wr.is_lower_4_gb
+main.hm_top.wr.trn_clk
+@22
+main.hm_top.wr.cpt[2:0]
+@28
+main.hm_top.wr.state
+@22
+main.hm_top.wr.hm_data[31:0]
+main.hm_top.wr.hm_addr[63:0]
+@28
+main.hm_top.wr.tx_start
+main.hm_top.wr.tx_end
+@23
+main.hm_top.wr.trn_td[63:0]
+@28
+main.hm_top.wr.trn_teof_n
+main.hm_top.wr.trn_tsof_n
+main.hm_top.wr.trn_tdst_rdy_n
+main.hm_top.wr.trn_trem_n
+@1000200
+-hm_wr
 [pattern_trace] 1
 [pattern_trace] 0
