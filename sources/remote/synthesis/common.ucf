@@ -3,6 +3,10 @@ NET "clkin66" LOC = U23 | IOSTANDARD = LVCMOS25;
 NET "clkin66" TNM_NET = "GRPclkin66";
 TIMESPEC "TSclkin66" = PERIOD "GRPclkin66" 15.00 ns;
 
+# ==== MPU net ====
+NET "*mpu_clk" TNM_NET = "GRPmpu_clk";
+TIMESPEC "TSmpu_clk" = PERIOD "GRPmpu_clk" 25.00 ns;
+
 # ==== UART ====
 NET "uart_rx"      LOC = J24  | IOSTANDARD = LVCMOS25 | PULLUP;
 NET "uart_tx"      LOC = J25  | IOSTANDARD = LVCMOS25 | SLEW = SLOW;
