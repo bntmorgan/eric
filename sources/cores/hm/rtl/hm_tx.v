@@ -85,11 +85,9 @@ begin
     2'b01, // Attribute : No snoop !!
     2'b0, // AT, Address type : 2'b0 Default Untranslated
     // 10'b100000000, // 256 dw requested
-    // 10'b000000000, // 1024 dw requested
-    10'b100000, // 32 dw requested XXX Max Payload Size for our root complex
-    req_id, // Requester ID
-    // 16'h1800, // Requester ID
-    // 16'h0400, // Requester ID
+    10'b000000000, // 1024 dw requested
+    // 10'b100000, // 32 dw requested XXX Max Payload Size for our root complex
+    16'h0000, // Requester ID
     8'h38, // Tag
     4'hf, // Last BE : TODO > 1 DW
     4'hf // 1st BE : TODO > 1 DW
@@ -97,9 +95,7 @@ begin
   data[1] <= 64'b0;
   stat_trn_cpt_tx <= 32'b0;
   stat_trn_cpt_drop <= 32'b0;
-  // timeout_cpt <= 32'h00000000;
-  timeout_cpt <= 16'b0;
-  timeout <= 1'b0;
+  timeout_cpt <= 32'h00000000;
 end
 endtask
 
@@ -117,13 +113,13 @@ always @(posedge trn_clk) begin
       stat_trn_cpt_drop <= stat_trn_cpt_drop + 1'b1;
     end
     if (state == `HM_TX_STATE_IDLE) begin 
-      timeout <= 1'b0;
       tx_end <= 1'b0;
-      // timeout_cpt <= 32'h00000000;
-      timeout_cpt <= 16'h0000;
+      timeout_cpt <= 32'h00000000;
       if (tx_start) begin
         state <= `HM_TX_STATE_SEND;
         trn_cyc_n <= 1'b0;
+        // Set the requester id
+        data[0][31:16] <= req_id;
         if (is_lower_4_gb) begin
           data[1][63:32] <= hm_addr[31:0];
           data[0][63:61] <= 3'b000; // fmt[2:0] = 3'b000 : 3DW header no data
@@ -166,11 +162,8 @@ always @(posedge trn_clk) begin
           cpt <= cpt + 1'b1;
         end else begin
           timeout_cpt <= timeout_cpt + 1'b1;
-          // if (timeout_cpt == 16'h000f) begin
-          if (timeout_cpt == 16'hffff) begin
-          // if (timeout_cpt == 32'hffffffff) begin
+          if (timeout_cpt == 32'h08000000) begin
             state <= `HM_TX_STATE_IDLE;
-            timeout <= 1'b1;
           end
         end
       end
