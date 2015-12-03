@@ -9,12 +9,18 @@ module main();
 
 // Inputs
 reg [63:0] hm_addr;
+reg [7:0] bus;
+reg [4:0] dev;
+reg [2:0] fun;
 
 // Outputs
 wire [63:0] hm_data;
 
 initial begin
   hm_addr <= 64'b0;
+  bus <= 8'b0;
+  dev <= 5'b0;
+  fun <= 3'b0;
 end
 
 /**
@@ -64,9 +70,9 @@ hm_top hm_top (
   .trn_rdst_rdy_n(trn_rdst_rdy_n),
   .trn_rnp_ok_n(trn_rnp_ok_n),
 
-  .cfg_bus_number(8'h01),
-  .cfg_device_number(5'b0),
-  .cfg_function_number(3'b0)
+  .cfg_bus_number(bus),
+  .cfg_device_number(dev),
+  .cfg_function_number(fun)
 );
 
 integer i;
@@ -86,6 +92,14 @@ initial begin
     $dumpvars(0,hm_top.gen_ram[1].exp_m.mem[i]);
   end
   waitnclock(8);
+
+  /**
+   * PCI init
+   */
+  bus <= 8'hff;
+  dev <= 5'b11111;
+  fun <= 3'b111;
+
 
   /**
    * Wishbone page read
@@ -329,6 +343,52 @@ initial begin
   // The memory read completion
   waitntrnclk(8);
   memory_read_completion;
+
+  // Commit the events
+  csrwrite(`HM_CSR_STAT, 32'hffffffff);
+
+  waitnclock(40);
+
+  /**
+   * Prepare hm_write
+   */
+  csrwrite(`HM_CSR_DATA, 32'hcafebabe);
+  waitnclock(8);
+
+  /**
+   * First hm_write
+   */
+
+  // Launch the a Host memory write
+  csrwrite(`HM_CSR_CTRL, 32'b100);
+
+  // Set the destination ready !
+  trn_tdst_rdy_n <= 1'b0;
+  waitntrnclk(8);
+  trn_tdst_rdy_n <= 1'b1;
+
+  // Commit the events
+  csrwrite(`HM_CSR_STAT, 32'hffffffff);
+
+  waitnclock(40);
+
+  /**
+   * Second hm_write
+   */
+
+  bus <= 8'haa;
+  dev <= 5'b10101;
+  fun <= 3'b101;
+
+  csrwrite(`HM_CSR_ADDRESS_HIGH, 32'h00000001);
+  waitnclock(8);
+  // Launch the a Host memory write
+  csrwrite(`HM_CSR_CTRL, 32'b100);
+
+  // Set the destination ready !
+  trn_tdst_rdy_n <= 1'b0;
+  waitntrnclk(8);
+  trn_tdst_rdy_n <= 1'b1;
 
   // Commit the events
   csrwrite(`HM_CSR_STAT, 32'hffffffff);

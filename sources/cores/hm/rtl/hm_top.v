@@ -72,56 +72,57 @@ module hm_top #(
 // Sys
 
 wire csr_selected = csr_a[13:10] == csr_addr;
-reg hm_start;
+reg hm_start_read;
+reg hm_start_write;
 reg event_end;
 reg event_error;
 reg event_tx_timeout;
 reg event_rx_timeout;
+reg event_wr_timeout;
 reg event_read_exp;
 reg event_write_bar;
 reg [63:0] address;
+reg [31:0] data;
 
 // IRQs
 reg irq_en;
 // assign irq = 0;
-assign irq = irq_en & (event_end | event_tx_timeout | event_rx_timeout |
-    event_read_exp | event_write_bar);
+assign irq = irq_en & (event_end | event_wr_timeout | event_tx_timeout
+| event_rx_timeout | event_read_exp | event_write_bar);
 
 wire wb_en = wb_cyc_i & wb_stb_i;
 
 // Bar bitmaps
 reg [31:0] bar_bitmap;
-// 
-// // Read tom write bar specific timer
-// reg [31:0] write_bar_delay;
-// reg [32:0] write_bar_delay_cpt;
 
 // Trn
 
 reg [1:0] state;
 reg tx_start;
-reg rx_start;
+reg wr_start;
 reg hm_end;
-reg [15:0] timeout_cpt;
+reg [31:0] timeout_cpt;
 
 wire tx_end;
 wire rx_memory_read;
+wire wr_end;
 
 task init_csr;
 begin
-  hm_start <= 1'b0;
+  hm_start_read <= 1'b0;
+  hm_start_write <= 1'b0;
   event_end <= 1'b0;
   event_rx_timeout <= 1'b0;
   event_tx_timeout <= 1'b0;
+  event_wr_timeout <= 1'b0;
   event_end <= 1'b0;
   event_read_exp <= 1'b0;
   event_write_bar <= 1'b0;
-  csr_do <= 32'd0; 
+  csr_do <= 32'd0;
   irq_en <= 1'b0;
   address <= 64'b0;
+  data <= 32'b0;
   bar_bitmap <= 32'b0;
-//   write_bar_delay <= 32'b0;
-//   write_bar_delay_cpt <= 32'b0;
 end
 endtask
 
@@ -208,6 +209,9 @@ wire sys__tx_timeout;
 reg rx_timeout;
 wire trn__rx_timeout = rx_timeout;
 wire sys__rx_timeout;
+reg wr_timeout;
+wire trn__wr_timeout = wr_timeout;
+wire sys__wr_timeout;
 wire trn__trn_lnk_up_n = trn_lnk_up_n;
 wire sys__trn_lnk_up_n;
 wire [1:0] trn__state = state;
@@ -267,15 +271,31 @@ wire m2_trn_terrfwd_n;
 wire m2_trn_tcfg_gnt_n;
 wire m2_trn_tstr_n;
 
+wire [5:0] m3_trn_tbuf_av;
+wire m3_trn_tcfg_req_n;
+wire m3_trn_terr_drop_n;
+wire m3_trn_tdst_rdy_n;
+wire m3_trn_cyc_n;
+wire [63:0] m3_trn_td;
+wire m3_trn_trem_n;
+wire m3_trn_tsof_n;
+wire m3_trn_teof_n;
+wire m3_trn_tsrc_rdy_n;
+wire m3_trn_tsrc_dsc_n;
+wire m3_trn_terrfwd_n;
+wire m3_trn_tcfg_gnt_n;
+wire m3_trn_tstr_n;
+
 task init_trn;
 begin
   state <= `HM_STATE_IDLE;
   tx_start <= 1'b0;
-  rx_start <= 1'b0;
+  wr_start <= 1'b0;
   hm_end <= 1'b0;
-  timeout_cpt <= 16'b0;
+  timeout_cpt <= 32'b0;
   rx_timeout <= 1'b0;
   tx_timeout <= 1'b0;
+  wr_timeout <= 1'b0;
 end
 endtask
 
@@ -290,28 +310,30 @@ always @(posedge sys_clk) begin
   if (sys_rst) begin
     init_csr;
   end else begin
-    // CSR 
+    // CSR
 		csr_do <= 32'd0;
-    hm_start <= 1'b0;
+    hm_start_read <= 1'b0;
+    hm_start_write <= 1'b0;
 		if (csr_selected) begin
 			case (csr_a[9:0])
-        `HM_CSR_STAT: csr_do <= {27'b0, event_write_bar, event_read_exp,
-          event_rx_timeout, event_tx_timeout, event_end};
-        `HM_CSR_CTRL: csr_do <= {29'b0, hm_start, irq_en};
+        `HM_CSR_STAT: csr_do <= {26'b0, event_wr_timeout, event_write_bar,
+          event_read_exp, event_rx_timeout, event_tx_timeout, event_end};
+        `HM_CSR_CTRL: csr_do <= {29'b0, hm_start_write, hm_start_read,
+          irq_en};
         `HM_CSR_ADDRESS_LOW: csr_do <= address[31:0];
         `HM_CSR_ADDRESS_HIGH: csr_do <= address[63:32];
         `HM_CSR_CPT_RX: csr_do <= sys__stat_trn_cpt_rx;
         `HM_CSR_CPT_TX: csr_do <= sys__stat_trn_cpt_tx;
-        `HM_CSR_STATE_RX: csr_do <= sys__state_rx;
-        `HM_CSR_STATE_TX: csr_do <= sys__state_tx;
-        `HM_CSR_STATE: csr_do <= sys__state;
+        `HM_CSR_STATE_RX: csr_do <= {29'b0, sys__state_rx};
+        `HM_CSR_STATE_TX: csr_do <= {31'b0, sys__state_tx};
+        `HM_CSR_STATE: csr_do <= {30'b0, sys__state};
         `HM_CSR_BAR_BITMAP: csr_do <= bar_bitmap;
         `HM_CSR_WRITE_BAR_NUMBER: csr_do <= {27'b0, sys__write_bar_number};
-//         `HM_CSR_WRITE_BAR_DELAY: csr_do <= write_bar_delay;
+        `HM_CSR_DATA: csr_do <= data[31:0];
       endcase
 			if (csr_we) begin
 				case (csr_a[9:0])
-          `HM_CSR_STAT: begin 
+          `HM_CSR_STAT: begin
             if (state == `HM_STATE_IDLE)
             begin
               /* write one to clear */
@@ -325,6 +347,8 @@ always @(posedge sys_clk) begin
                 event_read_exp <= 1'b0;
               if(csr_di[4])
                 event_write_bar <= 1'b0;
+              if(csr_di[5])
+                event_wr_timeout <= 1'b0;
             end
           end
           `HM_CSR_CTRL: begin
@@ -332,11 +356,14 @@ always @(posedge sys_clk) begin
               irq_en <= csr_di[0];
             end
             // We can only write stop when one mpu is launched
-            hm_start <= csr_di[1];
+            hm_start_read <= csr_di[1];
+            hm_start_write <= csr_di[2];
+            debug <= csr_di[3];
           end
           `HM_CSR_ADDRESS_LOW: address[31:0] <= csr_di;
           `HM_CSR_ADDRESS_HIGH: address[63:32] <= csr_di;
           `HM_CSR_BAR_BITMAP: bar_bitmap <= csr_di;
+          `HM_CSR_DATA: data <= csr_di;
         endcase
       end
     end
@@ -350,6 +377,9 @@ always @(posedge sys_clk) begin
     if (sys__tx_timeout) begin
       event_tx_timeout <= 1'b1;
     end
+    if (sys__wr_timeout) begin
+      event_wr_timeout <= 1'b1;
+    end
     if (sys__read_exp) begin
       event_read_exp <= 1'b1;
     end
@@ -359,36 +389,24 @@ always @(posedge sys_clk) begin
   end
 end
 
-// // Write bar delay state machine
-// always @(posedge sys_clk) begin
-//   if (sys__read_exp) begin
-//     write_bar_delay <= 32'b0;
-//     write_bar_delay_cpt <= 32'b0;
-//   end else if (event_write_bar) begin
-//     // we count only when event_write_bar is not asserted to give time to CPU to
-//     // read it
-//   end else begin
-//     if (write_bar_delay_cpt == CLOCK_FREQUENCY / 1e6) begin
-//       write_bar_delay <= write_bar_delay + 2'b01;
-//       write_bar_delay_cpt <= 32'b0;
-//     end
-//     write_bar_delay_cpt <= write_bar_delay_cpt + 2'b01;
-//   end
-// end
-
 // TRN state machine
 always @(posedge trn_clk) begin
   if (sys_rst | ~trn_reset_n) begin
     init_trn();
   end else begin
     tx_start <= 1'b0;
+    wr_start <= 1'b0;
     hm_end <= 1'b0;
     rx_timeout <= 1'b0;
     tx_timeout <= 1'b0;
+    wr_timeout <= 1'b0;
     if (state == `HM_STATE_IDLE) begin
-      if (hm_start == 1'b1) begin
+      if (hm_start_read == 1'b1) begin
         state <= `HM_STATE_SEND;
         tx_start <= 1'b1;
+      end else if (hm_start_write == 1'b1) begin // We cannot both R/W
+        state <= `HM_STATE_WRITE;
+        wr_start <= 1'b1;
       end
     end else if (state == `HM_STATE_SEND) begin
       if (trn__tx_timeout == 1'b1) begin
@@ -403,15 +421,20 @@ always @(posedge trn_clk) begin
         state <= `HM_STATE_IDLE;
         hm_end <= 1'b1;
       end
+    end else if (state == `HM_STATE_WRITE) begin
+      if (trn__wr_timeout == 1'b1 || wr_end == 1'b1) begin
+        state <= `HM_STATE_IDLE;
+        hm_end <= 1'b1;
+      end
     end else begin
       init_trn();
     end
     // Timeout
     if (state == `HM_STATE_IDLE) begin
-      timeout_cpt <= 16'h0000;
+      timeout_cpt <= 32'h00000000;
     end else begin
       timeout_cpt <= timeout_cpt + 1'b1;
-      if (timeout_cpt == 16'hffff) begin
+      if (timeout_cpt == 32'h08000000) begin
         state <= `HM_STATE_IDLE;
         if (state == `HM_STATE_SEND) begin
           tx_timeout <= 1'b1;
@@ -419,7 +442,10 @@ always @(posedge trn_clk) begin
         if (state == `HM_STATE_RECV) begin
           rx_timeout <= 1'b1;
         end
-        timeout_cpt <= 16'h0000;
+        if (state == `HM_STATE_WRITE) begin
+          wr_timeout <= 1'b1;
+        end
+        timeout_cpt <= 32'h00000000;
       end
     end
   end
@@ -572,6 +598,40 @@ hm_bar bar (
   .cfg_function_number(cfg_function_number)
 );
 
+// WR Engine
+hm_wr wr (
+  .sys_rst(sys_rst),
+  .tx_start(wr_start),
+  .tx_end(wr_end),
+  .hm_addr(address[63:0]),
+  .hm_data(data),
+
+  .trn_clk(trn_clk),
+  .trn_reset_n(trn_reset_n),
+  .trn_lnk_up_n(trn_lnk_up_n),
+
+  .trn_tbuf_av(m3_trn_tbuf_av),
+  .trn_terr_drop_n(m3_trn_terr_drop_n),
+  .trn_tdst_rdy_n(m3_trn_tdst_rdy_n),
+  .trn_cyc_n(m3_trn_cyc_n),
+  .trn_td(m3_trn_td),
+  .trn_trem_n(m3_trn_trem_n),
+  .trn_tsof_n(m3_trn_tsof_n),
+  .trn_teof_n(m3_trn_teof_n),
+  .trn_tsrc_rdy_n(m3_trn_tsrc_rdy_n),
+  .trn_tsrc_dsc_n(m3_trn_tsrc_dsc_n),
+  .trn_terrfwd_n(m3_trn_terrfwd_n),
+  .trn_tstr_n(m3_trn_tstr_n),
+
+  .cfg_bus_number(cfg_bus_number),
+  .cfg_device_number(cfg_device_number),
+  .cfg_function_number(cfg_function_number),
+
+  .stat_trn_cpt_tx(),
+  .stat_state(),
+  .stat_trn_cpt_drop()
+);
+
 // TRN Conbus
 hm_conbus5 conbus5(
   .trn_clk(trn_clk),
@@ -620,18 +680,18 @@ hm_conbus5 conbus5(
   .m2_trn_tstr_n(m2_trn_tstr_n),
 	
 	// Master 3 Interface
-  .m3_trn_tbuf_av(),
-  .m3_trn_terr_drop_n(),
-  .m3_trn_tdst_rdy_n(),
-  .m3_trn_cyc_n(1'b1),
-  .m3_trn_td(64'bx),
-  .m3_trn_trem_n(1'bx),
-  .m3_trn_tsof_n(1'bx),
-  .m3_trn_teof_n(1'bx),
-  .m3_trn_tsrc_rdy_n(1'bx),
-  .m3_trn_tsrc_dsc_n(1'bx),
-  .m3_trn_terrfwd_n(1'bx),
-  .m3_trn_tstr_n(1'bx),
+  .m3_trn_tbuf_av(m3_trn_tbuf_av),
+  .m3_trn_terr_drop_n(m3_trn_terr_drop_n),
+  .m3_trn_tdst_rdy_n(m3_trn_tdst_rdy_n),
+  .m3_trn_cyc_n(m3_trn_cyc_n),
+  .m3_trn_td(m3_trn_td),
+  .m3_trn_trem_n(m3_trn_trem_n),
+  .m3_trn_tsof_n(m3_trn_tsof_n),
+  .m3_trn_teof_n(m3_trn_teof_n),
+  .m3_trn_tsrc_rdy_n(m3_trn_tsrc_rdy_n),
+  .m3_trn_tsrc_dsc_n(m3_trn_tsrc_dsc_n),
+  .m3_trn_terrfwd_n(m3_trn_terrfwd_n),
+  .m3_trn_tstr_n(m3_trn_tstr_n),
 	
 	// Master 4 Interface
   .m4_trn_tbuf_av(),
@@ -670,6 +730,8 @@ hm_sync sync (
   .sys__rx_timeout(sys__rx_timeout),
   .trn__tx_timeout(trn__tx_timeout),
   .sys__tx_timeout(sys__tx_timeout),
+  .trn__wr_timeout(trn__wr_timeout),
+  .sys__wr_timeout(sys__wr_timeout),
   .trn__hm_end(trn__hm_end),
   .sys__hm_end(sys__hm_end),
   .trn__write_bar(trn__write_bar),

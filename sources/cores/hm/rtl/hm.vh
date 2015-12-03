@@ -25,6 +25,7 @@
 `define HM_STATE_READ_RAMB_END 2'b11
 `define HM_STATE_SEND 2'b01
 `define HM_STATE_RECV 2'b10
+`define HM_STATE_WRITE 2'b11
 
 `define HM_MR_STATE_IDLE          3'b000
 `define HM_MR_STATE_READ_ADDRESS  3'b001

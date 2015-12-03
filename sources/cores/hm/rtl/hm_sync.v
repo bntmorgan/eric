@@ -8,6 +8,9 @@ module hm_sync (
   input trn__tx_timeout,
   output sys__tx_timeout,
 
+  input trn__wr_timeout,
+  output sys__wr_timeout,
+
   input trn__hm_end,
   output sys__hm_end,
 
@@ -105,6 +108,13 @@ psync ps_tx_timeout (
 	.i(trn__tx_timeout),
 	.clk2(sys_clk),
 	.o(sys__tx_timeout)
+);
+
+psync ps_wr_timeout (
+	.clk1(trn_clk),
+	.i(trn__wr_timeout),
+	.clk2(sys_clk),
+	.o(sys__wr_timeout)
 );
 
 psync ps_hm_end (
