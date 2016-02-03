@@ -28,7 +28,7 @@ module system (
  
  	// GPIO
 	input [31:0] gpios,
-	output [3:0] leds,
+	output [7:0] leds,
 
 `ifdef ENABLE_SDRAM
 	// DDR SDRAM
@@ -1043,7 +1043,7 @@ wire [31:0] capabilities;
 sysctl #(
 	.csr_addr(4'h1),
 	.ninputs(32),
-	.noutputs(4),
+	.noutputs(8),
 	.clk_freq(`CLOCK_FREQUENCY),
 	.systemid(32'he51ce51c), /* 1.3.0 final (0) on M1 */
 	.fpga_family("virtex6")

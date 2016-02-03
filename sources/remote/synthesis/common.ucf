@@ -16,7 +16,11 @@ NET "leds(0)" LOC = AC22;
 NET "leds(1)" LOC = AC24;
 NET "leds(2)" LOC = AE22;
 NET "leds(3)" LOC = AE23;
-   
+NET "leds(4)" LOC = AB23;
+NET "leds(5)" LOC = AG23;
+NET "leds(6)" LOC = AE24;
+NET "leds(7)" LOC = AD24;
+
 NET "leds(*)" IOSTANDARD = LVCMOS25 | SLEW = SLOW | DRIVE = 2;
 
 # ==== Ethernet ====
