@@ -10,6 +10,7 @@
 `define HM_CSR_BAR_BITMAP          10'h009
 `define HM_CSR_WRITE_BAR_NUMBER    10'h00a
 `define HM_CSR_DATA                10'h00b
+`define HM_CSR_ID                  10'h00c
 
 `define HM_TX_STATE_IDLE 1'b0
 `define HM_TX_STATE_SEND 1'b1

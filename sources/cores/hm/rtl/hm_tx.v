@@ -11,6 +11,7 @@ module hm_tx (
   output reg tx_end,
 
   input [63:0] hm_addr,
+  input snoop,
 
   // Trn transmit interface
   input trn_clk,
@@ -82,7 +83,8 @@ begin
     8'b0, // Unspecified : TC0
 
     2'b0, // Unspecified : reserved
-    2'b01, // Attribute : No snoop !!
+    1'b0, // Attribute
+    snoop, // Attribute : No snoop !!
     2'b0, // AT, Address type : 2'b0 Default Untranslated
     // 10'b100000000, // 256 dw requested
     10'b000000000, // 1024 dw requested

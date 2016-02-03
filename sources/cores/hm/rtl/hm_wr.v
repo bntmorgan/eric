@@ -13,6 +13,7 @@ module hm_wr (
 
   input [63:0] hm_addr,
   input [31:0] hm_data,
+  input snoop,
 
   // Trn transmit interface
   input trn_clk,
@@ -87,7 +88,8 @@ begin
     8'b0, // Unspecified : TC0
 
     2'b0, // Unspecified : reserved
-    2'b01, // Attribute : No snoop !!
+    1'b0, // Attribute : No snoop !!
+    snoop, // Attribute : No snoop !!
     2'b0, // AT, Address type : 2'b0 Default Untranslated
     10'b000001, // 32 dw requested XXX Max Payload Size for our root complex
     16'h0000, // Requester ID

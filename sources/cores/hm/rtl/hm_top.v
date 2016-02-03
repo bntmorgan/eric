@@ -84,6 +84,12 @@ reg event_write_bar;
 reg [63:0] address;
 reg [31:0] data;
 reg debug;
+reg [15:0] oid;
+reg override_id;
+reg snoop;
+
+wire [15:0] id = (override_id) ? oid : {cfg_bus_number, cfg_device_number,
+  cfg_function_number};
 
 // IRQs
 reg irq_en;
@@ -125,6 +131,9 @@ begin
   data <= 32'b0;
   bar_bitmap <= 32'b0;
   debug <= 1'b0;
+  oid <= 16'b0;
+  override_id <= 1'b0;
+  snoop <= 1'b1; // No snoop by default
 end
 endtask
 
@@ -320,7 +329,8 @@ always @(posedge sys_clk) begin
 			case (csr_a[9:0])
         `HM_CSR_STAT: csr_do <= {26'b0, event_wr_timeout, event_write_bar,
           event_read_exp, event_rx_timeout, event_tx_timeout, event_end};
-        `HM_CSR_CTRL: csr_do <= {28'b0, debug, hm_start_write, hm_start_read,
+        `HM_CSR_CTRL: csr_do <= {26'b0, override_id, snoop,
+          debug, hm_start_write, hm_start_read,
           irq_en};
         `HM_CSR_ADDRESS_LOW: csr_do <= address[31:0];
         `HM_CSR_ADDRESS_HIGH: csr_do <= address[63:32];
@@ -332,6 +342,7 @@ always @(posedge sys_clk) begin
         `HM_CSR_BAR_BITMAP: csr_do <= bar_bitmap;
         `HM_CSR_WRITE_BAR_NUMBER: csr_do <= {27'b0, sys__write_bar_number};
         `HM_CSR_DATA: csr_do <= data[31:0];
+        `HM_CSR_ID: csr_do <= {16'b0, oid};
       endcase
 			if (csr_we) begin
 				case (csr_a[9:0])
@@ -361,11 +372,14 @@ always @(posedge sys_clk) begin
             hm_start_read <= csr_di[1];
             hm_start_write <= csr_di[2];
             debug <= csr_di[3];
+            snoop <= csr_di[4];
+            override_id <= csr_di[5];
           end
           `HM_CSR_ADDRESS_LOW: address[31:0] <= csr_di;
           `HM_CSR_ADDRESS_HIGH: address[63:32] <= csr_di;
           `HM_CSR_BAR_BITMAP: bar_bitmap <= csr_di;
           `HM_CSR_DATA: data <= csr_di;
+          `HM_CSR_ID: oid <= csr_di[15:0];
         endcase
       end
     end
@@ -485,6 +499,7 @@ hm_tx tx (
   .tx_start(tx_start),
   .tx_end(tx_end),
   .hm_addr({address[63:12],12'b0}),
+  .snoop(snoop),
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
   .trn_lnk_up_n(trn_lnk_up_n),
@@ -502,9 +517,9 @@ hm_tx tx (
   .trn_terrfwd_n(m0_trn_terrfwd_n),
   .trn_tstr_n(m0_trn_tstr_n),
 
-  .cfg_bus_number(cfg_bus_number),
-  .cfg_device_number(cfg_device_number),
-  .cfg_function_number(cfg_function_number),
+  .cfg_bus_number(id[15:8]),
+  .cfg_device_number(id[7:3]),
+  .cfg_function_number(id[2:0]),
 
   .stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
   .stat_state(trn__state_tx),
@@ -548,9 +563,9 @@ hm_exp exp (
   .trn_rerrfwd_n(trn_rerrfwd_n),
   .trn_rbar_hit_n(trn_rbar_hit_n),
 
-  .cfg_bus_number(cfg_bus_number),
-  .cfg_device_number(cfg_device_number),
-  .cfg_function_number(cfg_function_number)
+  .cfg_bus_number(id[15:8]),
+  .cfg_device_number(id[7:3]),
+  .cfg_function_number(id[2:0])
 );
 
 hm_bar bar (
@@ -596,9 +611,9 @@ hm_bar bar (
   .trn_rerrfwd_n(trn_rerrfwd_n),
   .trn_rbar_hit_n(trn_rbar_hit_n),
 
-  .cfg_bus_number(cfg_bus_number),
-  .cfg_device_number(cfg_device_number),
-  .cfg_function_number(cfg_function_number)
+  .cfg_bus_number(id[15:8]),
+  .cfg_device_number(id[7:3]),
+  .cfg_function_number(id[2:0])
 );
 
 // WR Engine
@@ -608,6 +623,7 @@ hm_wr wr (
   .tx_end(wr_end),
   .hm_addr(address[63:0]),
   .hm_data(data),
+  .snoop(snoop),
 
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
@@ -626,9 +642,9 @@ hm_wr wr (
   .trn_terrfwd_n(m3_trn_terrfwd_n),
   .trn_tstr_n(m3_trn_tstr_n),
 
-  .cfg_bus_number(cfg_bus_number),
-  .cfg_device_number(cfg_device_number),
-  .cfg_function_number(cfg_function_number),
+  .cfg_bus_number(id[15:8]),
+  .cfg_device_number(id[7:3]),
+  .cfg_function_number(id[2:0]),
 
   .stat_trn_cpt_tx(),
   .stat_state(),

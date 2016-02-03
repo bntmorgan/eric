@@ -20,6 +20,7 @@ module mpu_memory (
 );
 
 wire wb_en = wb_cyc_i & wb_stb_i;
+// Converts LM32 data to little Endian
 wire [31:0] wb_dat_i_le = {
   wb_dat_i[7:0],
   wb_dat_i[15:8], 
