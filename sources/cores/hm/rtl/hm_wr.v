@@ -13,7 +13,7 @@ module hm_wr (
 
   input [63:0] hm_addr,
   input [31:0] hm_data,
-  input snoop,
+  input nosnoop,
 
   // Trn transmit interface
   input trn_clk,
@@ -88,8 +88,8 @@ begin
     8'b0, // Unspecified : TC0
 
     2'b0, // Unspecified : reserved
-    1'b0, // Attribute : No snoop !!
-    snoop, // Attribute : No snoop !!
+    1'b0,
+    1'b0, // Attribute : No nosnoop !!
     2'b0, // AT, Address type : 2'b0 Default Untranslated
     10'b000001, // 32 dw requested XXX Max Payload Size for our root complex
     16'h0000, // Requester ID
@@ -114,7 +114,7 @@ end
 wire is_lower_4_gb = (hm_addr[63:0] & 64'hffffffff00000000) == 64'b0;
 
 always @(posedge trn_clk) begin
-  if (sys_rst == 1'b1 || trn_reset_n == 1'b0) begin
+  if (sys_rst == 1'b1 || trn_reset_n == 1'b0 || trn_lnk_up_n == 1'b1) begin
     init();
   end else begin
     if (trn_terr_drop_n == 1'b0) begin
@@ -129,6 +129,7 @@ always @(posedge trn_clk) begin
         trn_cyc_n <= 1'b0;
         // Set the requester id
         data[0][31:16] <= req_id;
+        data[0][44] <= nosnoop;
         if (is_lower_4_gb) begin
           data[1][31:0] <= hm_data[31:0];
           data[1][63:32] <= {hm_addr[31:2], 2'b0};
@@ -137,6 +138,8 @@ always @(posedge trn_clk) begin
         end else begin
           data[2][63:32] <= hm_data[31:0];
           data[1][63:0] <= {hm_addr[63:2], 2'b0};
+          // XXX YOLOL
+          // data[1][63:0] <= {64'h40b157010};
           data[0][61] <= 1'b1; // fmt[0] = 1'b1 : 4DW header no data
           dw_to_send <= 3'h5;
         end

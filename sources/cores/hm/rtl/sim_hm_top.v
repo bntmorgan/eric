@@ -100,7 +100,6 @@ initial begin
   dev <= 5'b11111;
   fun <= 3'b111;
 
-
   /**
    * Wishbone page read
    */
@@ -392,6 +391,22 @@ initial begin
 
   // Commit the events
   csrwrite(`HM_CSR_STAT, 32'hffffffff);
+
+  waitnclock(40);
+
+  // WRITE LOCK TEST
+  csrwrite(`HM_CSR_ADDRESS_LOW, 32'h0b157010);
+  csrwrite(`HM_CSR_ADDRESS_HIGH, 32'h00000004);
+
+  // Launch the a Host locked memory write
+  csrwrite(`HM_CSR_CTRL, 32'b1000100);
+
+  // Wait for some extra clocks cycles with tdst ready for iommu pwn
+  trn_tdst_rdy_n <= 1'b0;
+  waitnclock(80);
+
+  csrwrite(`HM_CSR_CTRL, 32'b000);
+  trn_tdst_rdy_n <= 1'b0;
 
   waitnclock(40);
 

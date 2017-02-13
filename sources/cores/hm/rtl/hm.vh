@@ -11,6 +11,10 @@
 `define HM_CSR_WRITE_BAR_NUMBER    10'h00a
 `define HM_CSR_DATA                10'h00b
 `define HM_CSR_ID                  10'h00c
+`define HM_CSR_RX_TLP_DW           10'h00d
+`define HM_CSR_CPT_TX_DROP         10'h00e
+`define HM_CSR_TX_ERROR            10'h00f
+`define HM_CSR_CPT_TX_START        10'h010
 
 `define HM_TX_STATE_IDLE 1'b0
 `define HM_TX_STATE_SEND 1'b1
@@ -29,10 +33,13 @@
 `define HM_STATE_RECV 2'b10
 `define HM_STATE_WRITE 2'b11
 
-`define HM_MR_STATE_IDLE          3'b000
-`define HM_MR_STATE_READ_ADDRESS  3'b001
-`define HM_MR_STATE_SEND          3'b010
-`define HM_MR_STATE_WRITE_ADDRESS 3'b011
-`define HM_MR_STATE_RECV          3'b100
+`define HM_MR_STATE_IDLE           3'b000
+`define HM_MR_STATE_READ_ADDRESS   3'b001
+`define HM_MR_STATE_SEND           3'b010
+`define HM_MR_STATE_WRITE_ADDRESS  3'b011
+`define HM_MR_STATE_RECV           3'b100
 
 `define HM_TX_DW_TO_SEND 2'b10
+
+`define HM_TX_ERROR_OK             32'h00000001
+`define HM_TX_ERROR_NO_RDY         32'h00000010

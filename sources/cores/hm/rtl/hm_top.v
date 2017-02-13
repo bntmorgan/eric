@@ -74,6 +74,7 @@ module hm_top #(
 wire csr_selected = csr_a[13:10] == csr_addr;
 reg hm_start_read;
 reg hm_start_write;
+reg hm_lock_write;
 reg event_end;
 reg event_error;
 reg event_tx_timeout;
@@ -86,7 +87,7 @@ reg [31:0] data;
 reg debug;
 reg [15:0] oid;
 reg override_id;
-reg snoop;
+reg nosnoop;
 
 wire [15:0] id = (override_id) ? oid : {cfg_bus_number, cfg_device_number,
   cfg_function_number};
@@ -118,6 +119,7 @@ task init_csr;
 begin
   hm_start_read <= 1'b0;
   hm_start_write <= 1'b0;
+  hm_lock_write <= 1'b0;
   event_end <= 1'b0;
   event_rx_timeout <= 1'b0;
   event_tx_timeout <= 1'b0;
@@ -133,7 +135,7 @@ begin
   debug <= 1'b0;
   oid <= 16'b0;
   override_id <= 1'b0;
-  snoop <= 1'b1; // No snoop by default
+  nosnoop <= 1'b1; // No snoop by default
 end
 endtask
 
@@ -157,6 +159,8 @@ wire [3:0] read_m_wea [1:0];
 wire [31:0] read_m_dib [1:0];
 wire [9:0] read_m_addrb [1:0];
 wire [3:0] read_m_web [1:0];
+
+wire [31:0] read_m_hm_dob[1:0];
 
 // Memory Expansion ROM
 
@@ -198,10 +202,16 @@ wire [31:0] trn__stat_trn_cpt_rx;
 wire [31:0] sys__stat_trn_cpt_rx;
 wire [2:0] trn__state_rx;
 wire [2:0] sys__state_rx;
+wire [31:0] trn__rx_tlp_dw;
+wire [31:0] sys__rx_tlp_dw;
 wire [1:0] trn__state_tx;
 wire [1:0] sys__state_tx;
-wire [31:0] trn__stat_trn_cpt_drop;
-wire [31:0] sys__stat_trn_cpt_drop;
+wire [31:0] trn__stat_trn_cpt_tx_drop;
+wire [31:0] sys__stat_trn_cpt_tx_drop;
+wire [31:0] trn__stat_trn_cpt_tx_start;
+wire [31:0] sys__stat_trn_cpt_tx_start;
+wire [31:0] trn__tx_error;
+wire [31:0] sys__tx_error;
 wire trn__hm_end = hm_end;
 wire sys__hm_end;
 wire read_exp;
@@ -227,6 +237,8 @@ wire trn__trn_lnk_up_n = trn_lnk_up_n;
 wire sys__trn_lnk_up_n;
 wire [1:0] trn__state = state;
 wire [1:0] sys__state;
+wire sys__hm_start_read = hm_start_read;
+wire trn__hm_start_read;
 
 // TX TRN bus sharing
 
@@ -329,9 +341,8 @@ always @(posedge sys_clk) begin
 			case (csr_a[9:0])
         `HM_CSR_STAT: csr_do <= {26'b0, event_wr_timeout, event_write_bar,
           event_read_exp, event_rx_timeout, event_tx_timeout, event_end};
-        `HM_CSR_CTRL: csr_do <= {26'b0, override_id, snoop,
-          debug, hm_start_write, hm_start_read,
-          irq_en};
+        `HM_CSR_CTRL: csr_do <= {25'b0, hm_lock_write, override_id, nosnoop,
+          debug, hm_start_write, hm_start_read, irq_en};
         `HM_CSR_ADDRESS_LOW: csr_do <= address[31:0];
         `HM_CSR_ADDRESS_HIGH: csr_do <= address[63:32];
         `HM_CSR_CPT_RX: csr_do <= sys__stat_trn_cpt_rx;
@@ -343,6 +354,10 @@ always @(posedge sys_clk) begin
         `HM_CSR_WRITE_BAR_NUMBER: csr_do <= {27'b0, sys__write_bar_number};
         `HM_CSR_DATA: csr_do <= data[31:0];
         `HM_CSR_ID: csr_do <= {16'b0, oid};
+        `HM_CSR_RX_TLP_DW: csr_do <= {sys__rx_tlp_dw};
+        `HM_CSR_CPT_TX_DROP: csr_do <= {sys__stat_trn_cpt_tx_drop};
+        `HM_CSR_TX_ERROR: csr_do <= {sys__tx_error};
+        `HM_CSR_CPT_TX_START: csr_do <= {sys__stat_trn_cpt_tx_start};
       endcase
 			if (csr_we) begin
 				case (csr_a[9:0])
@@ -368,12 +383,12 @@ always @(posedge sys_clk) begin
             if (state == `HM_STATE_IDLE) begin
               irq_en <= csr_di[0];
             end
-            // We can only write stop when one mpu is launched
             hm_start_read <= csr_di[1];
             hm_start_write <= csr_di[2];
             debug <= csr_di[3];
-            snoop <= csr_di[4];
+            nosnoop <= csr_di[4];
             override_id <= csr_di[5];
+            hm_lock_write <= csr_di[6];
           end
           `HM_CSR_ADDRESS_LOW: address[31:0] <= csr_di;
           `HM_CSR_ADDRESS_HIGH: address[63:32] <= csr_di;
@@ -411,13 +426,15 @@ always @(posedge trn_clk) begin
     init_trn();
   end else begin
     tx_start <= 1'b0;
-    wr_start <= 1'b0;
+    if (hm_lock_write == 1'b0) begin
+      wr_start <= 1'b0;
+    end
     hm_end <= 1'b0;
     rx_timeout <= 1'b0;
     tx_timeout <= 1'b0;
     wr_timeout <= 1'b0;
     if (state == `HM_STATE_IDLE) begin
-      if (hm_start_read == 1'b1) begin
+      if (trn__hm_start_read == 1'b1) begin
         state <= `HM_STATE_SEND;
         tx_start <= 1'b1;
       end else if (hm_start_write == 1'b1) begin // We cannot both R/W
@@ -450,7 +467,7 @@ always @(posedge trn_clk) begin
       timeout_cpt <= 32'h00000000;
     end else begin
       timeout_cpt <= timeout_cpt + 1'b1;
-      if (timeout_cpt == 32'h08000000) begin
+      if (timeout_cpt == 32'h20000000) begin
         state <= `HM_STATE_IDLE;
         if (state == `HM_STATE_SEND) begin
           tx_timeout <= 1'b1;
@@ -490,6 +507,7 @@ hm_rx rx (
   .trn_rbar_hit_n(trn_rbar_hit_n),
   .stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
   .stat_state(trn__state_rx),
+  .tlp_dw_g(trn__rx_tlp_dw),
   .sys_dgb_mode(debug) // Catch all the TLPs in rx
 );
 
@@ -499,7 +517,7 @@ hm_tx tx (
   .tx_start(tx_start),
   .tx_end(tx_end),
   .hm_addr({address[63:12],12'b0}),
-  .snoop(snoop),
+  .nosnoop(nosnoop),
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
   .trn_lnk_up_n(trn_lnk_up_n),
@@ -523,7 +541,9 @@ hm_tx tx (
 
   .stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
   .stat_state(trn__state_tx),
-  .stat_trn_cpt_drop(trn__stat_trn_cpt_drop)
+  .stat_trn_cpt_tx_drop(trn__stat_trn_cpt_tx_drop),
+  .stat_trn_cpt_tx_start(trn__stat_trn_cpt_tx_start),
+  .error(trn__tx_error)
 );
 
 hm_exp exp (
@@ -623,7 +643,7 @@ hm_wr wr (
   .tx_end(wr_end),
   .hm_addr(address[63:0]),
   .hm_data(data),
-  .snoop(snoop),
+  .nosnoop(nosnoop),
 
   .trn_clk(trn_clk),
   .trn_reset_n(trn_reset_n),
@@ -764,17 +784,25 @@ hm_sync sync (
   .trn__trn_lnk_up_n(trn__trn_lnk_up_n),
   .sys__trn_lnk_up_n(sys__trn_lnk_up_n),
   .trn__state_rx(trn__state_rx),
-  .sys__state_rx (sys__state_rx ),
+  .sys__state_rx(sys__state_rx),
+  .trn__rx_tlp_dw(trn__rx_tlp_dw),
+  .sys__rx_tlp_dw(sys__rx_tlp_dw),
   .trn__state_tx(trn__state_tx),
   .sys__state_tx(sys__state_tx),
   .trn__stat_trn_cpt_tx(trn__stat_trn_cpt_tx),
   .sys__stat_trn_cpt_rx(sys__stat_trn_cpt_rx),
   .trn__stat_trn_cpt_rx(trn__stat_trn_cpt_rx),
   .sys__stat_trn_cpt_tx(sys__stat_trn_cpt_tx),
-  .trn__stat_trn_cpt_drop(trn__stat_trn_cpt_drop),
-  .sys__stat_trn_cpt_drop(sys__stat_trn_cpt_drop),
+  .trn__stat_trn_cpt_tx_drop(trn__stat_trn_cpt_tx_drop),
+  .sys__stat_trn_cpt_tx_drop(sys__stat_trn_cpt_tx_drop),
+  .trn__stat_trn_cpt_tx_start(trn__stat_trn_cpt_tx_start),
+  .sys__stat_trn_cpt_tx_start(sys__stat_trn_cpt_tx_start),
+  .trn__tx_error(trn__tx_error),
+  .sys__tx_error(sys__tx_error),
   .trn__state(trn__state),
-  .sys__state(sys__state)
+  .sys__state(sys__state),
+  .sys__hm_start_read(sys__hm_start_read),
+  .trn__hm_start_read(trn__hm_start_read)
 );
 
 // Memory HM read
@@ -783,10 +811,10 @@ assign read_m_web[0] = (read_mem_l_we == 1'b1) ? 4'b1111 : 4'b0000;
 assign read_m_web[1] = (read_mem_h_we == 1'b1) ? 4'b1111 : 4'b0000;
 assign read_m_addrb[0] = read_mem_l_addr;
 assign read_m_addrb[1] = read_mem_h_addr;
-assign hm_data [63:0] = {read_m_doa[1][31:0], read_m_doa[0][31:0]};
+assign read_m_addra[0] = wb_adr_i[11:3];
+assign read_m_addra[1] = wb_adr_i[11:3];
 
-assign read_m_addra[0] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
-assign read_m_addra[1] = (wb_en == 1'b1) ? wb_adr_i[11:3] : hm_addr[11:3];
+assign hm_data [63:0] = {read_m_hm_dob[1][31:0], read_m_hm_dob[0][31:0]};
 
 assign read_m_dia[0] = {
   wb_dat_i[7:0],
@@ -904,6 +932,42 @@ begin: gen_ram
 		.INIT_B(9'h000),
 		.WRITE_MODE_A("WRITE_FIRST"),
 		.WRITE_MODE_B("WRITE_FIRST")
+	) read_ram_hm (
+		.DIA(read_m_dia[ram_index]),
+		.DIPA(4'h0),
+		.DOA(),
+		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}),
+		.WEA(read_m_wea[ram_index]),
+		.ENA(1'b1),
+		.CLKA(sys_clk),
+		
+    // wire here hm_addr and data yolol <3
+		.DIB(32'b0),
+		.DIPB(4'h0),
+		.DOB(read_m_hm_dob[ram_index]),
+		.ADDRB({1'b0, hm_addr[11:3], 5'b0}),
+		.WEB(4'b0),
+		.ENB(1'b1),
+		.CLKB(trn_clk),
+
+		.REGCEA(1'b0),
+		.REGCEB(1'b0),
+		
+		.SSRA(1'b0),
+		.SSRB(1'b0)
+	);
+	RAMB36 #(
+		.WRITE_WIDTH_A(36),
+		.READ_WIDTH_A(36),
+		.WRITE_WIDTH_B(36),
+		.READ_WIDTH_B(36),
+		.DOA_REG(0),
+		.DOB_REG(0),
+		.SIM_MODE("SAFE"),
+		.INIT_A(9'h000),
+		.INIT_B(9'h000),
+		.WRITE_MODE_A("WRITE_FIRST"),
+		.WRITE_MODE_B("WRITE_FIRST")
 	) exp_ram (
 		.DIA(exp_m_dia[ram_index]),
 		.DIPA(4'h0),
@@ -979,6 +1043,19 @@ begin: gen_ram
 		.DOB(),
 		.ADDRB({1'b0, read_m_addrb[ram_index][9:0], 5'b0}),
     .WEB(read_m_web[ram_index]),
+		.CLKB(trn_clk)
+  );
+  hm_memory_32 read_m_hm (
+		.DIA(read_m_dia[ram_index]),
+		.DOA(),
+		.ADDRA({1'b0, read_m_addra[ram_index], 5'b0}),
+		.WEA(read_m_wea[ram_index]),
+		.CLKA(sys_clk),
+		
+		.DIB(32'b0),
+		.DOB(read_m_hm_dob[ram_index]),
+		.ADDRB({1'b0, 10'b0, 5'b0}),
+    .WEB(4'b0),
 		.CLKB(trn_clk)
   );
   hm_memory_32 exp_m (

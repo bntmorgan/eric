@@ -34,6 +34,7 @@ module hm_rx (
   input sys_dgb_mode,
 
   // User statistics counters ans status
+  output reg [31:0] tlp_dw_g,
   output reg [31:0] stat_trn_cpt_rx,
   output [2:0] stat_state
 );
@@ -45,8 +46,8 @@ module hm_rx (
 reg [2:0] state;
 reg [9:0] offset_l;
 reg [9:0] offset_h;
-reg [11:0] byte_count; 
-reg [9:0] length; 
+reg [11:0] byte_count;
+reg [9:0] length;
 reg [9:0] tlp_dw;
 
 wire [1:0] fmt = trn_rd[62:61];
@@ -121,13 +122,14 @@ endtask
 task init;
 begin
   state <= `HM_RX_STATE_IDLE;
-  stat_trn_cpt_rx <= 32'b0;
   byte_count <= 12'b0;
   length <= 10'b0;
   tlp_dw <= 10'b0;
   rx_memory_read <= 1'b0;
   write_init_l;
   write_init_h;
+  tlp_dw_g <= 32'b0;
+  stat_trn_cpt_rx <= 32'b0;
 end
 endtask
 
@@ -137,9 +139,16 @@ end
 
 // dw_l & dw_h are reversed because of the xilinx v6 trn interface endianess
 always @(posedge trn_clk) begin
-  if (sys_rst == 1'b1 || trn_reset_n == 1'b0 || state == `HM_RX_STATE_RESET)
-  begin
+  if (sys_rst == 1'b1 || trn_reset_n == 1'b0) begin
     init();
+  end else if (state == `HM_RX_STATE_RESET) begin
+    state <= `HM_RX_STATE_IDLE;
+    byte_count <= 12'b0;
+    length <= 10'b0;
+    tlp_dw <= 10'b0;
+    rx_memory_read <= 1'b0;
+    write_init_l;
+    write_init_h;
   end else begin
     rx_memory_read <= 1'b0;
     if (state == `HM_RX_STATE_IDLE) begin
@@ -180,7 +189,6 @@ always @(posedge trn_clk) begin
       if (trn_rsrc_rdy_n == 1'b0 && trn_reof_n == 1'b0) begin
         // We wait again a memory read completion
         state <= `HM_RX_STATE_IDLE;
-        stat_trn_cpt_rx <= stat_trn_cpt_rx + 1'b1;
       end
     end else if (state == `HM_RX_STATE_RECV) begin
       // Memory read completion is finished !!
@@ -197,22 +205,27 @@ always @(posedge trn_clk) begin
         if (offset_l ~^ offset_h) begin // a + b mod 2 == 0 ?
           if (!trn_rrem_n) begin
             write_mem_l(dw_l);
+            tlp_dw_g <= tlp_dw_g + 2'b10;
           end else begin
             no_write_mem_l();
+            tlp_dw_g <= tlp_dw_g + 1'b1;
           end
           write_mem_h(dw_h);
         end else begin
           write_mem_l(dw_h);
           if (!trn_rrem_n) begin
             write_mem_h(dw_l);
+            tlp_dw_g <= tlp_dw_g + 2'b10;
           end else begin
             no_write_mem_h();
+            tlp_dw_g <= tlp_dw_g + 1'b1;
           end
         end
       end else if (trn_rsrc_rdy_n == 1'b0) begin
         // First memory write
         if (tlp_dw == 10'b0) begin
           tlp_dw <= tlp_dw + 1'b1;
+          tlp_dw_g <= tlp_dw_g + 1'b1;
           if (offset_l ~^ offset_h) begin // a + b mod 2 == 0 ?
             write_mem_l(dw_l);
             no_write_mem_h();
@@ -222,7 +235,7 @@ always @(posedge trn_clk) begin
           end
         // Other memry writes
         end else begin
-          tlp_dw <= tlp_dw + 2'b10;
+          tlp_dw_g <= tlp_dw_g + 2'b10;
           if (offset_l ~^ offset_h) begin // a + b mod 2 == 0 ?
             write_mem_l(dw_l);
             write_mem_h(dw_h);

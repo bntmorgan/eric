@@ -11,7 +11,7 @@ module hm_tx (
   output reg tx_end,
 
   input [63:0] hm_addr,
-  input snoop,
+  input nosnoop,
 
   // Trn transmit interface
   input trn_clk,
@@ -32,7 +32,9 @@ module hm_tx (
 
   // User statistics counters ans status
   output reg [31:0] stat_trn_cpt_tx,
-  output reg [31:0] stat_trn_cpt_drop,
+  output reg [31:0] stat_trn_cpt_tx_start,
+  output reg [31:0] stat_trn_cpt_tx_drop,
+  output reg [31:0] error,
   output [1:0] stat_state,
 
   // Requester ID sharing
@@ -84,7 +86,7 @@ begin
 
     2'b0, // Unspecified : reserved
     1'b0, // Attribute
-    snoop, // Attribute : No snoop !!
+    1'b0, // Attribute : No snoop !!
     2'b0, // AT, Address type : 2'b0 Default Untranslated
     // 10'b100000000, // 256 dw requested
     10'b000000000, // 1024 dw requested
@@ -96,8 +98,10 @@ begin
   };
   data[1] <= 64'b0;
   stat_trn_cpt_tx <= 32'b0;
-  stat_trn_cpt_drop <= 32'b0;
+  stat_trn_cpt_tx_drop <= 32'b0;
+  stat_trn_cpt_tx_start <= 32'b0;
   timeout_cpt <= 32'h00000000;
+  error <= 32'b0;
 end
 endtask
 
@@ -112,16 +116,18 @@ always @(posedge trn_clk) begin
     init();
   end else begin
     if (trn_terr_drop_n == 1'b0) begin
-      stat_trn_cpt_drop <= stat_trn_cpt_drop + 1'b1;
+      stat_trn_cpt_tx_drop <= stat_trn_cpt_tx_drop + 1'b1;
     end
     if (state == `HM_TX_STATE_IDLE) begin 
       tx_end <= 1'b0;
       timeout_cpt <= 32'h00000000;
-      if (tx_start) begin
+      if (tx_start == 1'b1) begin
         state <= `HM_TX_STATE_SEND;
+        error <= 32'b0;
         trn_cyc_n <= 1'b0;
         // Set the requester id
         data[0][31:16] <= req_id;
+        data[0][44] <= nosnoop;
         if (is_lower_4_gb) begin
           data[1][63:32] <= hm_addr[31:0];
           data[0][63:61] <= 3'b000; // fmt[2:0] = 3'b000 : 3DW header no data
@@ -129,6 +135,7 @@ always @(posedge trn_clk) begin
           data[1][63:0] <= hm_addr[63:0];
           data[0][63:61] <= 3'b001; // fmt[2:0] = 3'b001 : 4DW header no data
         end
+        stat_trn_cpt_tx_start <= stat_trn_cpt_tx_start + 1'b1;
       end
     end else begin
       if (cpt == `HM_TX_DW_TO_SEND) begin
@@ -141,6 +148,7 @@ always @(posedge trn_clk) begin
         trn_trem_n <= 1'b1;
         trn_td <= 64'b0;
         stat_trn_cpt_tx <= stat_trn_cpt_tx + 1'b1;
+        error <= `HM_TX_ERROR_OK;
       end else begin
         trn_tsrc_rdy_n <= 1'b0;
         if (trn_tdst_rdy_n == 1'b0) begin 
@@ -162,12 +170,16 @@ always @(posedge trn_clk) begin
           // set the data
           trn_td <= data[cpt];
           cpt <= cpt + 1'b1;
-        end else begin
-          timeout_cpt <= timeout_cpt + 1'b1;
-          if (timeout_cpt == 32'h08000000) begin
-            state <= `HM_TX_STATE_IDLE;
+        end
+        if (timeout_cpt == 32'h20000000) begin
+          state <= `HM_TX_STATE_IDLE;
+          // Set error code
+          // Transmit is still not ready...
+          if (trn_tdst_rdy_n == 1'b1) begin
+            error <= error | `HM_TX_ERROR_NO_RDY;
           end
         end
+        timeout_cpt <= timeout_cpt + 1'b1;
       end
     end
   end

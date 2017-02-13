@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
-[*] Tue Dec  1 14:47:35 2015
+[*] Wed Feb  3 16:15:56 2016
 [*]
-[dumpfile] "/home/bmorgan/Documents/laas/eric/eric/binary/cores/hm/hm_top.sim.vcd"
-[dumpfile_mtime] "Tue Dec  1 14:47:14 2015"
-[dumpfile_size] 459687
-[savefile] "/home/bmorgan/Documents/laas/eric/eric/gtkwave/hm_top.gtkw"
-[timestart] 12206000
+[dumpfile] "/home/bmorgan/documents/laas/eric/eric/binary/cores/hm/hm_top.sim.vcd"
+[dumpfile_mtime] "Wed Feb  3 16:01:53 2016"
+[dumpfile_size] 460913
+[savefile] "/home/bmorgan/documents/laas/eric/eric/gtkwave/hm_top.gtkw"
+[timestart] 12528000
 [size] 1918 1179
 [pos] -1 -1
-*-18.195335 12882000 388000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-18.195335 12557000 388000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.hm_top.
 [sst_width] 271
@@ -368,7 +368,7 @@ main.hm_top.exp.trn_tsrc_rdy_n
 main.hm_top.exp.trn_tstr_n
 @1401200
 -exp
-@c00200
+@800200
 -bar
 @c00022
 main.hm_top.bar.bar_bitmap[31:0]
@@ -489,7 +489,7 @@ main.hm_top.bar.trn_tsrc_rdy_n
 main.hm_top.bar.trn_tstr_n
 main.hm_top.bar.trn_cyc_n
 main.hm_top.bar.state[2:0]
-@1401200
+@1000200
 -bar
 @c00200
 -conbus
@@ -728,9 +728,43 @@ main.hm_top.sync.trn__bar_bitmap[31:0]
 main.hm_top.sync.sys__bar_bitmap[31:0]
 @1000200
 -sync
-@800200
+@c00200
 -hm_wr
+@22
+main.hm_top.wr.cfg_bus_number[7:0]
+main.hm_top.wr.cfg_device_number[4:0]
+@c00028
+main.hm_top.wr.cfg_function_number[2:0]
 @28
+(0)main.hm_top.wr.cfg_function_number[2:0]
+(1)main.hm_top.wr.cfg_function_number[2:0]
+(2)main.hm_top.wr.cfg_function_number[2:0]
+@1401200
+-group_end
+@c00022
+main.hm_top.wr.req_id[15:0]
+@28
+(0)main.hm_top.wr.req_id[15:0]
+(1)main.hm_top.wr.req_id[15:0]
+(2)main.hm_top.wr.req_id[15:0]
+(3)main.hm_top.wr.req_id[15:0]
+(4)main.hm_top.wr.req_id[15:0]
+(5)main.hm_top.wr.req_id[15:0]
+(6)main.hm_top.wr.req_id[15:0]
+(7)main.hm_top.wr.req_id[15:0]
+(8)main.hm_top.wr.req_id[15:0]
+(9)main.hm_top.wr.req_id[15:0]
+(10)main.hm_top.wr.req_id[15:0]
+(11)main.hm_top.wr.req_id[15:0]
+(12)main.hm_top.wr.req_id[15:0]
+(13)main.hm_top.wr.req_id[15:0]
+(14)main.hm_top.wr.req_id[15:0]
+(15)main.hm_top.wr.req_id[15:0]
+@1401200
+-group_end
+@28
+main.hm_top.wr.snoop
+main.hm_top.wr.tx_start
 main.hm_top.wr.is_lower_4_gb
 main.hm_top.wr.trn_clk
 @22
@@ -743,14 +777,180 @@ main.hm_top.wr.hm_addr[63:0]
 @28
 main.hm_top.wr.tx_start
 main.hm_top.wr.tx_end
-@23
+@c00022
 main.hm_top.wr.trn_td[63:0]
+@200
+-fmt
+@28
+[color] 3
++{main.hm_top.wr.trn_td[63]} (0)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(1)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(2)main.hm_top.wr.trn_td[63:0]
+@200
+-type
+@28
+[color] 7
+(3)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(4)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(5)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(6)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(7)main.hm_top.wr.trn_td[63:0]
+@200
+-TC
+@28
+[color] 3
+(8)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(9)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(10)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(11)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(12)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(13)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(14)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(15)main.hm_top.wr.trn_td[63:0]
+@200
+-non specified
+@28
+[color] 7
+(16)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(17)main.hm_top.wr.trn_td[63:0]
+@200
+-attr
+@28
+[color] 3
+(18)main.hm_top.wr.trn_td[63:0]
+@200
+-snoop
+@28
+[color] 7
+(19)main.hm_top.wr.trn_td[63:0]
+@200
+-AT
+@28
+[color] 3
+(20)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(21)main.hm_top.wr.trn_td[63:0]
+@200
+-length
+@28
+[color] 7
+(22)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(23)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(24)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(25)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(26)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(27)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(28)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(29)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(30)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(31)main.hm_top.wr.trn_td[63:0]
+@200
+-REQ IQ
+@28
+[color] 3
+(32)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(33)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(34)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(35)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(36)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(37)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(38)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(39)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(40)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(41)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(42)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(43)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(44)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(45)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(46)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(47)main.hm_top.wr.trn_td[63:0]
+@200
+-TAG
+@28
+[color] 7
+(48)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(49)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(50)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(51)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(52)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(53)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(54)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(55)main.hm_top.wr.trn_td[63:0]
+@200
+-Last BE
+@28
+[color] 3
+(56)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(57)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(58)main.hm_top.wr.trn_td[63:0]
+[color] 3
+(59)main.hm_top.wr.trn_td[63:0]
+@200
+-First BE
+@28
+[color] 7
+(60)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(61)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(62)main.hm_top.wr.trn_td[63:0]
+[color] 7
+(63)main.hm_top.wr.trn_td[63:0]
+@1401200
+-group_end
 @28
 main.hm_top.wr.trn_teof_n
 main.hm_top.wr.trn_tsof_n
 main.hm_top.wr.trn_tdst_rdy_n
 main.hm_top.wr.trn_trem_n
-@1000200
+@1401200
 -hm_wr
 [pattern_trace] 1
 [pattern_trace] 0
