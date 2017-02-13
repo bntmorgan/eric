@@ -5,6 +5,12 @@ d		:= $(dir)
 # dir	:= $(d)/checker
 # include	$(dir)/rules.mk
 
+dir	:= $(d)/aes_ctr_256
+include	$(dir)/rules.mk
+#
+#dir	:= $(d)/tiny_aes
+#include	$(dir)/rules.mk
+
 dir	:= $(d)/mpu
 include	$(dir)/rules.mk
 

@@ -68,6 +68,48 @@ begin
 end
 endtask
 
+task wbcopy;
+input [31:0] address_d;
+input [31:0] address_s;
+reg [31:0] data;
+integer i;
+begin
+	wb_adr_i = address_s;
+	wb_cti_i = 3'b000;
+	wb_dat_i = 32'h0;
+	wb_sel_i = 4'hf;
+	wb_cyc_i = 1'b1;
+	wb_stb_i = 1'b1;
+	wb_we_i = 1'b0;
+	i = 0;
+	while(~wb_ack_o) begin
+		i = i+1;
+		waitclock;
+	end
+  data = wb_dat_o;
+	waitclock;
+	$display("WB read: %x=%x acked in %d clocks", address_s, wb_dat_o, i);
+	wb_adr_i = address_d;
+	wb_cti_i = 3'b000;
+	wb_dat_i = data;
+	wb_sel_i = 4'hf;
+	wb_cyc_i = 1'b1;
+	wb_stb_i = 1'b1;
+	wb_we_i = 1'b1;
+	i = 0;
+	while(~wb_ack_o) begin
+		i = i+1;
+		waitclock;
+	end
+	waitclock;
+	$display("WB Write: %x=%x acked in %d clocks", address_d, data, i);
+	wb_adr_i = 32'hx;
+	wb_cyc_i = 1'b0;
+	wb_stb_i = 1'b0;
+	wb_we_i = 1'b0;
+end
+endtask
+
 task wbread_nonblock;
 input [31:0] address;
 begin
