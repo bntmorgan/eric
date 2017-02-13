@@ -11,7 +11,7 @@ module mpu (
   // Mpu user interruptions
   output user_irq,
   output [63:0] user_data,
-  
+
   // Data bus Memory to check, clock might be async so we acknoledge the data
   // receive
   output [63:0] hm_addr,

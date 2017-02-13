@@ -83,7 +83,7 @@ assign user_data = op_o0;
  * Write register access
  */
 assign w_idx = op_idx0;
-assign w_data = 
+assign w_data =
   (op_op == `MPU_OP_MLOAD) ? hm_data :
   (op_op == `MPU_OP_ADD) ? op_res :
   (op_op == `MPU_OP_HAMM) ? op_res :

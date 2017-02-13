@@ -33,7 +33,7 @@ assign ram_adr_5_o = ram_adr[5];
 assign ram_adr_6_o = ram_adr[6];
 assign ram_adr_7_o = ram_adr[7];
 
-assign i_data_o = 
+assign i_data_o =
   (i_addr_mod8 == 0) ? {ram_dat_5_i, ram_dat_4_i, ram_dat_3_i, ram_dat_2_i,
     ram_dat_1_i, ram_dat_0_i} :
   (i_addr_mod8 == 1) ? {ram_dat_6_i, ram_dat_5_i, ram_dat_4_i, ram_dat_3_i,
@@ -52,9 +52,9 @@ assign i_data_o =
     ram_dat_0_i, ram_dat_7_i};
 
 genvar ram_index;
-generate for (ram_index=0; ram_index < 8; ram_index=ram_index+1) 
+generate for (ram_index=0; ram_index < 8; ram_index=ram_index+1)
 begin: gen_conv
-  assign ram_adr[ram_index] = (i_addr_i + (7 - ram_index)) >> 3;  
+  assign ram_adr[ram_index] = (i_addr_i + (7 - ram_index)) >> 3;
 end
 endgenerate
 

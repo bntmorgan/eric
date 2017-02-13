@@ -20,7 +20,7 @@ module mpu_top #(
 	input wb_cyc_i,
 	output wb_ack_o,
 	input wb_we_i,
-  
+
   // Host memory bus
   output [63:0] hm_addr,
   input [63:0] hm_data,
