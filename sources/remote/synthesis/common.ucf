@@ -4,12 +4,22 @@ NET "clkin66" TNM_NET = "GRPclkin66";
 TIMESPEC "TSclkin66" = PERIOD "GRPclkin66" 15.00 ns;
 
 # ==== MPU net ====
-NET "*mpu_clk" TNM_NET = "GRPmpu_clk";
-TIMESPEC "TSmpu_clk" = PERIOD "GRPmpu_clk" 25.00 ns;
+# NET "*mpu_clk" TNM_NET = "GRPmpu_clk";
+# TIMESPEC "TSmpu_clk" = PERIOD "GRPmpu_clk" 25.00 ns;
 
 # ==== UART ====
 NET "uart_rx"      LOC = J24  | IOSTANDARD = LVCMOS25 | PULLUP;
 NET "uart_tx"      LOC = J25  | IOSTANDARD = LVCMOS25 | SLEW = SLOW;
+
+# ==== Switches ====
+# NET "gpios(0)" LOC = "D22";
+# NET "gpios(1)" LOC = "C22";
+# NET "gpios(2)" LOC = "L21";
+# NET "gpios(3)" LOC = "L20";
+# NET "gpios(4)" LOC = "C18";
+# NET "gpios(5)" LOC = "B18";
+# NET "gpios(6)" LOC = "K22";
+# NET "gpios(7)" LOC = "K21";
 
 # ==== LEDs ====
 NET "leds(0)" LOC = AC22;
