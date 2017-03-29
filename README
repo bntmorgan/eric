@@ -1,0 +1,42 @@
+eric/
+  Code HDL (Verilog) de description de l'architecture matérielle du SoC du
+  périphérique de confiance. (PCI Express, processeur de pattern matching MPU).
+
+eric_software/
+  Firmware du périphérique de confiance. Le périphérique de confiance dispose de
+  2 firmwares :
+eric_software/sources/bios/
+  un intégré dans une ROM sur le périphérique ;
+eric_software/sources/bios-sstic/
+  et un autre (re)téléchargeable a volonté au runtime, qui contient le code de
+  transmission des challenges et des tests d'environnement.
+eric_software/sources/include/base/
+  Headers de la bibliothèque C du firmware de périphérique de confiance.
+eric_software/sources/include/base/mpu.h
+  Fonctions de gestion du coprocesseur MPU.
+eric_software/sources/include/base/hm.h
+  Fonctions de gestion de l'endpoint PCI Express.
+eric_software/sources/include/base/trn.h
+  Fonctions de gestion de l'IP core Xilinx PCI Express.
+eric_software/sources/include/hw/
+  Memory map du périphérique de confiance.
+eric_software/sources/include/hw/mpu.h
+  Registres matériels du MPU.
+eric_software/sources/include/hw/hm.h
+  Registres métériels de l'endpoint PCI Express.
+eric_software/sources/include/hw/trn.h
+  Registres métériels de l'IP core Xilinx PCI Express.
+eric_software/sources/libbase/
+  Bibliothèque C du firmware de périphérique de confiance.
+eric_software/sources/libbase/mpu.c
+eric_software/sources/libbase/mpu-int.c
+  Implémentation des fonctions de gestion du MPU.
+eric_software/sources/libbase/hm.c
+  Implémentation des fonctions de gestion du endpoint PCI Express.
+eric_software/sources/libbase/trn.c
+  Implémentation des fonctions de gestion de l'IP core Xilinx PCI Express.
+
+mpu_compiler/
+  Compilateur/assembleur pour notre co processeur MPU de pattern matching.
+mpu_compiler/sample/
+  Algorithmes divers implémentés pour détecter certaines structures mémoire.
