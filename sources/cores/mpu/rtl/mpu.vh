@@ -23,7 +23,7 @@
 `define MPU_STATE_WAIT    3'h3
 
 `define MPU_CSR_CTRL              10'h000
-`define MPU_CSR_STAT              10'h001 
+`define MPU_CSR_STAT              10'h001
 `define MPU_CSR_USER_DATA_LOW     10'h002
 `define MPU_CSR_USER_DATA_HIGH    10'h003
 
